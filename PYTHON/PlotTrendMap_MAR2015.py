@@ -60,6 +60,7 @@
 # from scipy.io import netcdf
 # import matplotlib.colors as mc
 # import matplotlib.cm as mpl_cm
+# import pdb
 #
 # Other:
 # ReadNetCDFGrid - infile function to read in netCDF grid, written by Kate Willett
@@ -131,6 +132,7 @@
 # Set up is now done in bundles - easier to make sure you have all the correct file paths and info
 # Read in info for netCDF files is now part of set up rather than clumsily coded into the ReadNetCDFGrid function
 # which means you don't have to edit functions for each different file
+# Now sorts out nice colour bar index depending on data
 #  
 # Changes
 #  
@@ -164,6 +166,7 @@ from matplotlib.dates import date2num,num2date
 from scipy.io import netcdf
 import matplotlib.colors as mc
 import matplotlib.cm as mpl_cm
+import pdb	# for stopping and restarting with editability (stop is pdb.set_trace(),restart is c)
 
 # Generic things:******************************************
 
@@ -201,20 +204,19 @@ Letty=['a)','b)']
 #OUTPLOT='TrendMap_HadISDH.landq.2.0.1.2014p_'+nowmon+nowyear
 #Unit='g kg$^{-1}$'  #'degrees C'
 #Namey='HadISDH.landq.2.0.1.2014p decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
+#nlats=36	       #set once file read in
+#nlons=72	       #set once file read in
 #LatInfo=list(['latitude',nlats,-87.5])
 #LonInfo=list(['longitude',nlons,-177.5])
 #ReadInfo=list(['q_MPtrend','q_MP5th','q_MP95th'])
 #ColourMapChoice=('BrBG','noflip')
 
-
 #candidate='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
 #OUTPLOT='TrendMap_HadISDH.landRH.2.0.1.2014p_'+nowmon+nowyear
 #Unit='%rh'  
 #Namey='HadISDH.landRH.2.0.1.2014p decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
+#nlats=36	      #set once file read in
+#nlons=72	      #set once file read in
 #LatInfo=list(['latitude',nlats,-87.5])
 #LonInfo=list(['longitude',nlons,-177.5])
 #ReadInfo=list(['RH_MPtrend','RH_MP5th','RH_MP95th'])
@@ -235,8 +237,8 @@ Letty=['a)','b)']
 #OUTPLOT='TrendMap_HadISDH.landT.2.0.1.2014p_'+nowmon+nowyear
 #Unit='$^{o}$C'  #'degrees C'
 #Namey='HadISDH.landT.2.0.1.2014p decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
+#nlats=36	       #set once file read in
+#nlons=72	       #set once file read in
 #LatInfo=list(['latitude',nlats,-87.5])
 #LonInfo=list(['longitude',nlons,-177.5])
 #ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
@@ -290,8 +292,8 @@ Letty=['a)','b)']
 #OUTPLOT='TrendMap_HadISDH.lande.2.0.1.2014p_'+nowmon+nowyear
 #Unit='hPa'  #'degrees C'
 #Namey='HadISDH.lande.2.0.1.2014p decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
+#nlats=36	       #set once file read in
+#nlons=72	       #set once file read in
 #LatInfo=list(['latitude',nlats,-87.5])
 #LonInfo=list(['longitude',nlons,-177.5])
 #ReadInfo=list(['e_MPtrend','e_MP5th','e_MP95th'])
@@ -301,34 +303,34 @@ Letty=['a)','b)']
 #OUTPLOT='TrendMap_HadISDH.landTw.2.0.1.2014p_'+nowmon+nowyear
 #Unit='$^{o}$C'  #'degrees C'
 #Namey='HadISDH.landTw.2.0.1.2014p decadal trends'
-#nlats=36	       #set once file read in
-#nlons=72	       #set once file read in
+#nlats=36	      #set once file read in
+#nlons=72	      #set once file read in
 #LatInfo=list(['latitude',nlats,-87.5])
 #LonInfo=list(['longitude',nlons,-177.5])
 #ReadInfo=list(['Tw_MPtrend','Tw_MP5th','Tw_MP95th'])
 #ColourMapChoice=('BrBG','noflip')
 
-candidate='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_MPtrends_19732014'
-OUTPLOT='TrendMap_HadISDH.landTd.2.0.1.2014p_'+nowmon+nowyear
-Unit='$^{o}$C'  #'degrees C'
-Namey='HadISDH.landTd.2.0.1.2014p decadal trends'
-nlats=36	       #set once file read in
-nlons=72	       #set once file read in
-LatInfo=list(['latitude',nlats,-87.5])
-LonInfo=list(['longitude',nlons,-177.5])
-ReadInfo=list(['Td_MPtrend','Td_MP5th','Td_MP95th'])
-ColourMapChoice=('BrBG','noflip')
-
-#candidate='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_MPtrends_19732014'
-#OUTPLOT='TrendMap_HadISDH.landDPD.2.0.1.2014p_'+nowmon+nowyear
+#candidate='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_MPtrends_19732014'
+#OUTPLOT='TrendMap_HadISDH.landTd.2.0.1.2014p_'+nowmon+nowyear
 #Unit='$^{o}$C'  #'degrees C'
-#Namey='HadISDH.landDPD.2.0.1.2014p decadal trends'
-#nlats=36	       #set once file read in
-#nlons=72	       #set once file read in
+#Namey='HadISDH.landTd.2.0.1.2014p decadal trends'
+#nlats=36	      #set once file read in
+#nlons=72	      #set once file read in
 #LatInfo=list(['latitude',nlats,-87.5])
 #LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['DPD_MPtrend','DPD_MP5th','DPD_MP95th'])
-#ColourMapChoice=('BrBG','flip')
+#ReadInfo=list(['Td_MPtrend','Td_MP5th','Td_MP95th'])
+#ColourMapChoice=('BrBG','noflip')
+
+candidate='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_MPtrends_19732014'
+OUTPLOT='TrendMap_HadISDH.landDPD.2.0.1.2014p_'+nowmon+nowyear
+Unit='$^{o}$C'  #'degrees C'
+Namey='HadISDH.landDPD.2.0.1.2014p decadal trends'
+nlats=36	      #set once file read in
+nlons=72	      #set once file read in
+LatInfo=list(['latitude',nlats,-87.5])
+LonInfo=list(['longitude',nlons,-177.5])
+ReadInfo=list(['DPD_MPtrend','DPD_MP5th','DPD_MP95th'])
+ColourMapChoice=('BrBG','flip')
 
 #************************************************************************
 # Subroutines
@@ -443,16 +445,32 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
     #cmaplist.remove(cmaplist[(cmap.N/2)-10:(cmap.N/2)+10]) # remove the very pale colours in the middle
     cmap=cmap.from_list('this_cmap',cmaplist,cmap.N)
     
-#    vmin=-0.35
-#    vmax=0.35
-#    nsteps=15
-#    vmin=-1.8
-#    vmax=1.8
-#    nsteps=19
-    vmin=-0.8
-    vmax=0.8
-    nsteps=17
-
+    
+    # work out best max and min values for colourbar and try to make them 'nice
+    # must be an odd number of steps
+    # for less than 0.1 must be 14 or fewer steps
+    vmax=np.int(np.ceil(np.max(abs(MSKTheCandData))*10))/10.    
+    vmin=-vmax
+    if (vmax <= 0.3):
+        nsteps=np.int((vmax-vmin)/0.05)+1
+    elif (vmax <= 0.5):
+        vmax=np.ceil(np.max(abs(MSKTheCandData))/0.06)*0.06  
+        vmin=-vmax
+        nsteps=np.int((vmax-vmin)/0.06)+1
+    elif (vmax <= 1.0):
+        vmax=np.ceil(np.max(abs(MSKTheCandData))/0.1)*0.1  
+        vmin=-vmax
+        nsteps=np.int((vmax-vmin)/0.1)+1
+    elif (vmax <= 1.4):
+        vmax=np.ceil(np.max(abs(MSKTheCandData))/0.2)*0.2  
+        vmin=-vmax
+        nsteps=np.int((vmax-vmin)/0.2)+1
+    elif (vmax > 1.4):
+        vmax=np.ceil(np.max(abs(MSKTheCandData))/0.3)*0.3  
+        vmin=-vmax
+        nsteps=np.int((vmax-vmin)/0.3)+1
+	#    pdb.set_trace() # stop here and play
+    
     bounds=np.linspace(vmin,vmax,nsteps)
     strbounds=["%4.1f" % i for i in bounds]
     norm=mpl_cm.colors.BoundaryNorm(bounds,cmap.N)
