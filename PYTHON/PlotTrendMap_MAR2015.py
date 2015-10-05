@@ -1,4 +1,3 @@
-#!/usr/local/sci/bin/python
 
 #***************************************
 # 22nd April 2015
@@ -22,6 +21,135 @@
 #
 # REQUIRES
 # 
+
+#!/usr/local/sci/bin/python
+# PYTHON2.7
+# 
+# Author: Kate Willett
+# Created: 22 April 2015
+# Last update: 5 October 2015
+# Location: /data/local/hadkw/HADCRUH2/UPDATE2014/PROGS/PYTHON/	# this will probably change
+# GitHub: https://github.com/Kate-Willett/Climate_Explorer/tree/master/PYTHON/
+# -----------------------
+# CODE PURPOSE AND OUTPUT
+# -----------------------
+# Reads in decadal trend map netCDF file (any 5 by 5 degree grid)
+# Works out the mean trend for each latitude (simple average)  
+# Plots the trend for each gridbox, grixbox boundary IF trend is sig at 95% (STILL NEED TO SORT OUT HOW THIS IS CALCULATED!!!)
+# Also adds a vertical latitude by trend figure - scatter of gridbox trends for each latitude and latitude average
+# Fills 0-1 with dark grey to represent actual land fraction in terms of gridboxes at that latitude band
+# Overlays light grey to represent fraction of land gridboxes actually observed as % of dark grey bar
+# Counts % of land gridboxes present for globe (70S to 70N), N Hemi (20N to 70N), Tropics (20S to 20N) and S Hemi (70S to 20S)
+# This isn't perfect because the land/sea mask may not contain all small islands. It does contain some at least. CRUTEM has a lot of these
+# 
+# <references to related published material, e.g. that describes data set>
+# 
+# -----------------------
+# LIST OF MODULES
+# -----------------------
+# Inbuilt:
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import numpy.ma as ma
+# import sys, os
+# import scipy.stats
+# import struct
+# from mpl_toolkits.basemap import Basemap
+# import datetime as dt
+# from matplotlib.dates import date2num,num2date
+# from scipy.io import netcdf
+# import matplotlib.colors as mc
+# import matplotlib.cm as mpl_cm
+#
+# Other:
+# ReadNetCDFGrid - infile function to read in netCDF grid, written by Kate Willett
+# PlotTrendMap - infile function to plot the map, written by Kate Willett
+# 
+# -----------------------
+# DATA
+# -----------------------
+# directory for trendmaps:
+# /data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/TRENDS/
+# directory for land cover map:
+# /data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/
+# land cover file used to calculate % land represented:
+# HadCRUT.4.3.0.0.land_fraction.nc
+# files currently worked on:
+# HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014.nc
+# HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014.nc
+# HadISDH.landT.2.0.1.2014p_FLATgridRAW5by5_JAN2015_MPtrends_19732014.nc
+# HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014.nc
+# BERKELEY_T_5by519762005clim_anoms_19732014_MPtrends_19732014.nc
+# GISS_T_5by519762005clim_anoms_19732014_MPtrends_19732014.nc
+# CRUTEM.4.3.0.0.anomalies_MPtrends_19732014.nc
+# GHCNM_18802014_MPtrends_19732014.nc'
+# HadISDH.lande.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014.nc
+# HadISDH.landTw.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014.nc
+# HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_MPtrends_19732014.nc
+# HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_MPtrends_19732014.nc
+# 
+# -----------------------
+# HOW TO RUN THE CODE
+# -----------------------
+# Select/add 'candidate' input file (or add a new one)
+# Check filenames/directory paths are correct
+# Select/add 'OUTPLOT' output file
+# Select/add 'Unit' variable unit
+# Select/add 'Letty' desired letters to apply as labels to plots
+# Select/add 'Namey' Data product name / plot title or make a blank
+#
+# run:
+# python2.7 PlotTrendMap_MAR2015.py
+# 
+# -----------------------
+# OUTPUT
+# -----------------------
+# directory for output images:
+# /data/local/hadkw/HADCRUH2/UPDATE2014/IMAGES/OTHER/
+# Output image files (nowmon+nowyear= e.g., OCT2015):
+# TrendMap_HadISDH.landq.2.0.1.2014p_'+nowmon+nowyear+
+# TrendMap_HadISDH.landRH.2.0.1.2014p_'+nowmon+nowyear
+# TrendMap_HadISDH.landT.2.0.1.2014p_RAW_'+nowmon+nowyear
+# TrendMap_HadISDH.landT.2.0.1.2014p_'+nowmon+nowyear
+# TrendMap_BERKELEY_'+nowmon+nowyear
+# TrendMap_GISS_'+nowmon+nowyear
+# TrendMap_CRUTEM4.3.0.0_'+nowmon+nowyear
+# TrendMap_GHCNM3_'+nowmon+nowyear
+# TrendMap_HadISDH.lande.2.0.1.2014p_'+nowmon+nowyear+
+# TrendMap_HadISDH.landTw.2.0.1.2014p_'+nowmon+nowyear+
+# TrendMap_HadISDH.landTd.2.0.1.2014p_'+nowmon+nowyear+
+# TrendMap_HadISDH.landDPD.2.0.1.2014p_'+nowmon+nowyear+
+#
+# -----------------------
+# VERSION/RELEASE NOTES
+# -----------------------
+#
+# Version 2 (5 October 2015)
+# ---------
+#  
+# Enhancements
+# Set up is now done in bundles - easier to make sure you have all the correct file paths and info
+# Read in info for netCDF files is now part of set up rather than clumsily coded into the ReadNetCDFGrid function
+# which means you don't have to edit functions for each different file
+#  
+# Changes
+#  
+# Bug fixes
+#
+# 
+# Version 1 22 April 2015)
+# ---------
+#  
+# Enhancements
+#  
+# Changes
+#  
+# Bug fixes
+#  
+# -----------------------
+# OTHER INFORMATION
+# -----------------------
+#
 #************************************************************************
 # Set up python imports
 import matplotlib.pyplot as plt
@@ -37,93 +165,211 @@ from scipy.io import netcdf
 import matplotlib.colors as mc
 import matplotlib.cm as mpl_cm
 
-# Set up initial run choices
-#candidate='HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-#candidate='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-#candidate='HadISDH.landT.2.0.1.2014p_FLATgridRAW5by5_JAN2015_MPtrends_19732014'
-#candidate='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-#candidate='BERKELEY_T_5by519762005clim_anoms_19732014_MPtrends_19732014'
-candidate='GISS_T_5by519762005clim_anoms_19732014_MPtrends_19732014'
-#candidate='CRUTEM.4.3.0.0.anomalies_MPtrends_19732014'
-#candidate='GHCNM_18802014_MPtrends_19732014'
+# Generic things:******************************************
 
-#incover='new_coverpercentjul08'
-incover='HadCRUT.4.3.0.0.land_fraction'
+# Missing data
+mdi=-1e30 # may set up as masked arrays later
 
-nowmon='MAR'
+# Output date stamp
+nowmon='OCT'
 nowyear='2015'
 
 # Set up directories and files
 INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/TRENDS/'
+#INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'	# may be needed for non-HadISDH variables
 INDIRO='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
 OUTDIR='/data/local/hadkw/HADCRUH2/UPDATE2014/IMAGES/OTHER/'
 
-#OUTPLOT='TrendMap_HadISDH.landq.2.0.1.2014p_'+nowmon+nowyear
-#OUTPLOT='TrendMap_HadISDH.landRH.2.0.1.2014p_'+nowmon+nowyear
-#OUTPLOT='TrendMap_HadISDH.landT.2.0.1.2014p_RAW_'+nowmon+nowyear
-#OUTPLOT='TrendMap_HadISDH.landT.2.0.1.2014p_'+nowmon+nowyear
-#OUTPLOT='TrendMap_BERKELEY_'+nowmon+nowyear
-OUTPLOT='TrendMap_GISS_'+nowmon+nowyear
-#OUTPLOT='TrendMap_CRUTEM4.3.0.0_'+nowmon+nowyear
-#OUTPLOT='TrendMap_GHCNM3_'+nowmon+nowyear
+# Land cover file:
+#incover='new_coverpercentjul08'
+incover='HadCRUT.4.3.0.0.land_fraction'
 
-# Set up variables
-nlats=36		#set once file read in
-nlons=72		#set once file read in
+# Variables
 CandTrends=[]
 CompTrends=[]
 RatTrends=[]
 LatList=[]
 LonList=[]
-
-#Unit='g kg$^{-1}$'  #'degrees C'
-#Unit='%rh'  #'degrees C'
-Unit='$^{o}$C'  #'degrees C'
 Letty=['a)','b)']
-#Namey='HadISDH.landq.2.0.1.2014p decadal trends'
-#Namey='HadISDH.landRH.2.0.1.2014p decadal trends'
-#Namey='HadISDH.landT.2.0.1.2014p RAW decadal trends'
-#Namey='HadISDH.landT.2.0.1.2014p decadal trends'
-#Namey='BERKELEY decadal trends'
-Namey='GISS decadal trends'
-#Namey='CRUTEM4.3.0.0 decadal trends'
-#Namey='GHCNM3 decadal trends'
 
-# Missing data
-mdi=-1e30 # may set up as masked arrays later
+
+#**********************************************************
+# Run choice bundle for input/output files, units, names, letters, read in varnames, colourmap
+# CHOOSE/ADD A BUNDLE!!!
+
+#candidate='HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
+#OUTPLOT='TrendMap_HadISDH.landq.2.0.1.2014p_'+nowmon+nowyear
+#Unit='g kg$^{-1}$'  #'degrees C'
+#Namey='HadISDH.landq.2.0.1.2014p decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['q_MPtrend','q_MP5th','q_MP95th'])
+#ColourMapChoice=('BrBG','noflip')
+
+
+#candidate='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
+#OUTPLOT='TrendMap_HadISDH.landRH.2.0.1.2014p_'+nowmon+nowyear
+#Unit='%rh'  
+#Namey='HadISDH.landRH.2.0.1.2014p decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['RH_MPtrend','RH_MP5th','RH_MP95th'])
+#ColourMapChoice=('BrBG','noflip')
+
+#candidate='HadISDH.landT.2.0.1.2014p_FLATgridRAW5by5_JAN2015_MPtrends_19732014'
+#OUTPLOT='TrendMap_HadISDH.landT.2.0.1.2014p_RAW_'+nowmon+nowyear
+#Unit='$^{o}$C'  #'degrees C'
+#Namey='HadISDH.landT.2.0.1.2014p RAW decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+#candidate='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
+#OUTPLOT='TrendMap_HadISDH.landT.2.0.1.2014p_'+nowmon+nowyear
+#Unit='$^{o}$C'  #'degrees C'
+#Namey='HadISDH.landT.2.0.1.2014p decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+#candidate='BERKELEY_T_5by519762005clim_anoms_19732014_MPtrends_19732014'
+#OUTPLOT='TrendMap_BERKELEY_'+nowmon+nowyear
+#Unit='$^{o}$C'  #'degrees C'
+#Namey='BERKELEY decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+#candidate='GISS_T_5by519762005clim_anoms_19732014_MPtrends_19732014'
+#OUTPLOT='TrendMap_GISS_'+nowmon+nowyear
+#Unit='$^{o}$C'  #'degrees C'
+#Namey='GISS decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+#candidate='CRUTEM.4.3.0.0.anomalies_MPtrends_19732014'
+#OUTPLOT='TrendMap_CRUTEM4.3.0.0_'+nowmon+nowyear
+#Unit='$^{o}$C'  #'degrees C'
+#Namey='CRUTEM4.3.0.0 decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+#candidate='GHCNM_18802014_MPtrends_19732014'
+#OUTPLOT='TrendMap_GHCNM3_'+nowmon+nowyear
+#Unit='$^{o}$C'  #'degrees C'
+#Namey='GHCNM3 decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+#candidate='HadISDH.lande.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
+#OUTPLOT='TrendMap_HadISDH.lande.2.0.1.2014p_'+nowmon+nowyear
+#Unit='hPa'  #'degrees C'
+#Namey='HadISDH.lande.2.0.1.2014p decadal trends'
+#nlats=36		#set once file read in
+#nlons=72		#set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['e_MPtrend','e_MP5th','e_MP95th'])
+#ColourMapChoice=('BrBG','noflip')
+
+#candidate='HadISDH.landTw.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
+#OUTPLOT='TrendMap_HadISDH.landTw.2.0.1.2014p_'+nowmon+nowyear
+#Unit='$^{o}$C'  #'degrees C'
+#Namey='HadISDH.landTw.2.0.1.2014p decadal trends'
+#nlats=36	       #set once file read in
+#nlons=72	       #set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['Tw_MPtrend','Tw_MP5th','Tw_MP95th'])
+#ColourMapChoice=('BrBG','noflip')
+
+candidate='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_MPtrends_19732014'
+OUTPLOT='TrendMap_HadISDH.landTd.2.0.1.2014p_'+nowmon+nowyear
+Unit='$^{o}$C'  #'degrees C'
+Namey='HadISDH.landTd.2.0.1.2014p decadal trends'
+nlats=36	       #set once file read in
+nlons=72	       #set once file read in
+LatInfo=list(['latitude',nlats,-87.5])
+LonInfo=list(['longitude',nlons,-177.5])
+ReadInfo=list(['Td_MPtrend','Td_MP5th','Td_MP95th'])
+ColourMapChoice=('BrBG','noflip')
+
+#candidate='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_MPtrends_19732014'
+#OUTPLOT='TrendMap_HadISDH.landDPD.2.0.1.2014p_'+nowmon+nowyear
+#Unit='$^{o}$C'  #'degrees C'
+#Namey='HadISDH.landDPD.2.0.1.2014p decadal trends'
+#nlats=36	       #set once file read in
+#nlons=72	       #set once file read in
+#LatInfo=list(['latitude',nlats,-87.5])
+#LonInfo=list(['longitude',nlons,-177.5])
+#ReadInfo=list(['DPD_MPtrend','DPD_MP5th','DPD_MP95th'])
+#ColourMapChoice=('BrBG','flip')
 
 #************************************************************************
 # Subroutines
 #************************************************************************
 # READNETCDFGRID
-def ReadNetCDFGrid(FileName):
+def ReadNetCDFGrid(FileName,ReadInfo,LatInfo,LonInfo):
     ''' Open the NetCDF File
         Get the list of latitudes
         Get the list of longitudes
-        Get the data '''
+        Get the data 
+	FileName: stroing containing filepath/name
+	ReadInfo: list of strings of variable names for the trend, 5th percentile, 95th percentile
+	LatInfo: list of a string for the latitude variable name, an integer for number of lats, a float for the start latitude
+	LonInfo: list of a string for the longitude variable name, an integer for number of lons, a float for the start longitude '''
 
     ncf=netcdf.netcdf_file(FileName,'r')
+
     # ncf.variables this lists the variable names
     #var=f.variables['latitude']
     #TheLatList=var.data
     # lats currently screwy so make up
-    TheLatList=np.arange(-87.5,92.5,5.)
+    if (LatInfo[2] < 0):
+        TheLatList=np.arange(LatInfo[2], LatInfo[2]+180.,(180./LatInfo[1]))
+    else:
+        TheLatList=np.arange(LatInfo[2], LatInfo[2]-180.,-(180./LatInfo[1]))    
     #var=f.variables['longitude']
     #TheLonList=var.data
     # lons currently screwy so make up
     TheLonList=np.arange(-177.5,182.5,5.)
-#    var=ncf.variables['q_MPtrend']
-#    var=ncf.variables['RH_MPtrend']
-    var=ncf.variables['T_MPtrend']
+    if (LonInfo[2] < 10):
+        TheLonList=np.arange(LonInfo[2], LonInfo[2]+360.,(360./LonInfo[1]))
+    else:
+        TheLonList=np.arange(LonInfo[2], LonInfo[2]-360.,-(360./LonInfo[1]))    
+
+    var=ncf.variables[ReadInfo[0]]
     TheData=np.array(var.data)
-#    var=ncf.variables['q_MP5th']
-#    var=ncf.variables['RH_MP5th']
-    var=ncf.variables['T_MP5th']
+    var=ncf.variables[ReadInfo[1]]
     TheLower=np.array(var.data)
-#    var=ncf.variables['q_MP95th']
-#    var=ncf.variables['RH_MP95th']
-    var=ncf.variables['T_MP95th']
+    var=ncf.variables[ReadInfo[2]]
     TheUpper=np.array(var.data)
+
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)
     ncf.close()
@@ -133,7 +379,7 @@ def ReadNetCDFGrid(FileName):
 #************************************************************************
 # PlotTrendMap
 def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppers,TheCandLowers,
-                    TheUnitee,TheLetter,TheNamee):
+                    TheUnitee,TheLetter,TheNamee,ColourMapChoice):
     ''' Create a masked array of trends
         Create a masked array of significant trends
         Plot trends on map, bounded if significant
@@ -183,12 +429,7 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
     m.drawmeridians(np.arange(-180,180.,60.))
 
     # make up a blue to red (reverse) colour map
-    #cmaps=[plt.cm.Blues_r,plt.cm.Reds]
-    #bluelist=[plt.cm.Blues_r(i) for i in range(plt.cm.Blues_r.N)]
-    #redlist=[plt.cm.Reds(i) for i in range(plt.cm.Reds.N)]
-#    cmap=plt.get_cmap('BrBG')
-    cmap=plt.get_cmap('coolwarm')
-#    cmap=plt.get_cmap('bwr')
+    cmap=plt.get_cmap(ColourMapChoice[0])
     
 #    fullcols=list()
 #    [fullcols.append(bluelist[i]) for i in range(len(bluelist))]
@@ -197,6 +438,8 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
     cmaplist=[cmap(i) for i in range(cmap.N)]
     for loo in range((cmap.N/2)-10,(cmap.N/2)+10):
         cmaplist.remove(cmaplist[(cmap.N/2)-10]) # remove the very pale colours in the middle
+    if (ColourMapChoice[1] == 'flip'):	# then reverse the colours
+        cmaplist.reverse()
     #cmaplist.remove(cmaplist[(cmap.N/2)-10:(cmap.N/2)+10]) # remove the very pale colours in the middle
     cmap=cmap.from_list('this_cmap',cmaplist,cmap.N)
     
@@ -311,7 +554,7 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
 #************************************************************************
 # read in trend maps
 MyFile=INDIRC+candidate+'.nc'
-CandData,CandUpper,CandLower,LatList,LonList=ReadNetCDFGrid(MyFile)
+CandData,CandUpper,CandLower,LatList,LonList=ReadNetCDFGrid(MyFile,ReadInfo,LatInfo,LonInfo)
 
 ncf=netcdf.netcdf_file(INDIRO+incover+'.nc','r')
 #var=ncf.variables['pct_land']
@@ -325,7 +568,7 @@ ncf.close()
 # pass to plotter
 MyFile=OUTDIR+OUTPLOT
 PlotTrendMap(MyFile,PctLand,LatList,LonList,CandData,CandUpper, CandLower,
-                        Unit,Letty,Namey)
+                        Unit,Letty,Namey,ColourMapChoice)
 
 # output pct of land boxes represented per region
 for ltt in range(len(LatList)):
