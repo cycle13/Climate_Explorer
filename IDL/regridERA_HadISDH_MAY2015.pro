@@ -1,6 +1,7 @@
 pro regridERA_HadISDH_MAY2015
 
 ; regrid ERA monthly 1by1 data to monthly 5by5 data
+; make anomalies for 1981-2010 and 1979-2005
 
 ;--------------------------------------------------------
 indir='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
@@ -8,6 +9,7 @@ infil='_monthly_1by1_ERA-Interim_data_19792014.nc'
 inlandmask='HadCRUT.4.3.0.0.land_fraction.nc'
 outfil='_monthly_5by5_ERA-Interim_data_19792014.nc'
 outfilA='_monthly_5by5_ERA-Interim_data_19792014_anoms1981-2010.nc'
+outfilA7905='_monthly_5by5_ERA-Interim_data_19792014_anoms1979-2005.nc'
 
 varlist=['q2m','rh2m','e2m','t2m','td2m','tw2m','dpd2m']
 unitslist=['g/kg','%rh','hPa','deg C','deg C','deg C','deg C']
@@ -16,8 +18,10 @@ mdi=-1e+30
 monarr=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
 styr=1979
 edyr=2014
-climst=1981
-climed=2010
+climst1=1981
+climed1=2010
+climst2=1979
+climed2=2005
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
 int_mons=indgen(nmons)
@@ -150,7 +154,7 @@ FOR loo=0,6 DO BEGIN ; loop through the variables
 
   NCDF_CLOSE,wilma
 
-; now also create anomalies
+; now also create anomalies 81-10
 ; have a land masked and non-land masked version
 
   anomsall=make_array(nlons,nlats,nmons,/float,value=mdi)
@@ -161,7 +165,7 @@ FOR loo=0,6 DO BEGIN ; loop through the variables
       subarr=reform(absarr(lnn,ltt,*),12,nyrs)
       FOR mm=0,11 DO BEGIN
         ; NO MISSING DATA IN ERA!
-	subarr(mm,*)=subarr(mm,*)-MEAN(subarr(mm,climst-styr:climed-styr))
+	subarr(mm,*)=subarr(mm,*)-MEAN(subarr(mm,climst1-styr:climed1-styr))
       ENDFOR
       anomsall(lnn,ltt,*)=reform(subarr,nmons)  
     ENDFOR
@@ -260,6 +264,136 @@ FOR loo=0,6 DO BEGIN ; loop through the variables
   NCDF_ATTPUT,wilma,seavar,'missing_value',-1.e+30
   NCDF_ATTPUT,wilma,seavar,'_FillValue',-1.e+30
   NCDF_ATTPUT,wilma,seavar,'reference_period','1981 to 2010'
+
+  current_time=SYSTIME()
+
+  NCDF_ATTPUT,wilma,/GLOBAL,'file_created',STRING(current_time)
+  NCDF_ATTPUT,wilma,/GLOBAL,'description',"ERA-Interim monthly mean land surface "+varlist[loo]+" reanalysis product from 1979 onwards. "+$
+                                         "regridded to 5by5 degree boxes by simple averaging (no smoothing."
+  NCDF_ATTPUT,wilma,/GLOBAL,'title',"ERA-Interim monthly mean land surface "+varlist[loo]+" climate monitoring product from 1979 onwards."
+  NCDF_ATTPUT,wilma,/GLOBAL,'institution',"ECMWF (regridded at Met Office Hadley Centre by Kate Willett"
+  NCDF_ATTPUT,wilma,/GLOBAL,'history',"Updated "+STRING(current_time)
+  NCDF_ATTPUT,wilma,/GLOBAL,'source',"http://apps.ecmwf.int/datasets/data/interim-full-daily/ to ERAMONTHLY_t2m_6hrly_1by1_ decade chunks"
+  NCDF_ATTPUT,wilma,/GLOBAL,'comment'," "
+  NCDF_ATTPUT,wilma,/GLOBAL,'reference',"NA"
+  NCDF_ATTPUT,wilma,/GLOBAL,'version',"Last Download May 2015"
+  NCDF_ATTPUT,wilma,/GLOBAL,'Conventions',"CF-1.0"
+
+  NCDF_CONTROL,wilma,/ENDEF
+  NCDF_VARPUT, wilma,timesvar,dayssince
+  NCDF_VARPUT, wilma,latsvar, lats
+  NCDF_VARPUT, wilma,lonsvar, lons
+  NCDF_VARPUT, wilma,allvar,anomsall
+  NCDF_VARPUT, wilma,landvar,anomsland
+  NCDF_VARPUT, wilma,seavar,anomssea
+
+  NCDF_CLOSE,wilma
+
+; now also create anomalies 79-05 (NOT IDEAL - BETTER TO MOVE 81-10 TO MATCH HADISDH OVER 79-05 PERIOD?
+; have a land masked and non-land masked version
+
+  anomsall=make_array(nlons,nlats,nmons,/float,value=mdi)
+  anomsland=make_array(nlons,nlats,nmons,/float,value=mdi)
+  anomssea=make_array(nlons,nlats,nmons,/float,value=mdi)
+  FOR lnn=0,nlons-1 DO BEGIN
+    FOR ltt=0,nlats-1 DO BEGIN
+      subarr=reform(absarr(lnn,ltt,*),12,nyrs)
+      FOR mm=0,11 DO BEGIN
+        ; NO MISSING DATA IN ERA!
+	subarr(mm,*)=subarr(mm,*)-MEAN(subarr(mm,climst2-styr:climed2-styr))
+      ENDFOR
+      anomsall(lnn,ltt,*)=reform(subarr,nmons)  
+    ENDFOR
+  ENDFOR
+  
+  ; already read in land mask and make masked arrays
+  
+  FOR lnn=0,nlons-1 DO BEGIN
+    FOR ltt=0,nlats-1 DO BEGIN
+      IF (pct_land(lnn,ltt) GT 0) THEN anomsland(lnn,ltt,*)=anomsall(lnn,ltt,*)
+      IF (pct_land(lnn,ltt) LT 0.9) THEN BEGIN
+        print,lnn,ltt,pct_land(lnn,ltt)
+	anomssea(lnn,ltt,*)=anomsall(lnn,ltt,*)
+      ENDIF
+    ENDFOR
+  ENDFOR  
+
+  ; output to netCDF
+  wilma=NCDF_CREATE(indir+varlist[loo]+outfilA7905,/clobber)
+  tid=NCDF_DIMDEF(wilma,'time',nmons)
+  latid=NCDF_DIMDEF(wilma,'latitude',nlats)
+  lonid=NCDF_DIMDEF(wilma,'longitude',nlons)
+  
+  timesvar=NCDF_VARDEF(wilma,'time',[tid],/SHORT)
+  latsvar=NCDF_VARDEF(wilma,'latitude',[latid],/FLOAT)
+  lonsvar=NCDF_VARDEF(wilma,'longitude',[lonid],/FLOAT)
+  allvar=NCDF_VARDEF(wilma,'anomalies',[lonid,latid,tid],/FLOAT)
+  landvar=NCDF_VARDEF(wilma,'anomalies_land',[lonid,latid,tid],/FLOAT)
+  seavar=NCDF_VARDEF(wilma,'anomalies_sea',[lonid,latid,tid],/FLOAT)
+
+  NCDF_ATTPUT,wilma,'time','standard_name','time'
+  NCDF_ATTPUT,wilma,'time','long_name','time'
+  NCDF_ATTPUT,wilma,'time','units','days since 1979-1-1 00:00:00'
+  NCDF_ATTPUT,wilma,'time','axis','T'
+  NCDF_ATTPUT,wilma,'time','calendar','gregorian'
+  NCDF_ATTPUT,wilma,'time','start_year',styr
+  NCDF_ATTPUT,wilma,'time','end_year',edyr
+  NCDF_ATTPUT,wilma,'time','start_month',1
+  NCDF_ATTPUT,wilma,'time','end_month',12
+
+  NCDF_ATTPUT,wilma,'latitude','standard_name','latitude'
+  NCDF_ATTPUT,wilma,'latitude','long_name','latitude'
+  NCDF_ATTPUT,wilma,'latitude','units','degrees_north'
+  NCDF_ATTPUT,wilma,'latitude','point_spacing','even'
+  NCDF_ATTPUT,wilma,'latitude','axis','X'
+
+  NCDF_ATTPUT,wilma,'longitude','standard_name','longitude'
+  NCDF_ATTPUT,wilma,'longitude','long_name','longitude'
+  NCDF_ATTPUT,wilma,'longitude','units','degrees_east'
+  NCDF_ATTPUT,wilma,'longitude','point_spacing','even'
+  NCDF_ATTPUT,wilma,'longitude','axis','X'
+
+  NCDF_ATTPUT,wilma,allvar,'long_name','Monthly mean anomalies relative to 1979-2005'
+  NCDF_ATTPUT,wilma,allvar,'units',unitslist[loo]
+  NCDF_ATTPUT,wilma,allvar,'axis','T'
+  valid=WHERE(anomsall NE -1.E+30, tc)
+  IF tc GE 1 THEN BEGIN
+    min_t=MIN(anomsall(valid))
+    max_t=MAX(anomsall(valid))
+    NCDF_ATTPUT,wilma,allvar,'valid_min',min_t(0)
+    NCDF_ATTPUT,wilma,allvar,'valid_max',max_t(0)
+  ENDIF
+  NCDF_ATTPUT,wilma,allvar,'missing_value',-1.e+30
+  NCDF_ATTPUT,wilma,allvar,'_FillValue',-1.e+30
+  NCDF_ATTPUT,wilma,allvar,'reference_period','1979 to 2005'
+
+  NCDF_ATTPUT,wilma,landvar,'long_name','Land only monthly mean anomalies relative to 1979-2005'
+  NCDF_ATTPUT,wilma,landvar,'units',unitslist[loo]
+  NCDF_ATTPUT,wilma,landvar,'axis','T'
+  valid=WHERE(anomsland NE -1.E+30, tc)
+  IF tc GE 1 THEN BEGIN
+    min_t=MIN(anomsland(valid))
+    max_t=MAX(anomsland(valid))
+    NCDF_ATTPUT,wilma,landvar,'valid_min',min_t(0)
+    NCDF_ATTPUT,wilma,landvar,'valid_max',max_t(0)
+  ENDIF
+  NCDF_ATTPUT,wilma,landvar,'missing_value',-1.e+30
+  NCDF_ATTPUT,wilma,landvar,'_FillValue',-1.e+30
+  NCDF_ATTPUT,wilma,landvar,'reference_period','1979 to 2005'
+
+  NCDF_ATTPUT,wilma,seavar,'long_name','Sea only monthly mean anomalies relative to 1979-2005'
+  NCDF_ATTPUT,wilma,seavar,'units',unitslist[loo]
+  NCDF_ATTPUT,wilma,seavar,'axis','T'
+  valid=WHERE(anomssea NE -1.E+30, tc)
+  IF tc GE 1 THEN BEGIN
+    min_t=MIN(anomssea(valid))
+    max_t=MAX(anomssea(valid))
+    NCDF_ATTPUT,wilma,seavar,'valid_min',min_t(0)
+    NCDF_ATTPUT,wilma,seavar,'valid_max',max_t(0)
+  ENDIF
+  NCDF_ATTPUT,wilma,seavar,'missing_value',-1.e+30
+  NCDF_ATTPUT,wilma,seavar,'_FillValue',-1.e+30
+  NCDF_ATTPUT,wilma,seavar,'reference_period','1979 to 2005'
 
   current_time=SYSTIME()
 
