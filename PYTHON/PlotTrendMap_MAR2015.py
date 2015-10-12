@@ -1,27 +1,3 @@
-
-#***************************************
-# 22nd April 2015
-# This version reads in from /data/local/hadkw/HADCRUH2
-
-# 22 Aprl 2015 KMW - v1
-# Reads in decadal trend map
-# Works out the mean trend for each latitude (simple average)  
-# Plots the trend for each gridbox, grixbox boundary IF trend is sig at 95%
-# Also adds a vertical latitude by trend figure - scatter of gridbox trends for each latitude and latitude average
-# Fills 0-1 with dark grey to represent actual land fraction in terms of gridboxs at that latitude band
-# Overlays light grey to represent fraction of land gridboxes actually observed
-
-# now also counts % of land gridboxes present for globe (70S to 70N), N Hemi (20N to 70N), Tropics (20S to 20N) and S Hemi (70S to 20S)
-# This isn't perfect because the land/sea mask may not contain all small islands. It does contain some at least. CRUTEM has a lot of these
-#************************************************************************
-#                                 START
-#************************************************************************
-# USE python2.7
-# python2.7 PlotTrendMap_MAR2015.py
-#
-# REQUIRES
-# 
-
 #!/usr/local/sci/bin/python
 # PYTHON2.7
 # 
