@@ -1,10 +1,19 @@
 pro nino_indicators_Kate2015
 
-outdir = '~hadkw/Desktop/BAMS_SotC_2014/DATA2014/'
-climato = '7605'
+outdir = '/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
+climato = '6190'
 regione=[120,-20,-70,20]
 
 hadisst_filename = '/project/hadobs1/OBS/marine/HadISST/anoms/HadISST1.1_sst_1870on_1dg_anm6190.pp'
+
+if climato eq '6190' then begin
+   allclim = ppa(hadisst_filename,'f.lbyr ge 1961 and f.lbyr le 1990',region=regione,/all)
+   climatology = allclim(0:11)
+   for m = 1,12 do begin
+      climatology(m-1) = pp_avg(allclim(where(allclim.lbmon eq m)),/mdtol)
+   endfor
+   climindc = '1961-1990'
+endif
 
 if climato eq '8110' then begin
    allclim = ppa(hadisst_filename,'f.lbyr ge 1981 and f.lbyr le 2010',region=regione,/all)
@@ -34,7 +43,7 @@ if climato eq '7605' then begin
 endif
 
 
-anom = ppa('/project/hadobs1/OBS/marine/HadISST/anoms/HadISST1.1_sst_1870on_1dg_anm6190.pp','f.lbyr ge 1973',region=[120,-20,-70,20],/all)
+anom = ppa('/project/hadobs1/OBS/marine/HadISST/anoms/HadISST1.1_sst_1870on_1dg_anm6190.pp','f.lbyr ge 1870',region=[120,-20,-70,20],/all)
 
 next_month = anom(n_elements(anom)-1).lbmon+1
 next_year = anom(n_elements(anom)-1).lbyr
@@ -70,11 +79,11 @@ nino12 = tsarea_avg(all,[-90,-10,-80,0])
 ;stop
 
 ; Write out
-openw,1,outdir+'HadISST1.1_Nino3.4ts_18502014_FEB2015.txt'
-openw,2,outdir+'HadISST1.1_Nino3ts_18502014_FEB2015.txt'
-openw,3,outdir+'HadISST1.1_Nino4ts_18502014_FEB2015.txt'
-openw,4,outdir+'HadISST1.1_Nino1.2ts_18502014_FEB2015.txt'
-yearsie=1973
+openw,1,outdir+'HadISST1.1_Nino3.4ts_18502015_6190_NOV2015.txt'
+openw,2,outdir+'HadISST1.1_Nino3ts_18502015_6190_NOV2015.txt'
+openw,3,outdir+'HadISST1.1_Nino4ts_18502015_6190_NOV2015.txt'
+openw,4,outdir+'HadISST1.1_Nino1.2ts_18502015_6190_NOV2015.txt'
+yearsie=1870
 monsie=0
 monarr=['01','02','03','04','05','06','07','08','09','10','11','12']
 for mm = 0,n_elements(nino3.data)-1 do begin
