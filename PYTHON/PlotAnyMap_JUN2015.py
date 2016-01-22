@@ -169,7 +169,7 @@ mdi = -1e30 # may set up as masked arrays later
 
 # Set up initial run choices
 # What is the minimum percent of data present for each gridbox value? This can be any value between >0 and 1
-PctDataPresent = 0.5	
+PctDataPresent = 0.6	
 
 # Start Year of dataset (assumes January)
 StYr = 1850 		
@@ -178,7 +178,7 @@ StYr = 1850
 EdYr = 2015 		
 
 # End Month of dataset (assumes it starts in January) - 1 to 12
-EdMon = 9 		
+EdMon = 10 		
 
 # Are you reading in actuals or anomalies? 'anoms' or 'anomalies' for anomalies, 'abs' for actuals
 vartype = 'anoms' 
@@ -186,11 +186,11 @@ vartype = 'anoms'
 # Select your month of choice, or a range for an average
 # 0...11 represent Jan..Dec, [2,4] for Mar-Apr-May average, [0,11] for annual average, [11,1] for Dec-Jan-Feb average
 # For month ranges than span 11 to 0, December will be taken from the first year of ChooseYr - will NOT work for last year!
-ChooseMon = [0,8] 
+ChooseMon = [0,9] 
 
 # Select your year of choice, or a range for an average
 # 1973...2014 for individual years, [1973,1982] for decadal average etc
-ChooseYr = [2015] 
+ChooseYr = [2015,2015] 
 
 # Choose your start year of climatology: 0 if not relevant, not important if DoReClim = False
 ChooseClimSt = 1981 

@@ -29,8 +29,8 @@
 # from datetime import datetime
 # from matplotlib.dates import date2num,num2date
 # from netCDF4 import Dataset
+# from netCDF4 import stringtoarr # for putting strings in as netCDF variables
 # from scipy.io import netcdf
-# import ReadNetCDF.py
 # import pdb # pdb.set_trace() or c
 #
 # Kate's:
@@ -44,7 +44,7 @@
 # Filename: string containing filepath and filename e.g.,
 #	/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/huss_HadISDH_HadOBS_19730101-20141231_v2-0-1-2014p.nc
 # Dates: a four elemnt intger dictionary of {'StYr': integer e.g., 1973,
-#                                            'StMon': integer between 0 and 11,
+#                                            'StMon': integer between 1 and 12,
 #                                            'EdYr': integer e.g., 2014,
 # 					                         'EdMon': integer between 0 and 11}
 # Latitudes: float array of latitude gridbox centres from North to South
@@ -132,26 +132,27 @@ import datetime as dt
 from datetime import datetime
 from matplotlib.dates import date2num,num2date
 from netCDF4 import Dataset
+from netCDF4 import stringtoarr # for putting strings in as netCDF variables
 from scipy.io import netcdf
-import ReadNetCDF.py
 import pdb # pdb.set_trace() or c
 
 from ReadNetCDF import GetGrid # written by Kate Willett, reads in any netCDF grid, can cope with multiple fields
 
 # Set up hardwired variables
-MDI = -1e30 # just check how this is going to work with storing everything as integers
-MonthName = ['January',
-             'February',
-	     'March',
-	     'April',
-	     'May',
-	     'June',
-	     'July',
-	     'August',
-	     'September',
-	     'October',
-	     'November',
-	     'December']
+OLDMDI = -1e30
+MDI = -999 # just check how this is going to work with storing everything as integers
+MonthName = ['January   ',
+             'February  ',
+	     'March     ',
+	     'April     ',
+	     'May       ',
+	     'June      ',
+	     'July      ',
+	     'August    ',
+	     'September ',
+	     'October   ',
+	     'November  ',
+	     'December  ']
 MonthDays = [31,28,31,30,31,30,31,31,30,31,30,31]
 
 #************************************************************************
@@ -170,18 +171,17 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon):
     
     # make a date object for each time point and subtract start date
     StartDate=datetime(TheStYr,TheStMon,1,0,0,0)	# January
-    DaysArray[0]=(datetime(TheStYr,TheStMon+1,1,0,0,0)-StartDate).days/2.
     TheYear=TheStYr
-    TheMonth=TheStMon+1
-    for mm in range(1,len(DaysArray)):
+    TheMonth=TheStMon
+    for mm in range(len(DaysArray)):
         if (TheMonth < 12):
 	    DaysArray[mm]=(datetime(TheYear,TheMonth+1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
-	    BoundsArray[mm,0]=datetime(TheYear,TheMonth,1,0,0,0).days
-	    BoundsArray[mm,1]=datetime(TheYear,TheMonth+1,1,0,0,0).days-1
+	    BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+	    BoundsArray[mm,1]=(datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
         else:
 	    DaysArray[mm]=(datetime(TheYear+1,1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
-	    BoundsArray[mm,0]=datetime(TheYear,TheMonth,1,0,0,0).days
-	    BoundsArray[mm,1]=datetime(TheYear+1,1,1,0,0,0).days-1
+	    BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+	    BoundsArray[mm,1]=(datetime(TheYear+1,1,1,0,0,0)-StartDate).days
 	TheMonth=TheMonth+1
 	if (TheMonth == 13):
 	    TheMonth=1
@@ -191,7 +191,7 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon):
 
 #************************************************************************
 # WriteNCCF
-def WriteNCCF(Filename,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObject,AttrObject,GlobAttrObject):
+def WriteNCCF(FileName,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObject,AttrObject,GlobAttrObject):
     ''' Sort out the date/times to write out and time bounds '''
     ''' Sort out clim bounds '''
     ''' Sort out lat and long bounds '''
@@ -199,14 +199,15 @@ def WriteNCCF(Filename,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
     ''' Write to file, set up given dimensions, looping through all potential variables and their attributes, and then the provided dictionary of global attributes '''
     
     # Sort out date/times to write out
+    print(Dates)
     TimPoints,TimBounds = MakeDaysSince(Dates['StYr'],Dates['StMon'],Dates['EdYr'],Dates['EdMon'])
     nTims = len(TimPoints)
 	
     # Sort out clim bounds - paired strings
     ClimBounds = np.empty((12,2),dtype='|S10')
     for mm in range(12):
-	ClimBounds[mm,0] = str(ClimPoints[0]+'-'+str(mm+1)+'-'+str(1)
-	ClimBounds[mm,1] = str(ClimPoints[2]+'-'+str(mm+1)+'-'+str(MonthDays[mm])
+	ClimBounds[mm,0] = str(ClimPoints[0])+'-'+str(mm+1)+'-'+str(1)
+	ClimBounds[mm,1] = str(ClimPoints[1])+'-'+str(mm+1)+'-'+str(MonthDays[mm])
 		
     # Sort out LatBounds and LonBounds
     LatBounds = np.empty((len(Latitudes),2),dtype='float')
@@ -218,23 +219,72 @@ def WriteNCCF(Filename,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
     LonBounds[:,0] = Longitudes - ((Longitudes[1]-Longitudes[0])/2.)
     LonBounds[:,1] = Longitudes + ((Longitudes[1]-Longitudes[0])/2.)	
 	
-    # Convert float data using given scale_factor and add_offset to integers
-    # Loop through every data object attribute. If it has a scale_factor and add_offset then apply
-    # This needs testing - also check that the netCDF works correctly with the scale/offset adn MDI of -1e30
-    for vv in range(len(DataObjectList)):
-        # Is there a scale and offset?
-	if ('scale_factor' in AttrObjectList[vv]):
-	    NewData = np.empty_like(DataObject[vv]) # careful with the over writing here, test!
-	    NewData.fill(MDI)
-	    NewData[np.where(DataObject[vv] > MDI)] = np.round((DataObject[vv][np.where(DataObject[vv] > MDI) - AttrObjectList[vv]['add_offset']) / AttrObjectList[vv]['scale_factor']).astype(int)
-	    DataObject[vv] = NewData
-
-    # Create a new netCDF file
-    ncfw=Dataset(FileName,'w',format='NETCDF3_CLASSIC') # need to try NETCDF4 and also play with compression but test this first
+    #pdb.set_trace()
     
-    # Loop through and write out the global attributes
-    for vv in range(len(GlobAttrObject)):
-        ncfw.GlobAttrObject[vv][0] = ncfw.GlobAttrObject[vv][1]
+    # No need to convert float data using given scale_factor and add_offset to integers - done within writing program (packV = (V-offset)/scale
+    # Not sure what this does to float precision though...
+    # Change mdi into an integer -999 because these are stored as integers
+    for vv in range(len(DataObject)):
+        DataObject[vv][np.where(DataObject[vv] == OLDMDI)] = MDI
+
+    # Create a new netCDF file - have tried zlib=True,least_significant_digit=3 (and 1) - no difference
+    ncfw=Dataset(FileName,'w',format='NETCDF4_CLASSIC') # need to try NETCDF4 and also play with compression but test this first
+    
+    # Write out the global attributes
+    if ('description' in GlobAttrObject):
+        ncfw.description = GlobAttrObject['description']
+	#print(GlobAttrObject['description'])
+	
+    if ('File_created' in GlobAttrObject):
+        ncfw.File_created = GlobAttrObject['File_created']
+
+    if ('Title' in GlobAttrObject):
+        ncfw.Title = GlobAttrObject['Title']
+
+    if ('Institution' in GlobAttrObject):
+        ncfw.Institution = GlobAttrObject['Institution']
+
+    if ('History' in GlobAttrObject):
+        ncfw.History = GlobAttrObject['History']
+
+    if ('Licence' in GlobAttrObject):
+        ncfw.Licence = GlobAttrObject['Licence']
+
+    if ('Project' in GlobAttrObject):
+        ncfw.Project = GlobAttrObject['Project']
+
+    if ('Processing_level' in GlobAttrObject):
+        ncfw.Processing_level = GlobAttrObject['Processing_level']
+
+    if ('Acknowledgement' in GlobAttrObject):
+        ncfw.Acknowledgement = GlobAttrObject['Acknowledgement']
+
+    if ('Source' in GlobAttrObject):
+        ncfw.Source = GlobAttrObject['Source']
+
+    if ('Comment' in GlobAttrObject):
+        ncfw.Comment = GlobAttrObject['Comment']
+
+    if ('References' in GlobAttrObject):
+        ncfw.References = GlobAttrObject['References']
+
+    if ('Creator_name' in GlobAttrObject):
+        ncfw.Creator_name = GlobAttrObject['Creator_name']
+
+    if ('Creator_email' in GlobAttrObject):
+        ncfw.Creator_email = GlobAttrObject['Creator_email']
+
+    if ('Version' in GlobAttrObject):
+        ncfw.Version = GlobAttrObject['Version']
+
+    if ('doi' in GlobAttrObject):
+        ncfw.doi = GlobAttrObject['doi']
+
+    if ('Conventions' in GlobAttrObject):
+        ncfw.Conventions = GlobAttrObject['Conventions']
+
+    if ('netcdf_type' in GlobAttrObject):
+        ncfw.netcdf_type = GlobAttrObject['netcdf_type']
 	
     # Loop through and set up the dimension names and quantities
     for vv in range(len(DimObject[0])):
@@ -242,7 +292,9 @@ def WriteNCCF(Filename,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
 	
     # Go through each dimension and set up the variable and attributes for that dimension if needed
     for vv in range(len(DimObject)-2): # ignore first two elements of the list but count all other dictionaries
-        # NOt 100% sure this works in a loop with overwriting
+        print(DimObject[vv+2]['var_name'])
+	
+	# NOt 100% sure this works in a loop with overwriting
 	# initiate variable with name, type and dimensions
 	MyVar = ncfw.createVariable(DimObject[vv+2]['var_name'],DimObject[vv+2]['var_type'],DimObject[vv+2]['var_dims'])
         
@@ -284,35 +336,41 @@ def WriteNCCF(Filename,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
 	    MyVar.point_spacing = DimObject[vv+2]['point_spacing']
 	
 	# Provide the data to the variable
-        if ('time' in DimObject[vv+2]):
+        if (DimObject[vv+2]['var_name'] == 'time'):
 	    MyVar[:] = TimPoints
 
-        if ('timebounds' in DimObject[vv+2]):
+        if (DimObject[vv+2]['var_name'] == 'bounds_time'):
 	    MyVar[:,:] = TimBounds
 
-        if ('month' in DimObject[vv+2]):
-	    MyVar[:] = MonthName
+        if (DimObject[vv+2]['var_name'] == 'month'):
+	    for mm in range(12):
+	        MyVar[mm,:] = stringtoarr(MonthName[mm],10)
 
-        if ('climbounds' in DimObject[vv+2]):
-	    MyVar[:,:] = ClimBounds
+        if (DimObject[vv+2]['var_name'] == 'climbounds'):
+	    for mm in range(12):
+	        MyVar[mm,0,:] = stringtoarr(ClimBounds[mm,0],10)
+	        MyVar[mm,1,:] = stringtoarr(ClimBounds[mm,1],10)
 
-        if ('lat' in DimObject[vv+2]):
+        if (DimObject[vv+2]['var_name'] == 'lat'):
 	    MyVar[:] = Latitudes
 
-        if ('latbounds' in DimObject[vv+2]):
+        if (DimObject[vv+2]['var_name'] == 'bounds_lat'):
 	    MyVar[:,:] = LatBounds
 
-        if ('lon' in DimObject[vv+2]):
+        if (DimObject[vv+2]['var_name'] == 'lon'):
 	    MyVar[:] = Longitudes
 
-        if ('lonbounds' in DimObject[vv+2]):
+        if (DimObject[vv+2]['var_name'] == 'bounds_lon'):
 	    MyVar[:,:] = LonBounds
 
     # Go through each variable and set up the variable attributes
     for vv in range(len(AttrObject)): # ignore first two elements of the list but count all other dictionaries
+
+        print(AttrObject[vv]['var_name'])
+
         # NOt 100% sure this works in a loop with overwriting
 	# initiate variable with name, type and dimensions
-	MyVar = ncfw.createVariable(AttrObject[vv+]['var_name'],AttrObject[vv]['var_type'],AttrObject[vv]['var_dims'])
+	MyVar = ncfw.createVariable(AttrObject[vv]['var_name'],AttrObject[vv]['var_type'],AttrObject[vv]['var_dims'],fill_value = AttrObject[vv]['_FillValue'])
         
 	# Apply any other attributes
         if ('standard_name' in AttrObject[vv]):
@@ -348,8 +406,8 @@ def WriteNCCF(Filename,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
         if ('missing_value' in AttrObject[vv]):
 	    MyVar.missing_value = AttrObject[vv]['missing_value']
 
-        if ('_FillValue' in AttrObject[vv]):
-	    MyVar._FillValue = AttrObject[vv]['_FillValue']
+#        if ('_FillValue' in AttrObject[vv]):
+#	    MyVar._FillValue = AttrObject[vv]['_FillValue']
 
         if ('reference_period' in AttrObject[vv]):
 	    MyVar.reference_period = AttrObject[vv]['reference_period']
@@ -357,8 +415,17 @@ def WriteNCCF(Filename,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
         if ('ancillary_variables' in AttrObject[vv]):
 	    MyVar.ancillary_variables = AttrObject[vv]['ancillary_variables']
 	
-	# Provide the data to the variable
-        MyVar[] = DataObject[vv]
+	# Provide the data to the variable - depending on howmany dimensions there are
+        if (len(AttrObject[vv]['var_dims']) == 1):
+	    MyVar[:] = DataObject[vv]
+	    
+        if (len(AttrObject[vv]['var_dims']) == 2):
+	    MyVar[:,:] = DataObject[vv]
+	    
+        if (len(AttrObject[vv]['var_dims']) == 3):
+	    MyVar[:,:,:] = DataObject[vv]
+	    
+	    
     ncfw.close()
    
     return # WriteNCCF
