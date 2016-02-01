@@ -101,6 +101,17 @@
 # VERSION/RELEASE NOTES
 # -----------------------
 #
+# Version 3 (1 February 2016)
+# ---------
+#  
+# Enhancements
+# Now reads in data in bundles with only one line to comment in/out.
+# Now has an extra level for sorting out plotting intervals for the map - prettier
+#  
+# Changes
+#  
+# Bug fixes
+#
 # Version 2 (5 October 2015)
 # ---------
 #  
@@ -150,14 +161,14 @@ import pdb	# for stopping and restarting with editability (stop is pdb.set_trace
 mdi=-1e30 # may set up as masked arrays later
 
 # Output date stamp
-nowmon='OCT'
-nowyear='2015'
+nowmon='JAN'
+nowyear='2016'
 
 # Set up directories and files
-INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/TRENDS/'
-#INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'	# may be needed for non-HadISDH variables
-INDIRO='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
-OUTDIR='/data/local/hadkw/HADCRUH2/UPDATE2014/IMAGES/OTHER/'
+INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/TRENDS/'
+#INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'	# may be needed for non-HadISDH variables
+INDIRO='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
+OUTDIR='/data/local/hadkw/HADCRUH2/UPDATE2015/IMAGES/OTHER/'
 
 # Land cover file:
 #incover='new_coverpercentjul08'
@@ -174,139 +185,185 @@ Letty=['a)','b)']
 
 #**********************************************************
 # Run choice bundle for input/output files, units, names, letters, read in varnames, colourmap
-# CHOOSE/ADD A BUNDLE!!!
 
-#candidate='HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-#OUTPLOT='TrendMap_HadISDH.landq.2.0.1.2014p_'+nowmon+nowyear
-#Unit='g kg$^{-1}$'  #'degrees C'
-#Namey='HadISDH.landq.2.0.1.2014p decadal trends'
-#nlats=36	       #set once file read in
-#nlons=72	       #set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['q_MPtrend','q_MP5th','q_MP95th'])
-#ColourMapChoice=('BrBG','noflip')
+# CHOOSE/ADD A DICTIONARY BUNDLE!!!
+#MyBundle = 'HadISDH.landq.ID'
+#MyBundle = 'HadISDH.landRH.ID'
+#MyBundle = 'HadISDH.landT.ID'
+#MyBundle = 'HadISDH.landTw.ID'
+#MyBundle = 'HadISDH.lande.ID'
+#MyBundle = 'HadISDH.landTd.DPD'
+MyBundle = 'HadISDH.landDPD.PHA'
+#MyBundle = 'HadISDH.landq.RAW'
+#MyBundle = 'HadISDH.landRH.RAW'
+#MyBundle = 'HadISDH.landT.RAW'
+#MyBundle = 'HadISDH.landTw.RAW'
+#MyBundle = 'HadISDH.lande.RAW'
+#MyBundle = 'HadISDH.landTd.RAW'
+#MyBundle = 'HadISDH.landDPD.RAW'
+#MyBundle = 'Berkeley'
+#MyBundle = 'GISS'
+#MyBundle = 'CRUTEM'
+#MyBundle = 'GHCNM'
 
-#candidate='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-#OUTPLOT='TrendMap_HadISDH.landRH.2.0.1.2014p_'+nowmon+nowyear
-#Unit='%rh'  
-#Namey='HadISDH.landRH.2.0.1.2014p decadal trends'
-#nlats=36	      #set once file read in
-#nlons=72	      #set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['RH_MPtrend','RH_MP5th','RH_MP95th'])
-#ColourMapChoice=('BrBG','noflip')
+if (MyBundle == 'HadISDH.landq.ID'):
+    candidate='HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf_MPtrends_19732015'
+    OUTPLOT='TrendMap_HadISDH.landq.2.1.0.2015p_'+nowmon+nowyear
+    Unit='g kg$^{-1}$'  #'degrees C'
+    Namey='HadISDH.landq.2.1.0.2015p decadal trends'
+    nlats=36	       #set once file read in
+    nlons=72	       #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['q_MPtrend','q_MP5th','q_MP95th'])
+    ColourMapChoice=('BrBG','noflip')
 
-#candidate='HadISDH.landT.2.0.1.2014p_FLATgridRAW5by5_JAN2015_MPtrends_19732014'
-#OUTPLOT='TrendMap_HadISDH.landT.2.0.1.2014p_RAW_'+nowmon+nowyear
-#Unit='$^{o}$C'  #'degrees C'
-#Namey='HadISDH.landT.2.0.1.2014p RAW decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
-#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+if (MyBundle == 'HadISDH.landRH.ID'):
+    candidate='HadISDH.landRH.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf_MPtrends_19732015'
+    OUTPLOT='TrendMap_HadISDH.landRH.2.1.0.2015p_'+nowmon+nowyear
+    Unit='%rh'  
+    Namey='HadISDH.landRH.2.1.0.2015p decadal trends'
+    nlats=36	     #set once file read in
+    nlons=72	     #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['RH_MPtrend','RH_MP5th','RH_MP95th'])
+    ColourMapChoice=('BrBG','noflip')
 
-#candidate='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-#OUTPLOT='TrendMap_HadISDH.landT.2.0.1.2014p_'+nowmon+nowyear
-#Unit='$^{o}$C'  #'degrees C'
-#Namey='HadISDH.landT.2.0.1.2014p decadal trends'
-#nlats=36	       #set once file read in
-#nlons=72	       #set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
-#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+if (MyBundle == 'HadISDH.landT.ID'):
+    candidate='HadISDH.landT.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf_MPtrends_19732015'
+    OUTPLOT='TrendMap_HadISDH.landT.2.1.0.2015p_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='HadISDH.landT.2.1.0.2015p decadal trends'
+    nlats=36	      #set once file read in
+    nlons=72	      #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
 
-#candidate='BERKELEY_T_5by519762005clim_anoms_19732014_MPtrends_19732014'
-#OUTPLOT='TrendMap_BERKELEY_'+nowmon+nowyear
-#Unit='$^{o}$C'  #'degrees C'
-#Namey='BERKELEY decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
-#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+if (MyBundle == 'HadISDH.landTw.ID'):
+    candidate='HadISDH.landTw.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf_MPtrends_19732015'
+    OUTPLOT='TrendMap_HadISDH.landTw.2.1.0.2015p_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='HadISDH.landTw.2.1.0.2015p decadal trends'
+    nlats=36	     #set once file read in
+    nlons=72	     #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['Tw_MPtrend','Tw_MP5th','Tw_MP95th'])
+    ColourMapChoice=('BrBG','noflip')
 
-#candidate='GISS_T_5by519762005clim_anoms_19732014_MPtrends_19732014'
-#OUTPLOT='TrendMap_GISS_'+nowmon+nowyear
-#Unit='$^{o}$C'  #'degrees C'
-#Namey='GISS decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
-#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+if (MyBundle == 'HadISDH.lande.ID'):
+    candidate='HadISDH.lande.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf_MPtrends_19732015'
+    OUTPLOT='TrendMap_HadISDH.lande.2.1.0.2015p_'+nowmon+nowyear
+    Unit='hPa'  #'degrees C'
+    Namey='HadISDH.lande.2.1.0.2015p decadal trends'
+    nlats=36	      #set once file read in
+    nlons=72	      #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['e_MPtrend','e_MP5th','e_MP95th'])
+    ColourMapChoice=('BrBG','noflip')
 
-#candidate='CRUTEM.4.3.0.0.anomalies_MPtrends_19732014'
-#OUTPLOT='TrendMap_CRUTEM4.3.0.0_'+nowmon+nowyear
-#Unit='$^{o}$C'  #'degrees C'
-#Namey='CRUTEM4.3.0.0 decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
-#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+if (MyBundle == 'HadISDH.landTd.DPD'):
+    candidate='HadISDH.landTd.2.1.0.2015p_FLATgridPHADPD5by5_JAN2016_cf_MPtrends_19732015'
+    OUTPLOT='TrendMap_HadISDH.landTd.2.1.0.2015p_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='HadISDH.landTd.2.1.0.2015p decadal trends'
+    nlats=36	     #set once file read in
+    nlons=72	     #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['Td_MPtrend','Td_MP5th','Td_MP95th'])
+    ColourMapChoice=('BrBG','noflip')
 
-#candidate='GHCNM_18802014_MPtrends_19732014'
-#OUTPLOT='TrendMap_GHCNM3_'+nowmon+nowyear
-#Unit='$^{o}$C'  #'degrees C'
-#Namey='GHCNM3 decadal trends'
-#nlats=36		#set once file read in
-#nlons=72		#set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
-#ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+if (MyBundle == 'HadISDH.landDPD.PHA'):
+    candidate='HadISDH.landDPD.2.1.0.2015p_FLATgridPHA5by5_JAN2016_cf_MPtrends_19732015'
+    OUTPLOT='TrendMap_HadISDH.landDPD.2.1.0.2015p_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='HadISDH.landDPD.2.1.0.2015p decadal trends'
+    nlats=36	     #set once file read in
+    nlons=72	     #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['DPD_MPtrend','DPD_MP5th','DPD_MP95th'])
+    ColourMapChoice=('BrBG','flip')
 
-#candidate='HadISDH.lande.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-#OUTPLOT='TrendMap_HadISDH.lande.2.0.1.2014p_'+nowmon+nowyear
-#Unit='hPa'  #'degrees C'
-#Namey='HadISDH.lande.2.0.1.2014p decadal trends'
-#nlats=36	       #set once file read in
-#nlons=72	       #set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['e_MPtrend','e_MP5th','e_MP95th'])
-#ColourMapChoice=('BrBG','noflip')
+#MyBundle = 'HadISDH.landq.RAW'
 
-#candidate='HadISDH.landTw.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-#OUTPLOT='TrendMap_HadISDH.landTw.2.0.1.2014p_'+nowmon+nowyear
-#Unit='$^{o}$C'  #'degrees C'
-#Namey='HadISDH.landTw.2.0.1.2014p decadal trends'
-#nlats=36	      #set once file read in
-#nlons=72	      #set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['Tw_MPtrend','Tw_MP5th','Tw_MP95th'])
-#ColourMapChoice=('BrBG','noflip')
+#MyBundle = 'HadISDH.landRH.RAW'
 
-#candidate='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_MPtrends_19732014'
-#OUTPLOT='TrendMap_HadISDH.landTd.2.0.1.2014p_'+nowmon+nowyear
-#Unit='$^{o}$C'  #'degrees C'
-#Namey='HadISDH.landTd.2.0.1.2014p decadal trends'
-#nlats=36	      #set once file read in
-#nlons=72	      #set once file read in
-#LatInfo=list(['latitude',nlats,-87.5])
-#LonInfo=list(['longitude',nlons,-177.5])
-#ReadInfo=list(['Td_MPtrend','Td_MP5th','Td_MP95th'])
-#ColourMapChoice=('BrBG','noflip')
+if (MyBundle == 'HadISDH.landT.RAW'):
+    candidate='HadISDH.landT.2.1.0.2015p_FLATgridRAW5by5_JAN2016_cf_MPtrends_19732015'
+    OUTPLOT='TrendMap_HadISDH.landT.2.1.0.2015p_RAW_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='HadISDH.landT.2.1.0.2015p RAW decadal trends'
+    nlats=36	       #set once file read in
+    nlons=72	       #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
 
-candidate='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_MPtrends_19732014'
-OUTPLOT='TrendMap_HadISDH.landDPD.2.0.1.2014p_'+nowmon+nowyear
-Unit='$^{o}$C'  #'degrees C'
-Namey='HadISDH.landDPD.2.0.1.2014p decadal trends'
-nlats=36	      #set once file read in
-nlons=72	      #set once file read in
-LatInfo=list(['latitude',nlats,-87.5])
-LonInfo=list(['longitude',nlons,-177.5])
-ReadInfo=list(['DPD_MPtrend','DPD_MP5th','DPD_MP95th'])
-ColourMapChoice=('BrBG','flip')
+#MyBundle = 'HadISDH.landTw.RAW'
+
+#MyBundle = 'HadISDH.lande.RAW'
+
+#MyBundle = 'HadISDH.landTd.RAW'
+
+#MyBundle = 'HadISDH.landDPD.RAW'
+
+if (MyBundle == 'Berkeley'):
+    candidate='BERKELEY_T_5by519762005clim_anoms_19732015_MPtrends_19732015'
+    OUTPLOT='TrendMap_BERKELEY_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='BERKELEY decadal trends'
+    nlats=36	       #set once file read in
+    nlons=72	       #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+if (MyBundle == 'GISS'):
+    candidate='GISS_T_5by519762005clim_anoms_19732015_MPtrends_19732015'
+    OUTPLOT='TrendMap_GISS_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='GISS decadal trends'
+    nlats=36	       #set once file read in
+    nlons=72	       #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+if (MyBundle == 'CRUTEM'):
+    candidate='CRUTEM.4.3.0.0.anomalies_MPtrends_19732015'
+    OUTPLOT='TrendMap_CRUTEM4.3.0.0_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='CRUTEM4.3.0.0 decadal trends'
+    nlats=36	       #set once file read in
+    nlons=72	       #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+if (MyBundle == 'GHCNM'):
+    candidate='GHCNM_18802014_MPtrends_19732015'
+    OUTPLOT='TrendMap_GHCNM3_'+nowmon+nowyear
+    Unit='$^{o}$C'  #'degrees C'
+    Namey='GHCNM3 decadal trends'
+    nlats=36	       #set once file read in
+    nlons=72	       #set once file read in
+    LatInfo=list(['latitude',nlats,-87.5])
+    LonInfo=list(['longitude',nlons,-177.5])
+    ReadInfo=list(['T_MPtrend','T_MP5th','T_MP95th'])
+    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+
+
+
 
 #************************************************************************
 # Subroutines
@@ -429,10 +486,14 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
     vmin=-vmax
     if (vmax <= 0.3):
         nsteps=np.int((vmax-vmin)/0.05)+1
-    elif (vmax <= 0.5):
+    elif (vmax <= 0.4):
         vmax=np.ceil(np.max(abs(MSKTheCandData))/0.06)*0.06  
         vmin=-vmax
         nsteps=np.int((vmax-vmin)/0.06)+1
+    elif (vmax <= 0.6):
+        vmax=np.ceil(np.max(abs(MSKTheCandData))/0.08)*0.08  
+        vmin=-vmax
+        nsteps=np.int((vmax-vmin)/0.08)+1
     elif (vmax <= 1.0):
         vmax=np.ceil(np.max(abs(MSKTheCandData))/0.1)*0.1  
         vmin=-vmax
