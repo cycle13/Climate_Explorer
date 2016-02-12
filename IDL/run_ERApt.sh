@@ -1,3 +1,4 @@
+#!/bin/sh
 
 # Shell script to run the idl code makeERApentads_FEB2016.pro with a read in value
 # run using ./run_makeERApentads_FEB2016.pro

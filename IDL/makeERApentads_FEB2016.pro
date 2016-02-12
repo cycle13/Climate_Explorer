@@ -38,7 +38,7 @@ nlats=181
 ;indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
 ;outdir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
 indir='/project/hadobs2/hadisdh/land/UPDATE2015/OTHERDATA/'
-outdir='/project/hadobs2/hadisdh/land/HADCRUH2/UPDATE2015/OTHERDATA/'
+outdir='/project/hadobs2/hadisdh/land/UPDATE2015/OTHERDATA/'
 infilT='ERAINTERIM_drybulbT_6hr_1by1_'
 infilTd='ERAINTERIM_dewpointT_6hr_1by1_'
 infilP='ERAINTERIM_sp_6hr_1by1_'
@@ -78,7 +78,8 @@ FOR yy=0,nyrs-1 DO BEGIN
   ENDFOR
 ENDFOR
 
-;stop
+; make times zero'd to 1979-1-1 that are half way through pentad
+goomoo=(moo-startee)+2.5
 
 FOR dd=0,ndecs-1 DO BEGIN
   sttim=0
@@ -155,7 +156,7 @@ FOR dd=0,ndecs-1 DO BEGIN
     
     FOR ltt=0,nlats-1 DO BEGIN
       FOR lnn=0,nlons-1 DO BEGIN
-        IF (param NE 'td2m') THEN tf=t(lnn,ltt,*)
+        IF ((param NE 'td2m') AND (param NE 'p2m')) THEN tf=t(lnn,ltt,*)
         IF ((param NE 't2m') AND (param NE 'p2m')) THEN df=d(lnn,ltt,*)
         IF ((param NE 't2m') AND (param NE 'td2m')) THEN pf=p(lnn,ltt,*)
         IF ((param EQ 'e2m') OR (param EQ 'q2m') OR (param EQ 'rh2m') OR (param EQ 'tw2m')) THEN BEGIN
@@ -219,16 +220,12 @@ ENDFOR
 ;************************************************
 ; Save as netCDF
 
-; make times zero'd to 1979-1-1 that are half way through pentad
-noomoo=moo-startee
-goomoo=(noomoo(0:nptds-1)-1)+(((noomoo(1:nptds)-1)-noomoo(0:nptds-1))/2.)
-
 filename=outdir+outfile
 file_out=NCDF_CREATE(filename,/clobber)
 time_id=NCDF_DIMDEF(file_out,'time',nptds)
 timvarid=NCDF_VARDEF(file_out,'time',[time_id],/DOUBLE)
-pt_id=NCDF_DIMDEF(file_out,'time',73)
-ptvarid=NCDF_VARDEF(file_out,'time',[pt_id],/DOUBLE)
+pt_id=NCDF_DIMDEF(file_out,'pentad_time',73)
+ptvarid=NCDF_VARDEF(file_out,'pentad_time',[pt_id],/DOUBLE)
 lat_id=NCDF_DIMDEF(file_out,'latitude',nlats)
 latvarid=NCDF_VARDEF(file_out,'latitude',[lat_id],/DOUBLE)
 lon_id=NCDF_DIMDEF(file_out,'longitude',nlons)
