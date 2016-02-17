@@ -64,7 +64,7 @@ CASE param OF
 ENDCASE
 
 mdi=-1e30
-edyr=2014
+edyr=2015
 styr=1973	; 1973, 1971
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
@@ -87,16 +87,16 @@ getyrmoned=(((year+1)-styr)*12)-1
 inn=NCDF_OPEN(filein)
 CASE param OF
 ;  'q': varid=NCDF_VARID(inn,'anomalies')
-;  'q': varid=NCDF_VARID(inn,'q_anoms')
+  'q': varid=NCDF_VARID(inn,'q_anoms')
 ;  'q': varid=NCDF_VARID(inn,'blendmask_q_anoms')
-  'q': varid=NCDF_VARID(inn,'blend_q_anoms')
+;  'q': varid=NCDF_VARID(inn,'blend_q_anoms')
 ;  'RH': varid=NCDF_VARID(inn,'anomalies')
   'RH': varid=NCDF_VARID(inn,'rh_anoms')
   'e': varid=NCDF_VARID(inn,'e_anoms')
   'Td': varid=NCDF_VARID(inn,'td_anoms')
   'Tw': varid=NCDF_VARID(inn,'tw_anoms')
-;  'T': varid=NCDF_VARID(inn,'t_anoms')
-  'T': varid=NCDF_VARID(inn,'temperature_anomaly')
+  'T': varid=NCDF_VARID(inn,'t_anoms')
+;  'T': varid=NCDF_VARID(inn,'temperature_anomaly')
   'DPD': varid=NCDF_VARID(inn,'dpd_anoms')
 ;  'w': varid=NCDF_VARID(inn,'w_anoms')
 ;  'w': varid=NCDF_VARID(inn,'mask_w_anoms')

@@ -1,27 +1,27 @@
 pro run_annualanommaps
 
-version='2.0.1.2014p'
+version='2.1.0.2015p'
 nowmon='FEB'
-nowyear='2015'
+nowyear='2016'
 thenmon='JAN'
-thenyear='2015'
+thenyear='2016'
 homogtype='IDPHA' ; 'PHA','PHADPD','IDPHA'
-param='q'	;q,e,RH,T,Tw,Td,DPD
+param='RH'	;q,e,RH,T,Tw,Td,DPD
 climst=1981			;1981, 1976
 climed=2010			;2010, 2005
 climie=strmid(strcompress(climst,/remove_all),2,2)+strmid(strcompress(climed,/remove_all),2,2)
 
-for yy=1973,2014 DO BEGIN
-  dir='/data/local/hadkw/HADCRUH2/UPDATE2014/'
+for yy=1973,2015 DO BEGIN
+  dir='/data/local/hadkw/HADCRUH2/UPDATE2015/'
   ystr=string(yy,format='(i4)')
   print,yy,ystr
-;  filein=dir+'STATISTICS/GRIDS/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+thenmon+thenyear+'_cf.nc'
-;  plotout=dir+'IMAGES/MAPS/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
-;  fileout=dir+'STATISTICS/GRIDS/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
+  filein=dir+'STATISTICS/GRIDS/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+thenmon+thenyear+'_cf.nc'
+  plotout=dir+'IMAGES/MAPS/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
+  fileout=dir+'STATISTICS/GRIDS/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
 
-  filein=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'.nc'
-  plotout=dir+'IMAGES/MAPS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
-  fileout=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
+;  filein=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'.nc'
+;  plotout=dir+'IMAGES/MAPS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
+;  fileout=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
 ;  plotout=dir+'IMAGES/MAPS/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
 ;  fileout=dir+'STATISTICS/GRIDS/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
 
