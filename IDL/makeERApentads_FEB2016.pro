@@ -8,6 +8,11 @@ pro makeERApentads_FEB2016,param
 ; Average to pentad
 ; create pentad climatology
 ; create pentad anomalies
+
+; MARINE OPTION:
+; regrid to lie on 180 (89.5 to -89.5) latitudes rather than 181 (90 to -90)
+;  ; regrid to 0.5 degree grids then re-average over 1 degree boxes
+; shift to lie -180 to 180 longitude rather than 0 to 360
 ; Save
 
 ; USE calc_evap
@@ -16,6 +21,8 @@ pro makeERApentads_FEB2016,param
 ;************************************************
 
 ; File and vars set up
+
+MARINE=1 ; 0 if normal, 1 if regrid and shift
 
 mdi=-1e30
 
@@ -34,6 +41,7 @@ nleaps=9	;1980,1984,1988,1992,1996,2000,2004,2008,2012
 
 nlons=360
 nlats=181
+marlats=180
 
 ;indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
 ;outdir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
@@ -44,11 +52,13 @@ infilTd='ERAINTERIM_dewpointT_6hr_1by1_'
 infilP='ERAINTERIM_sp_6hr_1by1_'
 indecs=['1979010119881231','1989010119981231','1999010120081231','2009010120141231','2015010120151231']
 
-myparams=['q2m','e2m','tw2m','t2m','td2m','rh2m','dpd2m','p2m']
-IF (where(myparams EQ param) LT 0) THEN stop,"No param set"
+;myparams=['q2m','e2m','tw2m','t2m','td2m','rh2m','dpd2m','p2m']
+;IF (where(myparams EQ param) LT 0) THEN stop,"No param set"
 
-outfile=param+'_pentad_1by1_ERA-Interim_data_'+strcompress(styr,/remove_all)+strcompress(edyr,/remove_all)+'.nc'
-
+if (MARINE EQ 0) THEN $
+    outfile=param+'_pentad_1by1_ERA-Interim_data_'+strcompress(styr,/remove_all)+strcompress(edyr,/remove_all)+'.nc' ELSE $
+    outfile=param+'_pentad_1by1marine_ERA-Interim_data_'+strcompress(styr,/remove_all)+strcompress(edyr,/remove_all)+'.nc'
+    
 pentad=make_array(nlons,nlats,nptds,type=FLOAT,value=mdi)
 
 ;************************************************
@@ -199,7 +209,29 @@ FOR dd=0,ndecs-1 DO BEGIN
   ENDFOR
 ENDFOR  
 
+; IF its output for marine data then regrid and shift
+IF (MARINE EQ 1) THEN BEGIN
+  oldpentad=pentad
+  pentad=make_array(nlons,marlats,nptds,type=FLOAT,value=mdi)
+  FOR lnn=0,nlons-1 DO BEGIN
+    FOR pt=0,nptds-1 DO BEGIN
+      subarr=transpose(oldpentad(lnn,*,pt)) ; this is 90 to -90, so 181 boxes, needs to be transpose to make it all one row
+      ; expand to repeat for half deg
+      subarr=REFORM(transpose(REFORM([subarr,subarr],nlats,2)),nlats*2)
+      ; get rid of redundant 90 to 90.5 and -90 to -90.5 boxes
+      subarr=subarr(1:(nlats*2)-2)
+      ; reform to two columns and lots of rows, and then compute means over each pair of columns
+      pentad(lnn,*,pt)=mean(REFORM(subarr,2,marlats),dimension=1)    
+    ENDFOR
+  ENDFOR
+  lons=findgen(nlons)-179.5
+  lats=(findgen(marlats)*(-1))+89.5
+  ; shift lons
+  pentad=shift(pentad,180) ; should shift each lon,lat field 180 lons over and not touch the lats of pentad order
+ENDIF
+
 ; make pentad climatologies and standard deviations and anomalies
+IF (MARINE EQ 1) THEN nlats=marlats ; now 180 rather than 181
 clims=make_array(nlons,nlats,73,type=FLOAT,value=mdi)
 stdevs=make_array(nlons,nlats,73,type=FLOAT,value=mdi)
 anoms=make_array(nlons,nlats,nptds,type=FLOAT,value=mdi)
