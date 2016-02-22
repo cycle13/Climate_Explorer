@@ -1,10 +1,14 @@
 pro extract_NOCSvars_FEB2014
 
-absyes=1 ; if 1 then actuals, if 0 then anomalies
+; UDPATED FEB 2016
+; Now reads in new files which contain EVERYTHING!
+; One file per year
+
+absyes=0 ; if 1 then actuals, if 0 then anomalies
 
 mdi=-1e30
-styr=1973
-edyr=2014
+styr=1971
+edyr=2015
 clst=1981-styr
 cled=2010-styr
 nyrs=(edyr+1)-styr
@@ -31,7 +35,7 @@ bluemask=fltarr(360,180)
 Qmask=make_array(360,180,nmons,/float,value=mdi)
 
 ; read in NOCS high quality mask and regrid to 5by5 from 1by1
-indir='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/NOCS2.0/'
+indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/NOCS/'
 ;lons -179.5 to 179.5
 ;lats -89.5 to 89.5
 inn=NCDF_OPEN(indir+'mask_for_kate.nc')
@@ -44,18 +48,25 @@ NCDF_CLOSE,inn
 ;lats -89.5 to 89.5
 stmn=0
 edmn=11
-indir='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/NOCS2.0/nocs_v2_0_'
+indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/NOCS/'
+nocsfil='.monthly.fluxes.nc'
 FOR yy=0,nyrs-1 DO BEGIN
+  print,yy
 ;  IF (styr+yy GE 2007) THEN filee='prelim_wspd_' ELSE filee='wspd_'
-  IF (styr+yy GE 2007) THEN filee='prelim_qair_' ELSE filee='qair_'
-  inn=NCDF_OPEN(indir+filee+strcompress((styr+yy),/remove_all)+'.nc')
-;  varid=NCDF_VARID(inn,'wspd')	;1=good
+;  IF (styr+yy GE 2007) THEN filee='prelim_qair_' ELSE filee='qair_'
+;  inn=NCDF_OPEN(indir+filee+strcompress((styr+yy),/remove_all)+'.nc')
+  spawn,'gunzip -c '+indir+strcompress((styr+yy),/remove_all)+nocsfil+'.gz > tmpfil'
+  inn=NCDF_OPEN('tmpfil')
+  varid=NCDF_VARID(inn,'wspd')	;1=good
+  uncvarid=NCDF_VARID(inn,'wspd_err_total')	;1=good
 ;  uncvarid=NCDF_VARID(inn,'wspd_qflag')	;1=good
-  varid=NCDF_VARID(inn,'qair')	;1=good
-  uncvarid=NCDF_VARID(inn,'qair_qflag')	;1=good
+;  varid=NCDF_VARID(inn,'qair')	;1=good
+;;  uncvarid=NCDF_VARID(inn,'qair_qflag')	;1=good
+;  uncvarid=NCDF_VARID(inn,'qair_err_total')	;1=good
   NCDF_VARGET,inn,varid,qc1by1
   NCDF_VARGET,inn,uncvarid,uncs
   NCDF_CLOSE,inn
+  spawn,'rm tmpfil'
   marinehi(*,*,stmn:edmn)=qc1by1
   Qmask(*,*,stmn:edmn)=uncs
   stmn=stmn+12
@@ -71,7 +82,8 @@ IF (count GT 0) THEN Qmask(bads)=mdi
 FOR i=0,nlons-1 DO BEGIN
   FOR j=0,nlats-1 DO BEGIN
     IF (bluemask(i,j) EQ 1) THEN marinehimask(i,j,*)=marinehi(i,j,*)
-    gots=WHERE(Qmask(i,j,*) LT 1 AND Qmask(i,j,*) NE mdi,count)
+;    gots=WHERE(Qmask(i,j,*) LT 1 AND Qmask(i,j,*) NE mdi,count)
+    gots=WHERE(Qmask(i,j,*) LE 1 AND Qmask(i,j,*) NE mdi,count)
     IF (count GT 0) THEN marinehiQ(i,j,gots)=marinehi(i,j,gots)
   ENDFOR
 ENDFOR
@@ -79,6 +91,7 @@ ENDFOR
 ; normalise to 1981-2010
 IF (absyes EQ 0) THEN BEGIN
 FOR i=0,nlons-1 DO BEGIN
+  print,'LON: ',i
   FOR j=0,nlats-1 DO BEGIN
     subarr=marinehi(i,j,*)
     subarrmask=marinehimask(i,j,*)
@@ -142,11 +155,11 @@ ENDIF
 ; output gridded product
 
 IF (absyes EQ 1) THEN BEGIN
-  ;wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanW_1by1_abs_FEB2015.nc',/clobber)
-  wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanq_1by1_abs_FEB2015.nc',/clobber)
+  wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/NOCSv2.0_oceanW_1by1_abs_FEB2016.nc',/clobber)
+  ;wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/NOCSv2.0_oceanq_1by1_abs_FEB2016.nc',/clobber)
 ENDIF ELSE BEGIN
-  ;wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanW_1by1_8110anoms_FEB2015.nc',/clobber)
-  wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanq_1by1_8110anoms_FEB2015.nc',/clobber)
+  wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/NOCSv2.0_oceanW_1by1_8110anoms_FEB2016.nc',/clobber)
+  ;wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/NOCSv2.0_oceanq_1by1_8110anoms_FEB2016.nc',/clobber)
 ENDELSE  
 tid=NCDF_DIMDEF(wilma,'time',nmons)
 clmid=NCDF_DIMDEF(wilma,'month',12)
@@ -157,19 +170,19 @@ timesvar=NCDF_VARDEF(wilma,'times',[tid],/SHORT)
 latsvar=NCDF_VARDEF(wilma,'lat',[latid],/FLOAT)
 lonsvar=NCDF_VARDEF(wilma,'lon',[lonid],/FLOAT)
 IF (absyes EQ 1) THEN BEGIN
-  ;anomvar=NCDF_VARDEF(wilma,'w_abs',[lonid,latid,tid],/FLOAT)
-  ;anomvarmask=NCDF_VARDEF(wilma,'mask_w_abs',[lonid,latid,tid],/FLOAT)
-  ;anomvarQ=NCDF_VARDEF(wilma,'Q_w_abs',[lonid,latid,tid],/FLOAT)
-  anomvar=NCDF_VARDEF(wilma,'q_abs',[lonid,latid,tid],/FLOAT)
-  anomvarmask=NCDF_VARDEF(wilma,'mask_q_abs',[lonid,latid,tid],/FLOAT)
-  anomvarQ=NCDF_VARDEF(wilma,'Q_q_abs',[lonid,latid,tid],/FLOAT)
+  anomvar=NCDF_VARDEF(wilma,'w_abs',[lonid,latid,tid],/FLOAT)
+  anomvarmask=NCDF_VARDEF(wilma,'mask_w_abs',[lonid,latid,tid],/FLOAT)
+  anomvarQ=NCDF_VARDEF(wilma,'Q_w_abs',[lonid,latid,tid],/FLOAT)
+  ;anomvar=NCDF_VARDEF(wilma,'q_abs',[lonid,latid,tid],/FLOAT)
+  ;anomvarmask=NCDF_VARDEF(wilma,'mask_q_abs',[lonid,latid,tid],/FLOAT)
+  ;anomvarQ=NCDF_VARDEF(wilma,'Q_q_abs',[lonid,latid,tid],/FLOAT)
 ENDIF ELSE BEGIN
-  ;anomvar=NCDF_VARDEF(wilma,'w_anoms',[lonid,latid,tid],/FLOAT)
-  ;anomvarmask=NCDF_VARDEF(wilma,'mask_w_anoms',[lonid,latid,tid],/FLOAT)
-  ;anomvarQ=NCDF_VARDEF(wilma,'Q_w_anoms',[lonid,latid,tid],/FLOAT)
-  anomvar=NCDF_VARDEF(wilma,'q_anoms',[lonid,latid,tid],/FLOAT)
-  anomvarmask=NCDF_VARDEF(wilma,'mask_q_anoms',[lonid,latid,tid],/FLOAT)
-  anomvarQ=NCDF_VARDEF(wilma,'Q_q_anoms',[lonid,latid,tid],/FLOAT)
+  anomvar=NCDF_VARDEF(wilma,'w_anoms',[lonid,latid,tid],/FLOAT)
+  anomvarmask=NCDF_VARDEF(wilma,'mask_w_anoms',[lonid,latid,tid],/FLOAT)
+  anomvarQ=NCDF_VARDEF(wilma,'Q_w_anoms',[lonid,latid,tid],/FLOAT)
+  ;anomvar=NCDF_VARDEF(wilma,'q_anoms',[lonid,latid,tid],/FLOAT)
+  ;anomvarmask=NCDF_VARDEF(wilma,'mask_q_anoms',[lonid,latid,tid],/FLOAT)
+  ;anomvarQ=NCDF_VARDEF(wilma,'Q_q_anoms',[lonid,latid,tid],/FLOAT)
 ENDELSE
 
 NCDF_ATTPUT,wilma,'times','long_name','time'
@@ -187,15 +200,15 @@ NCDF_ATTPUT,wilma,'lon','valid_min',-180.
 NCDF_ATTPUT,wilma,'lon','valid_max',180.
 
 IF (absyes EQ 1) THEN BEGIN
-  ;NCDF_ATTPUT,wilma,anomvar,'long_name','Wind speed monthly mean'
-  ;NCDF_ATTPUT,wilma,anomvar,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvar,'long_name','Specific humidity monthly'
-  NCDF_ATTPUT,wilma,anomvar,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvar,'long_name','Wind speed monthly mean'
+  NCDF_ATTPUT,wilma,anomvar,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvar,'long_name','Specific humidity monthly'
+  ;NCDF_ATTPUT,wilma,anomvar,'units','g/kg'
 ENDIF ELSE BEGIN
-  ;NCDF_ATTPUT,wilma,anomvar,'long_name','Wind speed monthly mean anomaly (1981-2010)'
-  ;NCDF_ATTPUT,wilma,anomvar,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvar,'long_name','Specific humidity monthly mean anomaly (1981-2010)'
-  NCDF_ATTPUT,wilma,anomvar,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvar,'long_name','Wind speed monthly mean anomaly (1981-2010)'
+  NCDF_ATTPUT,wilma,anomvar,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvar,'long_name','Specific humidity monthly mean anomaly (1981-2010)'
+  ;NCDF_ATTPUT,wilma,anomvar,'units','g/kg'
 ENDELSE
 NCDF_ATTPUT,wilma,anomvar,'axis','T'
 valid=WHERE(marinehi NE mdi, tc)
@@ -208,15 +221,15 @@ ENDIF
 NCDF_ATTPUT,wilma,anomvar,'missing_value',mdi
 
 IF (absyes EQ 1) THEN BEGIN
-  ;NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine High Quality Mask wind speed monthly mean'
-  ;NCDF_ATTPUT,wilma,anomvarmask,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine high quality masked Specific humidity monthly mean'
-  NCDF_ATTPUT,wilma,anomvarmask,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine High Quality Mask wind speed monthly mean'
+  NCDF_ATTPUT,wilma,anomvarmask,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine high quality masked Specific humidity monthly mean'
+  ;NCDF_ATTPUT,wilma,anomvarmask,'units','g/kg'
 ENDIF ELSE BEGIN
-  ;NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine High Quality Mask wind speed monthly mean anomaly (1981-2010)'
-  ;NCDF_ATTPUT,wilma,anomvarmask,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine high quality masked Specific humidity monthly mean anomaly (1981-2010)'
-  NCDF_ATTPUT,wilma,anomvarmask,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine High Quality Mask wind speed monthly mean anomaly (1981-2010)'
+  NCDF_ATTPUT,wilma,anomvarmask,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine high quality masked Specific humidity monthly mean anomaly (1981-2010)'
+  ;NCDF_ATTPUT,wilma,anomvarmask,'units','g/kg'
 ENDELSE
 NCDF_ATTPUT,wilma,anomvarmask,'axis','T'
 valid=WHERE(marinehimask NE mdi, tc)
@@ -229,15 +242,15 @@ ENDIF
 NCDF_ATTPUT,wilma,anomvarmask,'missing_value',mdi
 
 IF (absyes EQ 1) THEN BEGIN
-  ;NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q wind speed monthly mean'
-  ;NCDF_ATTPUT,wilma,anomvarQ,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q Specific humidity monthly mean'
-  NCDF_ATTPUT,wilma,anomvarQ,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q wind speed monthly mean'
+  NCDF_ATTPUT,wilma,anomvarQ,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q Specific humidity monthly mean'
+  ;NCDF_ATTPUT,wilma,anomvarQ,'units','g/kg'
 ENDIF ELSE BEGIN
-  ;NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q wind speed monthly mean anomaly (1981-2010)'
-  ;NCDF_ATTPUT,wilma,anomvarQ,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q Specific humidity monthly mean anomaly (1981-2010)'
-  NCDF_ATTPUT,wilma,anomvarQ,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q wind speed monthly mean anomaly (1981-2010)'
+  NCDF_ATTPUT,wilma,anomvarQ,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q Specific humidity monthly mean anomaly (1981-2010)'
+  ;NCDF_ATTPUT,wilma,anomvarQ,'units','g/kg'
 ENDELSE
 NCDF_ATTPUT,wilma,anomvarQ,'axis','T'
 valid=WHERE(marinehiQ NE mdi, tc)
@@ -294,11 +307,11 @@ ENDFOR
 ; output gridded product
 
 IF (absyes EQ 1) THEN BEGIN
-  ;wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanW_5by5_abs_FEB2015.nc',/clobber)
-  wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanq_5by5_abs_FEB2015.nc',/clobber)
+  wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/NOCSv2.0_oceanW_5by5_abs_FEB2016.nc',/clobber)
+  ;wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/NOCSv2.0_oceanq_5by5_abs_FEB2016.nc',/clobber)
 ENDIF ELSE BEGIN
-  ;wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanW_5by5_8110anoms_FEB2015.nc',/clobber)
-  wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanq_5by5_8110anoms_FEB2015.nc',/clobber)
+  wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/NOCSv2.0_oceanW_5by5_8110anoms_FEB2016.nc',/clobber)
+  ;wilma=NCDF_CREATE('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/NOCSv2.0_oceanq_5by5_8110anoms_FEB2016.nc',/clobber)
 ENDELSE
   
 tid=NCDF_DIMDEF(wilma,'time',nmons)
@@ -310,19 +323,19 @@ timesvar=NCDF_VARDEF(wilma,'times',[tid],/SHORT)
 latsvar=NCDF_VARDEF(wilma,'lat',[latid],/FLOAT)
 lonsvar=NCDF_VARDEF(wilma,'lon',[lonid],/FLOAT)
 IF (absyes EQ 1) THEN BEGIN
-  ;anomvar=NCDF_VARDEF(wilma,'w_abs',[lonid,latid,tid],/FLOAT)
-  ;anomvarmask=NCDF_VARDEF(wilma,'mask_w_anoms',[lonid,latid,tid],/FLOAT)
-  ;anomvarQ=NCDF_VARDEF(wilma,'Q_w_abs',[lonid,latid,tid],/FLOAT)
-  anomvar=NCDF_VARDEF(wilma,'q_abs',[lonid,latid,tid],/FLOAT)
-  anomvarmask=NCDF_VARDEF(wilma,'mask_q_abs',[lonid,latid,tid],/FLOAT)
-  anomvarQ=NCDF_VARDEF(wilma,'Q_q_abs',[lonid,latid,tid],/FLOAT)
+  anomvar=NCDF_VARDEF(wilma,'w_abs',[lonid,latid,tid],/FLOAT)
+  anomvarmask=NCDF_VARDEF(wilma,'mask_w_anoms',[lonid,latid,tid],/FLOAT)
+  anomvarQ=NCDF_VARDEF(wilma,'Q_w_abs',[lonid,latid,tid],/FLOAT)
+  ;anomvar=NCDF_VARDEF(wilma,'q_abs',[lonid,latid,tid],/FLOAT)
+  ;anomvarmask=NCDF_VARDEF(wilma,'mask_q_abs',[lonid,latid,tid],/FLOAT)
+  ;anomvarQ=NCDF_VARDEF(wilma,'Q_q_abs',[lonid,latid,tid],/FLOAT)
 ENDIF ELSE BEGIN
-  ;anomvar=NCDF_VARDEF(wilma,'w_anoms',[lonid,latid,tid],/FLOAT)
-  ;anomvarmask=NCDF_VARDEF(wilma,'mask_w_anoms',[lonid,latid,tid],/FLOAT)
-  ;anomvarQ=NCDF_VARDEF(wilma,'Q_w_anoms',[lonid,latid,tid],/FLOAT)
-  anomvar=NCDF_VARDEF(wilma,'q_anoms',[lonid,latid,tid],/FLOAT)
-  anomvarmask=NCDF_VARDEF(wilma,'mask_q_anoms',[lonid,latid,tid],/FLOAT)
-  anomvarQ=NCDF_VARDEF(wilma,'Q_q_anoms',[lonid,latid,tid],/FLOAT)
+  anomvar=NCDF_VARDEF(wilma,'w_anoms',[lonid,latid,tid],/FLOAT)
+  anomvarmask=NCDF_VARDEF(wilma,'mask_w_anoms',[lonid,latid,tid],/FLOAT)
+  anomvarQ=NCDF_VARDEF(wilma,'Q_w_anoms',[lonid,latid,tid],/FLOAT)
+  ;anomvar=NCDF_VARDEF(wilma,'q_anoms',[lonid,latid,tid],/FLOAT)
+  ;anomvarmask=NCDF_VARDEF(wilma,'mask_q_anoms',[lonid,latid,tid],/FLOAT)
+  ;anomvarQ=NCDF_VARDEF(wilma,'Q_q_anoms',[lonid,latid,tid],/FLOAT)
 ENDELSE
 
 NCDF_ATTPUT,wilma,'times','long_name','time'
@@ -340,15 +353,15 @@ NCDF_ATTPUT,wilma,'lon','valid_min',-180.
 NCDF_ATTPUT,wilma,'lon','valid_max',180.
 
 IF (absyes EQ 1) THEN BEGIN
-  ;NCDF_ATTPUT,wilma,anomvar,'long_name','Wind speed monthly mean'
-  ;NCDF_ATTPUT,wilma,anomvar,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvar,'long_name','Specific humidity monthly mean'
-  NCDF_ATTPUT,wilma,anomvar,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvar,'long_name','Wind speed monthly mean'
+  NCDF_ATTPUT,wilma,anomvar,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvar,'long_name','Specific humidity monthly mean'
+  ;NCDF_ATTPUT,wilma,anomvar,'units','g/kg'
 ENDIF ELSE BEGIN
-  ;NCDF_ATTPUT,wilma,anomvar,'long_name','Wind speed monthly mean anomaly (1981-2010)'
-  ;NCDF_ATTPUT,wilma,anomvar,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvar,'long_name','Specific humidity monthly mean anomaly (1981-2010)'
-  NCDF_ATTPUT,wilma,anomvar,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvar,'long_name','Wind speed monthly mean anomaly (1981-2010)'
+  NCDF_ATTPUT,wilma,anomvar,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvar,'long_name','Specific humidity monthly mean anomaly (1981-2010)'
+  ;NCDF_ATTPUT,wilma,anomvar,'units','g/kg'
 ENDELSE
 NCDF_ATTPUT,wilma,anomvar,'axis','T'
 valid=WHERE(marinehi NE mdi, tc)
@@ -361,15 +374,15 @@ ENDIF
 NCDF_ATTPUT,wilma,anomvar,'missing_value',mdi
 
 IF (absyes EQ 1) THEN BEGIN
-  ;NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine High Quality Mask wind speed monthly mean'
-  ;NCDF_ATTPUT,wilma,anomvarmask,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine high quality masked Specific humidity monthly mean'
-  NCDF_ATTPUT,wilma,anomvarmask,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine High Quality Mask wind speed monthly mean'
+  NCDF_ATTPUT,wilma,anomvarmask,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine high quality masked Specific humidity monthly mean'
+  ;NCDF_ATTPUT,wilma,anomvarmask,'units','g/kg'
 ENDIF ELSE BEGIN
-  ;NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine High Quality Mask wind speed monthly mean anomaly (1981-2010)'
-  ;NCDF_ATTPUT,wilma,anomvarmask,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine high quality masked Specific humidity monthly mean anomaly (1981-2010)'
-  NCDF_ATTPUT,wilma,anomvarmask,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine High Quality Mask wind speed monthly mean anomaly (1981-2010)'
+  NCDF_ATTPUT,wilma,anomvarmask,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvarmask,'long_name','Marine high quality masked Specific humidity monthly mean anomaly (1981-2010)'
+  ;NCDF_ATTPUT,wilma,anomvarmask,'units','g/kg'
 ENDELSE
 NCDF_ATTPUT,wilma,anomvarmask,'axis','T'
 valid=WHERE(marinehimask NE mdi, tc)
@@ -382,15 +395,15 @@ ENDIF
 NCDF_ATTPUT,wilma,anomvarmask,'missing_value',mdi
 
 IF (absyes EQ 1) THEN BEGIN
-  ;NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q wind speed monthly mean'
-  ;NCDF_ATTPUT,wilma,anomvarQ,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q Specific humidity monthly mean'
-  NCDF_ATTPUT,wilma,anomvarQ,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q wind speed monthly mean'
+  NCDF_ATTPUT,wilma,anomvarQ,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q Specific humidity monthly mean'
+  ;NCDF_ATTPUT,wilma,anomvarQ,'units','g/kg'
 ENDIF ELSE BEGIN
-  ;NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q wind speed monthly mean anomaly (1981-2010)'
-  ;NCDF_ATTPUT,wilma,anomvarQ,'units','m/s'
-  NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q Specific humidity monthly mean anomaly (1981-2010)'
-  NCDF_ATTPUT,wilma,anomvarQ,'units','g/kg'
+  NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q wind speed monthly mean anomaly (1981-2010)'
+  NCDF_ATTPUT,wilma,anomvarQ,'units','m/s'
+  ;NCDF_ATTPUT,wilma,anomvarQ,'long_name','Marine High Quality Q Specific humidity monthly mean anomaly (1981-2010)'
+  ;NCDF_ATTPUT,wilma,anomvarQ,'units','g/kg'
 ENDELSE
 NCDF_ATTPUT,wilma,anomvarQ,'axis','T'
 valid=WHERE(marinehiQ NE mdi, tc)
@@ -541,15 +554,15 @@ Qtrop_avg_ts=globalmean(field_values,NNNlats,mdi,mask=trop_mask_3d)
 
 ;save to file;
 IF (absyes EQ 1) THEN BEGIN
-  ;filename='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanW_5by5_abs_areaTS_FEB2015.nc'
-  ;unitees='m/s'
-  filename='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanq_5by5_abs_areaTS_FEB2015.nc'
-  unitees='g/kg'
+  filename='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/TIMESERIES/NOCSv2.0_oceanW_5by5_abs_areaTS_FEB2016.nc'
+  unitees='m/s'
+  ;filename='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/TIMESERIES/NOCSv2.0_oceanq_5by5_abs_areaTS_FEB2016.nc'
+  ;unitees='g/kg'
 ENDIF ELSE BEGIN
-  ;filename='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanW_5by5_8110anoms_areaTS_FEB2015.nc'
-  ;unitees='m/s'
-  filename='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/NOCSv2.0_oceanq_5by5_8110anoms_areaTS_FEB2015.nc'
-  unitees='g/kg'
+  filename='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/TIMESERIES/NOCSv2.0_oceanW_5by5_8110anoms_areaTS_FEB2016.nc'
+  unitees='m/s'
+  ;filename='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/TIMESERIES/NOCSv2.0_oceanq_5by5_8110anoms_areaTS_FEB2016.nc'
+  ;unitees='g/kg'
 ENDELSE
 file_out=NCDF_CREATE(filename,/clobber)
 time_id=NCDF_DIMDEF(file_out,'time',nmons)
