@@ -5,15 +5,15 @@ pro blendNOCSHadISDH_FEB2015
 ;	> UPDATE2014/OTHERDATA/NOCSv2.0_ocean*
 
 
-anomyes=1	;0=anomalies, 1=absolutes
+anomyes=0	;0=anomalies, 1=absolutes
 
-if (anomyes EQ 0) THEN outfil='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.landq.2.0.1.2014p_8110_FEB2015.nc' $
-                  ELSE outfil='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.landq.2.0.1.2014p_abs_FEB2015.nc'
+if (anomyes EQ 0) THEN outfil='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.landq.2.1.0.2015p_8110_FEB2016.nc' $
+                  ELSE outfil='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.landq.2.1.0.2015p_abs_FEB2016.nc'
 
 
 mdi=-1e30
 styr=1973
-edyr=2014
+edyr=2015
 clst=1981-styr
 cled=2010-styr
 nyrs=(edyr+1)-styr
@@ -34,7 +34,7 @@ blendarrmask=make_array(nlons,nlats,nmons,/float,value=mdi)
 bluemasklow=fltarr(72,36)
 
 ; read in land sea mask
-inn=NCDF_OPEN('/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/new_coverpercentjul08.nc')
+inn=NCDF_OPEN('/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/new_coverpercentjul08.nc')
 varid=NCDF_VARID(inn,'pct_land')
 NCDF_VARGET,inn,varid,pctl
 NCDF_CLOSE,inn
@@ -42,13 +42,13 @@ NCDF_CLOSE,inn
 pctl=REVERSE(pctl,2)
 
 ; read in NOCS
-indir='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
+indir='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
 IF (anomyes EQ 0) THEN BEGIN
-  inn=NCDF_OPEN(indir+'NOCSv2.0_oceanq_5by5_8110anoms_FEB2015.nc') 
+  inn=NCDF_OPEN(indir+'NOCSv2.0_oceanq_5by5_8110anoms_FEB2016.nc') 
   varid=NCDF_VARID(inn,'q_anoms')	;1=good
   maskvarid=NCDF_VARID(inn,'mask_q_anoms')	;1=good
 ENDIF ELSE BEGIN
-  inn=NCDF_OPEN(indir+'NOCSv2.0_oceanq_5by5_abs_FEB2015.nc')
+  inn=NCDF_OPEN(indir+'NOCSv2.0_oceanq_5by5_abs_FEB2016.nc')
   varid=NCDF_VARID(inn,'q_abs')	;1=good
   maskvarid=NCDF_VARID(inn,'mask_q_abs')	;1=good
 ENDELSE
@@ -58,7 +58,7 @@ NCDF_CLOSE,inn
 
 ; read in HadISDH data and renormalise to 1981-2010
 ; could also mask by where uncertainties are larger than the standard deviation
-inn=NCDF_OPEN('/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc')
+inn=NCDF_OPEN('/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc')
 IF (anomyes EQ 0) THEN varid=NCDF_VARID(inn,'q_anoms') ELSE varid=NCDF_VARID(inn,'q_abs') 
 NCDF_VARGET,inn,varid,landarr
 NCDF_CLOSE,inn

@@ -57,7 +57,7 @@ CASE param OF
 ENDCASE
 
 mdi=-1e30
-edyr=2014
+edyr=2015
 styr=1973
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
@@ -89,8 +89,8 @@ son=[8,9,10]
 
 inn=NCDF_OPEN(filein)
 CASE param OF
-  'q': varid=NCDF_VARID(inn,'q_anoms')
-;  'q': varid=NCDF_VARID(inn,'blendmask_q_anoms')
+;  'q': varid=NCDF_VARID(inn,'q_anoms')
+  'q': varid=NCDF_VARID(inn,'blendmask_q_anoms')
 ;  'q': varid=NCDF_VARID(inn,'blend_q_anoms')
   'RH': varid=NCDF_VARID(inn,'rh_anoms')
   'e': varid=NCDF_VARID(inn,'e_anoms')
