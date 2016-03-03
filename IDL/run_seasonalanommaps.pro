@@ -23,11 +23,11 @@ for yy=1973,2015 DO BEGIN
 ;  plotout=dir+'IMAGES/MAPS/ANOMS7605/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+nowmon+nowyear+'_seasonalanom'+climie+'_'+ystr
 ;  fileout=dir+'STATISTICS/GRIDS/ANOMS7605/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+nowmon+nowyear+'_seasonalanom'+climie+'_'+ystr
 
-  filein=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'.nc'
+  filein=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_'+nowmon+nowyear+'.nc'
 ;  plotout=dir+'IMAGES/MAPS/ANOMS8110/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_seasonalanom'+climie+'_'+ystr
 ;  fileout=dir+'STATISTICS/GRIDS/ANOMS8110/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_seasonalanom'+climie+'_'+ystr
-  plotout=dir+'IMAGES/MAPS/ANOMS8110/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_seasonalanom'+climie+'_'+ystr
-  fileout=dir+'STATISTICS/GRIDS/ANOMS8110/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_seasonalanom'+climie+'_'+ystr
+  plotout=dir+'IMAGES/MAPS/ANOMS8110/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_'+nowmon+nowyear+'_seasonalanom'+climie+'_'+ystr
+  fileout=dir+'STATISTICS/GRIDS/ANOMS8110/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_'+nowmon+nowyear+'_seasonalanom'+climie+'_'+ystr
 
   plot_seasonalanommaps_FEB2014,string(yy,format='(i4)'),filein,fileout,plotout,climst,climed,param		;string(yy,format='(a4)')
 ;  stop

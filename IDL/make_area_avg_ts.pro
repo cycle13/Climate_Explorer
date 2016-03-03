@@ -64,17 +64,17 @@ pro make_area_avg_ts
 ; set up directories and filenames
 mdi=-1e+30
 
-param='t'	;'dpd','td','t','tw','e','q','rh','w'
-param2='T'	;'DPD','Td','T','Tw','e','q','RH','w'
-nowmon='APR'
-nowyear='2015'
+param='evap'	;'dpd','td','t','tw','e','q','rh','w','evap'
+param2='evap'	;'DPD','Td','T','Tw','e','q','RH','w','evap'
+nowmon='MAR'
+nowyear='2016'
 homogtype='OTHER'	;'PHA','ID','DPD', 'RAW', 'OTHER'
-version='2.0.1.2014p'
+version='2.1.0.2015p'
 
-mask='true'	; If true then mask to HadISDH equivalent
+mask='false'	; If true then mask to HadISDH equivalent
 
-styr=1850	; 1850, 1973, 1950, 1880
-edyr=2014	; 2013, 2011
+styr=1979	; 1850, 1973, 1950, 1880
+edyr=2015	; 2013, 2011
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
 int_mons=indgen(nmons)
@@ -89,12 +89,16 @@ nbox=LONG(nlats*nlons)
 lats=(findgen(nlats)*latlg)+stlt
 lons=(findgen(nlons)*lonlg)+stln
 
-IF (homogtype EQ 'OTHER') THEN dir='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/' $ 
-    ELSE dir='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/'
+IF (homogtype EQ 'OTHER') THEN dir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/' $ 
+    ELSE dir='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/'
     
-odir='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/TIMESERIES/'
+odir='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/TIMESERIES/'
 
 CASE param OF
+  'evap': BEGIN
+    infile='evap_monthly_5by5_ERA-Interim_data_19792015_anoms1981-2010'
+    maskfile='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/HadISDH.landq.'+version+'_FLATgridPHA5by5_JAN2016'
+  END
   'dpd': BEGIN
     IF (homogtype EQ 'PHA') THEN infile='HadISDH.landDPD.'+version+'_FLATgridPHA5by5_JAN2015'
     IF (homogtype EQ 'RAW') THEN infile='HadISDH.landDPD.'+version+'_FLATgridRAW5by5_JAN2015'
@@ -151,18 +155,23 @@ CASE param OF
   'e': unitees='hPa'
   'q': unitees='g/kg'
   'w':unitees='m/s'
+  'evap': unitees='cm w.e.'
   ELSE: unitees='deg C'
 ENDCASE
 
 ;----------------------------------------------------
 ; read in files
 IF (homogtype NE 'OTHER') THEN filee=NCDF_OPEN(dir+'GRIDS/'+infile+'_cf.nc') $
-    ELSE filee=NCDF_OPEN('/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'+infile+'.nc')
+    ELSE filee=NCDF_OPEN('/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'+infile+'.nc')
 longs_varid=NCDF_VARID(filee,'longitude')
 lats_varid=NCDF_VARID(filee,'latitude')
 tims_varid=NCDF_VARID(filee,'time')
 
 CASE param OF
+  'evap': BEGIN
+    qvarid=NCDF_VARID(filee,'anomalies_land')
+;    qvarid=NCDF_VARID(filee,'anomalies_sea')
+  END
   'dpd': BEGIN
     qabsid=NCDF_VARID(filee,'dpd_abs')
     qvarid=NCDF_VARID(filee,'dpd_anoms')
@@ -396,6 +405,12 @@ time_id=NCDF_DIMDEF(file_out,'time',nmons)
 timvarid=NCDF_VARDEF(file_out,'time',[time_id],/DOUBLE)
 
 CASE param OF
+  'evap': BEGIN
+    glob_varid=NCDF_VARDEF(file_out,'glob_evap_anoms',[time_id],/FLOAT)
+    trop_varid=NCDF_VARDEF(file_out,'trop_evap_anoms',[time_id],/FLOAT)
+    nhem_varid=NCDF_VARDEF(file_out,'nhem_evap_anoms',[time_id],/FLOAT)
+    shem_varid=NCDF_VARDEF(file_out,'shem_evap_anoms',[time_id],/FLOAT)
+  END
   'dpd': BEGIN
     glob_varid=NCDF_VARDEF(file_out,'glob_DPD_anoms',[time_id],/FLOAT)
     trop_varid=NCDF_VARDEF(file_out,'trop_DPD_anoms',[time_id],/FLOAT)

@@ -4,20 +4,21 @@ pro regridERA_HadISDH_MAY2015
 ; make anomalies for 1981-2010 and 1979-2005
 
 ;--------------------------------------------------------
-indir='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
-infil='_monthly_1by1_ERA-Interim_data_19792014.nc'
+indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
+;infil='_monthly_1by1_ERA-Interim_data_19792014.nc'
+infil='ERAINTERIM_evap_monthly00_12hr_1by1_197901201512.nc'
 inlandmask='HadCRUT.4.3.0.0.land_fraction.nc'
-outfil='_monthly_5by5_ERA-Interim_data_19792014.nc'
-outfilA='_monthly_5by5_ERA-Interim_data_19792014_anoms1981-2010.nc'
-outfilA7905='_monthly_5by5_ERA-Interim_data_19792014_anoms1979-2005.nc'
+outfil='_monthly_5by5_ERA-Interim_data_19792015.nc'
+outfilA='_monthly_5by5_ERA-Interim_data_19792015_anoms1981-2010.nc'
+outfilA7905='_monthly_5by5_ERA-Interim_data_19792015_anoms1979-2005.nc'
 
-varlist=['q2m','rh2m','e2m','t2m','td2m','tw2m','dpd2m']
-unitslist=['g/kg','%rh','hPa','deg C','deg C','deg C','deg C']
+varlist=['q2m','rh2m','e2m','t2m','td2m','tw2m','dpd2m','evap']
+unitslist=['g/kg','%rh','hPa','deg C','deg C','deg C','deg C','cm w.e']
 mdi=-1e+30
 
 monarr=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
 styr=1979
-edyr=2014
+edyr=2015
 climst1=1981
 climed1=2010
 climst2=1979
@@ -50,35 +51,61 @@ lons=(findgen(nlons)*lonlg)+stln
 
 absarr=fltarr(nlons,nlats,nmons)
 ;-----------------------------------------------------------
-FOR loo=0,6 DO BEGIN ; loop through the variables
+FOR loo=7,7 DO BEGIN ; loop through the variables
   ; Read in 1by1 file
-  inn=NCDF_OPEN(indir+varlist[loo]+infil)
-  varid=NCDF_VARID(inn,varlist[loo])
-;  latid=NCDF_VARID(inn,'latitude')
-;  lonid=NCDF_VARID(inn,'longitude')
-  NCDF_VARGET,inn,varid,hiabs
-;  NCDF_VARGET,inn,latid,lats
-;  NCDF_VARGET,inn,lonid,lons
+  IF (varlist[loo] NE 'evap') THEN BEGIN
+    inn=NCDF_OPEN(indir+varlist[loo]+infil) 
+    varid=NCDF_VARID(inn,varlist[loo])
+    NCDF_VARGET,inn,varid,hiabs
+  ENDIF ELSE BEGIN
+    inn=NCDF_OPEN(indir+infil)
+    varid=NCDF_VARID(inn,'e')
+    NCDF_VARGET,inn,varid,oldhiabs
+    NCDF_ATTGET,inn,varid,'scale_factor',sf
+    NCDF_ATTGET,inn,varid,'add_offset',off
+    oldhiabs=(oldhiabs*sf)+off
+    ; This is actually two vals per month at 00hrs and 12hrs so need to be combined
+    hiabs=fltarr(360,181,nmons)
+    FOR lnn=0,359 DO BEGIN
+      FOR ltt=0,180 DO BEGIN
+        hiabs(lnn,ltt,*)=REFORM(mean(REFORM(oldhiabs(lnn,ltt,*),2,nmons),dimension=1),nmons)
+      ENDFOR
+    ENDFOR  
+  ENDELSE
   NCDF_CLOSE,inn
   
   ; Regrid to 5by5 by simple averaging
-  ; assume -90 to 90?
-  stlt=0
-  edlt=4
+  ; ERAI is 181 lats 90.5 to -90.5 (GB centres 90 to -90) therefore we need to make it 0.5 degrees and then average over box
+  ; ERAI is 360 longs -0.5 to 359.5 (GB centres 0 to 359) therefore we need to make it 0.5 degrees and average over box
+  hlt=0
+  hln=0
   FOR ltt=0,nlats-1 DO BEGIN
-    stln=0
-    edln=4
     FOR lnn=0,nlons-1 DO BEGIN
+;      print,hlt,hln
       FOR mm=0,nmons-1 DO BEGIN
-        ;print,stlt,edlt,stln,edln
-        absarr(lnn,ltt,mm)=MEAN(hiabs(stln:edln,stlt:edlt,mm))
+	subhi=fltarr(12,12) 
+	FOR i=0,5 DO BEGIN
+	  FOR j=0,5 DO BEGIN
+	    scol=(i*2)
+	    jrow=(j*2)
+	    IF (hln EQ 360) THEN hln=0
+	    subhi(scol:scol+1,jrow:jrow+1)=hiabs(hln,hlt,mm)
+	    hlt=hlt+1
+          ENDFOR
+	  hlt=hlt-6
+	  hln=hln+1
+	ENDFOR
+	hln=hln-6
+	absarr(lnn,ltt,mm)=MEAN(subhi(1:11,1:11))
       ENDFOR
-      stln=edln+1
-      edln=edln+5
+      hln=hln+5
+;      stop
     ENDFOR
-    stlt=edlt+1
-    edlt=edlt+5
+;    stop
+    hln=0
+    hlt=hlt+5
   ENDFOR
+;  stop
   ; now flip and shift so its -90 to 90, -180 to 180
   FOR mm=0,nmons-1 DO BEGIN
     absarr(*,*,mm)=REVERSE(absarr(*,*,mm),2)

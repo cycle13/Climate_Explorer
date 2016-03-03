@@ -19,11 +19,11 @@ for yy=1973,2015 DO BEGIN
 ;  plotout=dir+'IMAGES/MAPS/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
 ;  fileout=dir+'STATISTICS/GRIDS/HadISDH.land'+param+'.'+version+'_FLATgrid'+homogtype+'5by5_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
 
-  filein=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'.nc'
+  filein=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_'+nowmon+nowyear+'.nc'
 ;  plotout=dir+'IMAGES/MAPS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
 ;  fileout=dir+'STATISTICS/GRIDS/BLEND_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
-  plotout=dir+'IMAGES/MAPS/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
-  fileout=dir+'STATISTICS/GRIDS/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
+  plotout=dir+'IMAGES/MAPS/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
+  fileout=dir+'STATISTICS/GRIDS/BLENDMASK_NOCSv2.0_HadISDH.land'+param+'.'+version+'_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
 
 ;  filein=dir+'STATISTICS/NOCSv2.0_oceanW_8110_'+nowmon+nowyear+'.nc'
 ;  plotout=dir+'IMAGES/NOCSv2.0_oceanW_8110_'+nowmon+nowyear+'_annualanom'+climie+'_'+ystr
