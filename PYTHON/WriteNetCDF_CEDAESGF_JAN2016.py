@@ -351,13 +351,13 @@ def WriteNCCF(FileName,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
 	        MyVar[mm,0,:] = stringtoarr(ClimBounds[mm,0],10)
 	        MyVar[mm,1,:] = stringtoarr(ClimBounds[mm,1],10)
 
-        if (DimObject[vv+2]['var_name'] == 'lat'):
+        if (DimObject[vv+2]['var_name'] == 'latitude'):
 	    MyVar[:] = Latitudes
 
         if (DimObject[vv+2]['var_name'] == 'bounds_lat'):
 	    MyVar[:,:] = LatBounds
 
-        if (DimObject[vv+2]['var_name'] == 'lon'):
+        if (DimObject[vv+2]['var_name'] == 'longitude'):
 	    MyVar[:] = Longitudes
 
         if (DimObject[vv+2]['var_name'] == 'bounds_lon'):
