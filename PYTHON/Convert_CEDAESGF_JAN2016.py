@@ -151,15 +151,19 @@ MyChoice='dpd' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
 
 # Generic Things
 # VERSION
+#version='v2-1-0-2015p'
 version='v2-0-1-2014p'
 
 # Files
+#InPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
+#OutPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
 InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
 OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
 
 # Dates
 StYr=1973
 StMon=1
+#EdYr=2015
 EdYr=2014
 EdMon=12
 ClimPoints=(1976,2005)
@@ -243,15 +247,15 @@ History = 'See Willett et al., (2014) REFERENCE for more information. \
            Follow @metofficeHadOBS to keep up to date with Met Office Hadley Centre HadOBS dataset developements. \
            See hadisdh.blogspot.co.uk for HadISDH updates, bug fixes and explorations.'
 # Non-commercial license
-# Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
-#            http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
-#            The data are freely available for any non-comercial use with attribution to the data providers. Please cite \
-#            Willett et al.,(2014) with a link to the REFERENCE provided in the REFERENCE attribute.'
+Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
+           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
+           The data are freely available for any non-comercial use with attribution to the data providers. Please cite \
+           Willett et al.,(2014) and Smith et al., (2011) with a link to the REFERENCES provided in the REFERENCE attribute.'
 # Open Government License
-Licence = 'HadISDH is distributed under the Open Government Licence: \
-           http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
-           The data are freely available for use with attribution to the data providers. Please cite \
-           Willett et al.,(2014) with a link to the REFERENCE provided in the REFERENCE attribute.'
+#Licence = 'HadISDH is distributed under the Open Government Licence: \
+#           http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
+#           The data are freely available for use with attribution to the data providers. Please cite \
+#           Willett et al.,(2014) with a link to the REFERENCE provided in the REFERENCE attribute.'
 Project = 'HadOBS: Met Office Hadley Centre Climate Monitoring Data-product www.metoffice.gov.uk/hadobs'
 Processing_level = 'Hourly station data selected for length and continuity, quality controlled, averaged \
                     to monthly means, adjusted to remove inhomogeneity and then averaged over 5deg by 5deg gridboxes.'
@@ -261,12 +265,17 @@ Acknowledgement = 'Kate Willett, Robert Dunn and David Parker were supported by 
                   for Engineering and Flow Metrology, and by the MeteoMet Project of the European Metrology Research Programme. We also thank the internal \
                   reviewers at NCDC, NPL and the Met Office for their thorough reviews and advice. We thank Adrian Simmons and Andreas Becker for their \
                   thoughtful and constructive reviews.'
-Source = 'HadISD.1.0.3.2014f (Dunn et al. 2012) from the National Centres for Environmental Information \
+Source = 'HadISD.1.0.4.2015p (Dunn et al. 2012) from the National Centres for Environmental Information \
           International Surface Database (ISD): www.ncdc.noaa.gov/isd'
+#Source = 'HadISD.1.0.3.2014f (Dunn et al. 2012) from the National Centres for Environmental Information \
+#          International Surface Database (ISD): www.ncdc.noaa.gov/isd'
 Comment = ''
 References = 'Willett, K. M., Dunn, R. J. H., Thorne, P. W., Bell, S., de Podesta, M., Parker, D. E., \
               Jones, P. D. and Williams, Jr., C. N.: HadISDH land surface multi-variable humidity and temperature record for climate monitoring, \
-              Clim. Past, 10, 1983-2006, doi:10.5194/cp-10-1983-2014, 2014'
+              Clim. Past, 10, 1983-2006, doi:10.5194/cp-10-1983-2014, 2014, \
+	      Smith, A., N. Lott, and R. Vose, 2011: The Integrated Surface Database: Recent \
+	      Developments and Partnerships. Bulletin of the American Meteorological Society, \
+	      92, 704-708, doi:10.1175/2011BAMS3015.1'
 Creator_name = 'Kate Willett'
 Creator_email = 'kate.willett@metoffice.gov.uk'
 Conventions = 'CF-1.6'
@@ -277,8 +286,10 @@ netCDF_type = 'NETCDF4_CLASSIC'
 if (MyChoice == 'q'):
     # Files
 #    InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
+#    InFile='HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
     InFile='HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
 #    OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
+#    OutFile='huss-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     OutFile='huss_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
 #    # Dates
@@ -569,7 +580,9 @@ if (MyChoice == 'q'):
 # Set up for rh
 if (MyChoice == 'rh'):	
     # Files
+#    InFile='HadISDH.landRH.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
     InFile='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+#    OutFile='hurs-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     OutFile='hurs_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 		
     # Data Object List - list of variable names to read in from the netCDF file
@@ -792,7 +805,9 @@ if (MyChoice == 'rh'):
 # Set up for e
 if (MyChoice == 'e'):	
     # Files
+#    InFile='HadISDH.lande.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
     InFile='HadISDH.lande.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+#    OutFile='vps-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     OutFile='vps_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 		
     # Data Object List - list of variable names to read in from the netCDF file
@@ -1014,7 +1029,9 @@ if (MyChoice == 'e'):
 # Set up for td
 if (MyChoice == 'td'):	
     # Files
+#    InFile='HadISDH.landTd.2.1.0.2015p_FLATgridPHADPD5by5_JAN2016_cf.nc'
     InFile='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_cf.nc'
+#    OutFile='tds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     OutFile='tds_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
     # Data Object List - list of variable names to read in from the netCDF file
@@ -1237,7 +1254,9 @@ if (MyChoice == 'td'):
 # Set up for tw
 if (MyChoice == 'tw'):	
     # Files
+#    InFile='HadISDH.landTw.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
     InFile='HadISDH.landTw.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+#    OutFile='tws-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     OutFile='tws_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
     # Data Object List - list of variable names to read in from the netCDF file
@@ -1460,7 +1479,9 @@ if (MyChoice == 'tw'):
 # Set up for t
 if (MyChoice == 't'):	
     # Files
+#    InFile='HadISDH.landT.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
     InFile='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+#    OutFile='tas-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     OutFile='tas_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
     # Data Object List - list of variable names to read in from the netCDF file
@@ -1684,7 +1705,9 @@ if (MyChoice == 't'):
 # Set up for dpd
 if (MyChoice == 'dpd'):	
     # Files
+#    InFile='HadISDH.landDPD.2.1.0.2015p_FLATgridPHA5by5_JAN2016_cf.nc'
     InFile='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_cf.nc'
+#    OutFile='dpds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     OutFile='dpds_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
     # Data Object List - list of variable names to read in from the netCDF file
