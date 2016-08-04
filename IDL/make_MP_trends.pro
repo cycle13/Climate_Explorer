@@ -68,65 +68,77 @@ pro make_MP_trends
 ;---------------------------------------------------
 ; set up directories and filenames
 param='t'	;'dpd','td','t','tw','e','q','rh'
-param2='T'	;'DPD','Td','T','Tw','e','q','RH'
-nowmon='MAR'
-nowyear='2015'
-homogtype='OTHER'	;'PHA','ID','DPD', 'RAW','OTHER'
+param2='t'	;'DPD','Td','T','Tw','e','q','RH'
+nowmon='JUN'
+nowyear='2016'
+homogtype='OTHER'	;'PHA','ID','DPD', 'RAW','OTHER','MARINE'
 version='2.0.1.2014p'
 
-styr=1973	; 1973
-edyr=2014
-sttrd=1973  	; years over which to calculate trends
+styr=1850	; 1973
+edyr=2015
+sttrd=1998  	; years over which to calculate trends
 edtrd=2014  	;
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
 int_mons=indgen(nmons)
 
-dir='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/'
-IF (homogtype EQ 'OTHER') THEN $
-    dir='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
-
+indir='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/'
+outdir='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/'
+IF (homogtype EQ 'OTHER') THEN BEGIN
+    indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
+    outdir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
+ENDIF ELSE IF (homogtype EQ 'MARINE') THEN BEGIN
+    indir='/project/hadobs2/hadisdh/marine/ICOADS.2.5.1/GRIDS3/'
+    outdir='/data/local/hadkw/HADCRUH2/MARINE/DATA/'
+ENDIF
 CASE param OF
   'dpd': BEGIN
     IF (homogtype EQ 'PHA') THEN infile='HadISDH.landDPD.'+version+'_FLATgridPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'RAW') THEN infile='HadISDH.landDPD.'+version+'_FLATgridRAW5by5_JAN2015'
+    IF (homogtype EQ 'MARINE') THEN infile='ERAclimNBC_5x5_monthly_anomalies_from_daily_both_relax'
   END
   'td': BEGIN
     IF (homogtype EQ 'PHA') THEN infile='HadISDH.landTd.'+version+'_FLATgridPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'DPD') THEN infile='HadISDH.landTd.'+version+'_FLATgridPHADPD5by5_JAN2015_cf'
     IF (homogtype EQ 'RAW') THEN infile='HadISDH.landTd.'+version+'_FLATgridRAW5by5_JAN2015'
+    IF (homogtype EQ 'MARINE') THEN infile='ERAclimNBC_5x5_monthly_anomalies_from_daily_both_relax'
   END
   't': BEGIN
     IF (homogtype EQ 'ID') THEN infile='HadISDH.landT.'+version+'_FLATgridIDPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'RAW') THEN infile='HadISDH.landT.'+version+'_FLATgridRAW5by5_JAN2015_cf'
-    IF (homogtype EQ 'OTHER') THEN infile='GISS_T_5by519762005clim_anoms_19732014'
+;    IF (homogtype EQ 'OTHER') THEN infile='GISS_T_5by519762005clim_anoms_19732014'
+    IF (homogtype EQ 'MARINE') THEN infile='ERAclimNBC_5x5_monthly_anomalies_from_daily_both_relax'
 ;    IF (homogtype EQ 'OTHER') THEN infile='BERKELEY_T_5by519762005clim_anoms_19732014'
-;    IF (homogtype EQ 'OTHER') THEN infile='CRUTEM.4.3.0.0.anomalies'
+    IF (homogtype EQ 'OTHER') THEN infile='CRUTEM.4.4.0.0.anomalies'
 ;    IF (homogtype EQ 'OTHER') THEN infile='HadCRUT.4.3.0.0.median'
 ;    IF (homogtype EQ 'OTHER') THEN infile='GHCNM_18802014'
   END
   'tw': BEGIN
     IF (homogtype EQ 'ID') THEN infile='HadISDH.landTw.'+version+'_FLATgridIDPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'RAW') THEN infile='HadISDH.landTw.'+version+'_FLATgridRAW5by5_JAN2015'
+    IF (homogtype EQ 'MARINE') THEN infile='ERAclimNBC_5x5_monthly_anomalies_from_daily_both_relax'
   END
   'q': BEGIN
     IF (homogtype EQ 'ID') THEN infile='HadISDH.landq.'+version+'_FLATgridIDPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'PHA') THEN infile='HadISDH.landq.'+version+'_FLATgridPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'RAW') THEN infile='HadISDH.landq.'+version+'_FLATgridRAW5by5_JAN2015'
+    IF (homogtype EQ 'MARINE') THEN infile='ERAclimNBC_5x5_monthly_anomalies_from_daily_both_relax'
   END
   'e': BEGIN
     IF (homogtype EQ 'ID') THEN infile='HadISDH.lande.'+version+'_FLATgridIDPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'RAW') THEN infile='HadISDH.lande.'+version+'_FLATgridRAW5by5_JAN2015'
+    IF (homogtype EQ 'MARINE') THEN infile='ERAclimNBC_5x5_monthly_anomalies_from_daily_both_relax'
   END
   'rh': BEGIN
     IF (homogtype EQ 'ID') THEN infile='HadISDH.landRH.'+version+'_FLATgridIDPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'PHA') THEN infile='HadISDH.landRH.'+version+'_FLATgridPHA5by5_JAN2015_cf'
     IF (homogtype EQ 'RAW') THEN infile='HadISDH.landRH.'+version+'_FLATgridRAW5by5_JAN2015'
+    IF (homogtype EQ 'MARINE') THEN infile='ERAclimNBC_5x5_monthly_anomalies_from_daily_both_relax'
   END
   
 ENDCASE
 ofile=infile+'_MPtrends_'+strcompress(sttrd,/remove_all)+strcompress(edtrd,/remove_all)	;70S-70N
-
+IF (homogtype EQ 'MARINE') THEN ofile=infile+'_'+param+'_MPtrends_'+strcompress(sttrd,/remove_all)+strcompress(edtrd,/remove_all)	;70S-70N
 ;--------------------------------------------------
 ; variables and arrays
 mdi=-1e+30
@@ -170,19 +182,35 @@ boottrendvalsL=make_array(nlons,nlats,nboots,/float,value=mdi)
 ;----------------------------------------------------
 ; read in files
 
-IF (homogtype EQ 'OTHER') THEN filee=NCDF_OPEN(dir+infile+'.nc') $
-    ELSE filee=NCDF_OPEN(dir+'GRIDS/'+infile+'.nc')
+IF (homogtype EQ 'OTHER') OR (homogtype EQ 'MARINE') THEN BEGIN
+  filee=NCDF_OPEN(indir+infile+'.nc')
+ENDIF ELSE BEGIN 
+  filee=NCDF_OPEN(indir+'GRIDS/'+infile+'.nc')
+ENDELSE
+
 timvarid=NCDF_VARID(filee,'time')
-;longs_varid=NCDF_VARID(filee,'longitude')
-;lats_varid=NCDF_VARID(filee,'latitude')
-longs_varid=NCDF_VARID(filee,'lon')
-lats_varid=NCDF_VARID(filee,'lat')
+IF (homogtype EQ 'MARINE') OR (homogtype EQ 'OTHER') THEN BEGIN
+  longs_varid=NCDF_VARID(filee,'longitude')
+  lats_varid=NCDF_VARID(filee,'latitude')
+ENDIF ELSE BEGIN
+  longs_varid=NCDF_VARID(filee,'lon')
+  lats_varid=NCDF_VARID(filee,'lat')
+ENDELSE
 
 IF (homogtype EQ 'OTHER') THEN BEGIN
-  ;qvarid=NCDF_VARID(filee,'temperature_anomaly')
-  qvarid=NCDF_VARID(filee,'anomalies')
+  qvarid=NCDF_VARID(filee,'temperature_anomaly')
+  ;qvarid=NCDF_VARID(filee,'anomalies')
+ENDIF ELSE IF (homogtype EQ 'MARINE') THEN BEGIN
+  CASE param OF
+    'dpd': qvarid=NCDF_VARID(filee,'dew_point_depression_anomalies')
+    'td': qvarid=NCDF_VARID(filee,'dew_point_temperature_anomalies')
+    't': qvarid=NCDF_VARID(filee,'marine_air_temperature_anomalies')
+    'tw': qvarid=NCDF_VARID(filee,'wet_bulb_temperature_anomalies')
+    'q': qvarid=NCDF_VARID(filee,'specific_humidity_anomalies')
+    'rh': qvarid=NCDF_VARID(filee,'relative_humidity_anomalies')
+    'e': qvarid=NCDF_VARID(filee,'vapor_pressure_anomalies')
+  ENDCASE
 ENDIF ELSE BEGIN
-
   CASE param OF
     'dpd': qvarid=NCDF_VARID(filee,'dpd_anoms')
     'td': qvarid=NCDF_VARID(filee,'td_anoms')
@@ -200,6 +228,15 @@ NCDF_VARGET,filee,longs_varid,longs
 NCDF_CLOSE,filee
 
 q_values=q_values(*,*,trdst:trded)
+
+; If its marine data then we need to flip lats
+IF (homogtype EQ 'MARINE') THEN q_values = reverse(q_values,2)
+
+; If marine then the mdi seems to not work so double check
+IF (homogtype EQ 'MARINE') THEN BEGIN
+  bads = where(q_values LT -100,count)
+  if (count GT 0) THEN q_values(bads) = mdi
+ENDIF
 
 ;filee=NCDF_OPEN(dir+infile100+'.nc')
 ;timvarid=NCDF_VARID(filee,'times')
@@ -230,8 +267,8 @@ ENDFOR
   
 ;save to file;
 ;
-IF (homogtype EQ 'OTHER') THEN filename=dir+ofile+'.nc' $
-    ELSE filename=dir+'TRENDS/'+ofile+'.nc'
+IF (homogtype EQ 'OTHER') OR (homogtype EQ 'MARINE') THEN filename=outdir+ofile+'.nc' $
+    ELSE filename=outdir+'TRENDS/'+ofile+'.nc'
 file_out=NCDF_CREATE(filename,/clobber)
 ;bootid=NCDF_DIMDEF(file_out,'bootstrap',nboots)
 latid=NCDF_DIMDEF(file_out,'latitude',nlats)

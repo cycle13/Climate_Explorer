@@ -5,37 +5,52 @@ pro plot_climatology_MAR2013,param,typee
 nowmon='SEP'
 nowyear='2014'
 
-climst=1976
-climed=2005
+;climst=1976
+;climed=2005
+climst=1981
+climed=2010
 
-IF (typee EQ 'Seasonal') THEN bits='clims' ELSE bits='climsANN'
+Domain = 'MARINE' ; 'LAND', 'MARINE'
+
+IF (typee EQ 'Seasonal') THEN bits='climsSEAS' ELSE bits='climsANN'
 
 CASE param OF
   'q': BEGIN
-    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landq.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
-    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landq.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+;    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landq.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
+;    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landq.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+    filein='/project/hadobs2/hadisdh/marine/ICOADS.2.5.1/GRIDS3/ERAclimNBC_5x5_monthly_from_daily_both_relax.nc'
+    fileout='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/ERAclimNBC_5x5_monthly_from_daily_both_relax_q_'+nowmon+nowyear+'_'+bits+'8110.eps'
     titlees='Surface Specific Humidity'
     units='(g kg!E-1!N)'    
     unitees='g/kg'
-    kcolsarrST=[255,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]	; 14 colours + black to ensure no botching
-    levsarrST=[-2e+30,0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,14.0,16.0,18.0,20.0,21.0,30.0]
+;    kcolsarrST=[255,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]	; 14 colours + black to ensure no botching
+;    levsarrST=[-2e+30,0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,14.0,16.0,18.0,20.0,21.0,30.0]
+    kcolsarrST=[255,1,3,5,7,9,10,12,14,16,18]	; 14 colours + black to ensure no botching
+    levsarrST=[-2e+30,0,2.0,4.0,6.0,8.0,10.0,12.0,14.0,16.0,18.0,30.0]
     variname='specific humidity'
-    letteree='c)'
+    letteree='a)'
   END
   'RH': BEGIN
-    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landRH.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
-    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landRH.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+;    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landRH.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
+;    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landRH.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+    filein='/project/hadobs2/hadisdh/marine/ICOADS.2.5.1/GRIDS3/ERAclimNBC_5x5_monthly_from_daily_both_relax.nc'
+    fileout='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/ERAclimNBC_5x5_monthly_from_daily_both_relax_RH_'+nowmon+nowyear+'_'+bits+'8110.eps'
     titlees='Surface Relative Humidity'
     units='(%rh)'   
     unitees='%rh' 
-    kcolsarrST=[255,1,2,3,4,5,6,7,9,10,11,13,14,15,16,17,18]	; 14 colours + black to ensure no botching
-    levsarrST=[-2e+30,-100.0,5.0,10.,15.,20.0,25.,30.,40.0,50.,60.0,70.,75.,80.,85.,90.,95.0,110]
+;    kcolsarrST=[255,1,2,3,4,5,6,7,9,10,11,13,14,15,16,17,18]	; 14 colours + black to ensure no botching
+;    levsarrST=[-2e+30,-100.0,5.0,10.,15.,20.0,25.,30.,40.0,50.,60.0,70.,75.,80.,85.,90.,95.0,110]
+    kcolsarrST=[255,1,3,5,7,9,10,12,14,16,18]	; 14 colours + black to ensure no botching
+;    levsarrST=[-2e+30,-100.0,10.,20.0,30.,40.0,50.,60.0,70.,80.,90.,110]
+    levsarrST=[-2e+30,-100.0,55.,60.,65.0,70.,75.0,80.,85.0,90.,95.,110]
     variname='relative humidity'
-    letteree='d)'
+    letteree='b)'
   END
   'e': BEGIN
-    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.lande.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
-    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.lande.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+;    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.lande.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
+;    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.lande.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+    filein='/project/hadobs2/hadisdh/marine/ICOADS.2.5.1/GRIDS3/ERAclimNBC_5x5_monthly_from_daily_both_relax.nc'
+    fileout='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/ERAclimNBC_5x5_monthly_from_daily_both_relax_e_'+nowmon+nowyear+'_'+bits+'8110.eps'
     titlees='Surface Vapour Pressure'
     units='(hPa)'  
     unitees='hPa'  
@@ -45,19 +60,25 @@ CASE param OF
     letteree='b)'
   END
   'Td': BEGIN
-    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landTd.2.0.0.2013p_FLATgridPHADPD5by5_JAN2014.nc'
-    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landTd.2.0.0.2013p_FLATgridPHADPD5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+;    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landTd.2.0.0.2013p_FLATgridPHADPD5by5_JAN2014.nc'
+;    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landTd.2.0.0.2013p_FLATgridPHADPD5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+    filein='/project/hadobs2/hadisdh/marine/ICOADS.2.5.1/GRIDS3/ERAclimNBC_5x5_monthly_from_daily_both_relax.nc'
+    fileout='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/ERAclimNBC_5x5_monthly_from_daily_both_relax_Td_'+nowmon+nowyear+'_'+bits+'8110.eps'
     titlees='Surface Dew Point Temperature'
     units='(!Eo!NC)'
     unitees='deg C'    
-    kcolsarrST=[255,1,2,3,4,5,6,7,9,10,11,13,14,15,16,17,18]	; 14 colours + black to ensure no botching
-    levsarrST=[-2e+30,-40.0,-35.,-30.,-25.0,-20.,-15.0,-10.,-5., 0.0, 5.,10.,15.0,20.,25.0,30.,35.,100.]
+;    kcolsarrST=[255,1,2,3,4,5,6,7,9,10,11,13,14,15,16,17,18]	; 14 colours + black to ensure no botching
+;    levsarrST=[-2e+30,-40.0,-35.,-30.,-25.0,-20.,-15.0,-10.,-5., 0.0, 5.,10.,15.0,20.,25.0,30.,35.,100.]
+    kcolsarrST=[255,1,3,5,7,9,10,12,14,16,18]	; 14 colours + black to ensure no botching
+    levsarrST=[-2e+30,-40.0,-10.,-5., 0.0, 5.,10.,15.0,20.,25.0,30.,100.]
     variname='dew point temperature'
-    letteree='b)' 
+    letteree='c)' 
   END
   'Tw': BEGIN
-    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landTw.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
-    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landTw.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+;    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landTw.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
+;    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landTw.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+    filein='/project/hadobs2/hadisdh/marine/ICOADS.2.5.1/GRIDS3/ERAclimNBC_5x5_monthly_from_daily_both_relax.nc'
+    fileout='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/ERAclimNBC_5x5_monthly_from_daily_both_relax_Tw_'+nowmon+nowyear+'_'+bits+'8110.eps'
     titlees='Surface Wet Bulb Temperature'
     units='(!Eo!NC)'
     unitees='deg C'    
@@ -67,19 +88,25 @@ CASE param OF
     letteree='a)'
   END
   'T': BEGIN
-    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landT.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
-    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landT.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+;    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landT.2.0.0.2013p_FLATgridIDPHA5by5_JAN2014.nc'
+;    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landT.2.0.0.2013p_FLATgridIDPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+    filein='/project/hadobs2/hadisdh/marine/ICOADS.2.5.1/GRIDS3/ERAclimNBC_5x5_monthly_from_daily_both_relax.nc'
+    fileout='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/ERAclimNBC_5x5_monthly_from_daily_both_relax_T_'+nowmon+nowyear+'_'+bits+'8110.eps'
     titlees='Surface Temperature'
     units='(!Eo!NC)'    
     unitees='deg C'    
-    kcolsarrST=[255,1,2,3,4,5,6,7,9,10,11,13,14,15,16,17,18]	; 14 colours + black to ensure no botching
-    levsarrST=[-2e+30,-40.0,-35.,-30.,-25.0,-20.,-15.0,-10.,-5.,0.0, 5.,10.,15.0,20.,25.0,30.,35.,100.]
+;    kcolsarrST=[255,1,2,3,4,5,6,7,9,10,11,13,14,15,16,17,18]	; 14 colours + black to ensure no botching
+;    levsarrST=[-2e+30,-40.0,-35.,-30.,-25.0,-20.,-15.0,-10.,-5.,0.0, 5.,10.,15.0,20.,25.0,30.,35.,100.]
+    kcolsarrST=[255,1,3,5,7,9,10,12,14,17,18]	; 14 colours + black to ensure no botching
+    levsarrST=[-2e+30,-40.0,-10.,-5.,0.0, 5.,10.0,15.0,20.,25.,30.,100.]
     variname='temperature'
-    letteree='a)'
+    letteree='d)'
   END
   'DPD': BEGIN
-    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landDPD.2.0.0.2013p_FLATgridPHA5by5_JAN2014.nc'
-    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landDPD.2.0.0.2013p_FLATgridPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+;    filein='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/HadISDH.landDPD.2.0.0.2013p_FLATgridPHA5by5_JAN2014.nc'
+;    fileout='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/HadISDH.landDPD.2.0.0.2013p_FLATgridPHA5by5_'+nowmon+nowyear+'_'+bits+'7605.eps'
+    filein='/project/hadobs2/hadisdh/marine/ICOADS.2.5.1/GRIDS3/ERAclimNBC_5x5_monthly_from_daily_both_relax.nc'
+    fileout='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/ERAclimNBC_5x5_monthly_from_daily_both_relax_DPD_'+nowmon+nowyear+'_'+bits+'8110.eps'
     titlees='Surface Dew Point Depression'
     units='(!Eo!NC)'    
     unitees='deg C'    
@@ -92,12 +119,13 @@ CASE param OF
 ENDCASE
 
 mdi=-1e30
-edyr=2013
+edyr=2015
 styr=1973
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
 nlons=72
 nlats=36
+climtmp=make_array(nlons,nlats,12,/float,value=mdi)
 maparrDJF=make_array(nlons,nlats,/float,value=mdi)
 maparrMAM=make_array(nlons,nlats,/float,value=mdi)
 maparrJJA=make_array(nlons,nlats,/float,value=mdi)
@@ -121,39 +149,60 @@ jja=[5,6,7]
 son=[8,9,10]
 
 inn=NCDF_OPEN(filein)
-IF (climst EQ '1976') THEN BEGIN
-  CASE param OF
-    'q': varid=NCDF_VARID(inn,'q_clims')
-  ;  'q': varid=NCDF_VARID(inn,'blendmask_q_clims')
-  ;  'q': varid=NCDF_VARID(inn,'blend_q_clims')
-    'RH': varid=NCDF_VARID(inn,'rh_clims')
-    'e': varid=NCDF_VARID(inn,'e_clims')
-    'Td': varid=NCDF_VARID(inn,'td_clims')
-    'Tw': varid=NCDF_VARID(inn,'tw_clims')
-    'T': varid=NCDF_VARID(inn,'t_clims')
-    'DPD': varid=NCDF_VARID(inn,'dpd_clims')
-  ENDCASE
+IF (Domain EQ 'LAND') THEN BEGIN
+  IF (climst EQ '1976') THEN BEGIN
+    CASE param OF
+      'q': varid=NCDF_VARID(inn,'q_clims')
+    ;  'q': varid=NCDF_VARID(inn,'blendmask_q_clims')
+    ;  'q': varid=NCDF_VARID(inn,'blend_q_clims')
+      'RH': varid=NCDF_VARID(inn,'rh_clims')
+      'e': varid=NCDF_VARID(inn,'e_clims')
+      'Td': varid=NCDF_VARID(inn,'td_clims')
+      'Tw': varid=NCDF_VARID(inn,'tw_clims')
+      'T': varid=NCDF_VARID(inn,'t_clims')
+      'DPD': varid=NCDF_VARID(inn,'dpd_clims')
+    ENDCASE
+  ENDIF ELSE BEGIN
+    CASE param OF
+      'q': varid=NCDF_VARID(inn,'q_anoms')
+    ;  'q': varid=NCDF_VARID(inn,'blendmask_q_anoms')
+    ;  'q': varid=NCDF_VARID(inn,'blend_q_anoms')
+      'RH': varid=NCDF_VARID(inn,'rh_anoms')
+      'e': varid=NCDF_VARID(inn,'e_anoms')
+      'Td': varid=NCDF_VARID(inn,'td_anoms')
+      'Tw': varid=NCDF_VARID(inn,'tw_anoms')
+      'T': varid=NCDF_VARID(inn,'t_anoms')
+      'DPD': varid=NCDF_VARID(inn,'dpd_anoms')
+    ENDCASE
+  ENDELSE
+  latid=NCDF_VARID(inn,'lat')
+  lonid=NCDF_VARID(inn,'lon')
+  NCDF_VARGET,inn,varid,tmp
+  NCDF_VARGET,inn,latid,lats
+  NCDF_VARGET,inn,lonid,lons
+  NCDF_CLOSE,inn
 ENDIF ELSE BEGIN
-  CASE param OF
-    'q': varid=NCDF_VARID(inn,'q_anoms')
-  ;  'q': varid=NCDF_VARID(inn,'blendmask_q_anoms')
-  ;  'q': varid=NCDF_VARID(inn,'blend_q_anoms')
-    'RH': varid=NCDF_VARID(inn,'rh_anoms')
-    'e': varid=NCDF_VARID(inn,'e_anoms')
-    'Td': varid=NCDF_VARID(inn,'td_anoms')
-    'Tw': varid=NCDF_VARID(inn,'tw_anoms')
-    'T': varid=NCDF_VARID(inn,'t_anoms')
-    'DPD': varid=NCDF_VARID(inn,'dpd_anoms')
-  ENDCASE
+    CASE param OF
+      'q': varid=NCDF_VARID(inn,'specific_humidity')
+      'RH': varid=NCDF_VARID(inn,'relative_humidity')
+      'e': varid=NCDF_VARID(inn,'vapor_pressure')
+      'Td': varid=NCDF_VARID(inn,'dew_point_temperature')
+      'Tw': varid=NCDF_VARID(inn,'wet_bulb_temperature')
+      'T': varid=NCDF_VARID(inn,'marine_air_temperature')
+      'DPD': varid=NCDF_VARID(inn,'dew_point_depression')
+    ENDCASE
+  latid=NCDF_VARID(inn,'latitude')
+  lonid=NCDF_VARID(inn,'longitude')
+  NCDF_VARGET,inn,varid,tmp
+  NCDF_VARGET,inn,latid,lats
+  NCDF_VARGET,inn,lonid,lons
+  NCDF_CLOSE,inn
+  ;tmp = reverse(tmp,2)
+  bads = where(tmp LT -100,count)
+  IF (count GT 0) THEN tmp(bads) = mdi
 ENDELSE
-latid=NCDF_VARID(inn,'lat')
-lonid=NCDF_VARID(inn,'lon')
-NCDF_VARGET,inn,varid,tmp
-NCDF_VARGET,inn,latid,lats
-NCDF_VARGET,inn,lonid,lons
-NCDF_CLOSE,inn
 
-IF (climst NE 1976) THEN BEGIN	; rezero over new climatology period
+IF (Domain EQ 'LAND') AND (climst NE 1976) THEN BEGIN	; rezero over new climatology period
   FOR i=0,nlons-1 DO BEGIN
     FOR j=0,nlats-1 DO BEGIN
       newtmp=reform(tmp(i,j,*),12,nyrs)
@@ -170,27 +219,44 @@ IF (climst NE 1976) THEN BEGIN	; rezero over new climatology period
   ENDFOR
 ENDIF
 
+; make clims for each month
+IF (Domain EQ 'MARINE') THEN BEGIN	; rezero over new climatology period
+  FOR i=0,nlons-1 DO BEGIN
+    FOR j=0,nlats-1 DO BEGIN
+      newtmp=reform(tmp(i,j,*),12,nyrs)
+      FOR mm=0,11 DO BEGIN
+        climperiod=newtmp(mm,climst-styr:climed-styr)
+	gotsclim=WHERE(climperiod NE mdi,count)
+	IF (count GE 10) THEN BEGIN
+	  gotsobs=where(newtmp(mm,*) NE mdi,count)
+	  climtmp(i,j,mm)=MEAN(climperiod(gotsclim))
+	ENDIF
+      ENDFOR
+    ENDFOR
+  ENDFOR
+ENDIF
+
 ; average over the year for each gridbox
 
 FOR ltt=0,nlats-1 DO BEGIN
   FOR lnn=0,nlons-1 DO BEGIN
     IF (typee EQ 'Seasonal') THEN BEGIN
-      subarr=tmp(lnn,ltt,mam)
+      subarr=climtmp(lnn,ltt,mam)
       gots=WHERE(subarr NE mdi,count)
-      IF (count GE 2) THEN maparrMAM(lnn,ltt)=MEAN(subarr(gots))
-      subarr=tmp(lnn,ltt,jja)
+      IF (count GE 2) THEN maparrMAM(lnn,ltt)=MEAN(subarr(gots)) ;2
+      subarr=climtmp(lnn,ltt,jja)
       gots=WHERE(subarr NE mdi,count)
-      IF (count GE 2) THEN maparrJJA(lnn,ltt)=MEAN(subarr(gots))
-      subarr=tmp(lnn,ltt,son)
+      IF (count GE 2) THEN maparrJJA(lnn,ltt)=MEAN(subarr(gots)) ;2
+      subarr=climtmp(lnn,ltt,son)
       gots=WHERE(subarr NE mdi,count)
-      IF (count GE 2) THEN maparrSON(lnn,ltt)=MEAN(subarr(gots))
-      subarr=tmp(lnn,ltt,djf)
+      IF (count GE 2) THEN maparrSON(lnn,ltt)=MEAN(subarr(gots)) ;2
+      subarr=climtmp(lnn,ltt,djf)
       gots=WHERE(subarr NE mdi,count)
-      IF (count GE 2) THEN maparrDJF(lnn,ltt)=MEAN(subarr(gots))
+      IF (count GE 2) THEN maparrDJF(lnn,ltt)=MEAN(subarr(gots)) ;2
     ENDIF ELSE BEGIN
-      subarr=tmp(lnn,ltt,*)
+      subarr=climtmp(lnn,ltt,*)
       gots=WHERE(subarr NE mdi,count)
-      IF (count GE 9) THEN maparrANN(lnn,ltt)=MEAN(subarr(gots))
+      IF (count GE 9) THEN maparrANN(lnn,ltt)=MEAN(subarr(gots)) ;9
     ENDELSE
   ENDFOR
 ENDFOR
@@ -297,13 +363,13 @@ ENDIF
 
 IF (typee EQ 'Seasonal') THEN titlees=['DJF','MAM','JJA','SON'] ELSE titlees=variname
 
-!P.Position=[xpos1(0),ypos1(0),xpos2(0),ypos2(0)]
-
-Map_set,/continents,color=0,/noborder,/noerase,/robinson,/grid, glinestyle=2
-XYOUTS,xpos1(0)+((xpos2(0)-xpos1(0))/2.),ypos2(0)+0.02,titlees(0),/NORMAL,alignment=0.5,charsize=2.5,color=0
 
 IF (typee EQ 'Seasonal') THEN BEGIN
-  XYOUTS,xpos1(0)-0.01,ypos2(0)-0.02,'a)',/NORMAL,alignment=0.5,charsize=2.5,color=0
+  !P.Position=[xpos1(0),ypos1(0),xpos2(0),ypos2(0)]
+
+  Map_set,/continents,color=0,/noborder,/noerase,/robinson,/grid, glinestyle=2
+  XYOUTS,xpos1(0)+((xpos2(0)-xpos1(0))/2.),ypos2(0)+0.02,titlees(0),/NORMAL,alignment=0.5,charsize=1.2,color=0
+  XYOUTS,xpos1(0)-0.01,ypos2(0)-0.02,'a)',/NORMAL,alignment=0.5,charsize=1.2,color=0
 
   boxfill,maparrDJF,lons,lats,colors=kcolsarrST,levels=levsarrST	    ;,nofill_color=kcolsarrT(0)
      
@@ -350,7 +416,7 @@ IF (typee EQ 'Seasonal') THEN BEGIN
   !P.Position=[xpos1(3),ypos1(3),xpos2(3),ypos2(3)]
 
   Map_set,/continents,color=0,/noborder,/noerase,/robinson,/grid, glinestyle=2
-  XYOUTS,xpos1(3)+((xpos2(3)-xpos1(3))/2.),ypos2(3)+0.01,titlees(3),/NORMAL,alignment=0.5,charsize=2,color=0
+  XYOUTS,xpos1(3)+((xpos2(3)-xpos1(3))/2.),ypos2(3)+0.01,titlees(3),/NORMAL,alignment=0.5,charsize=1.2,color=0
   XYOUTS,xpos1(3)-0.01,ypos2(3)-0.02,'d)',/NORMAL,alignment=0.5,charsize=1.2,color=0
 
   boxfill,maparrSON,lons,lats,colors=kcolsarrST,levels=levsarrST	    ;,nofill_color=kcolsarrT(0)
@@ -364,6 +430,10 @@ IF (typee EQ 'Seasonal') THEN BEGIN
   PLOTS,[0,179.9],[-89.9,-89.9],color=0
 
 ENDIF ELSE BEGIN
+  !P.Position=[xpos1(0),ypos1(0),xpos2(0),ypos2(0)]
+
+  XYOUTS,xpos1(0)+((xpos2(0)-xpos1(0))/2.),ypos2(0)+0.02,titlees(0),/NORMAL,alignment=0.5,charsize=2.5,color=0
+  Map_set,/continents,color=0,/noborder,/noerase,/robinson,/grid, glinestyle=2
   boxfill,maparrANN,lons,lats,colors=kcolsarrST,levels=levsarrST	    ;,nofill_color=kcolsarrT(0)
      
 ; Overplot continents and islands again

@@ -87,8 +87,8 @@ getyrmoned=(((year+1)-styr)*12)-1
 inn=NCDF_OPEN(filein)
 CASE param OF
 ;  'q': varid=NCDF_VARID(inn,'anomalies')
-;  'q': varid=NCDF_VARID(inn,'q_anoms')
-  'q': varid=NCDF_VARID(inn,'blendmask_q_anoms')
+  'q': varid=NCDF_VARID(inn,'q_anoms')
+;  'q': varid=NCDF_VARID(inn,'blendmask_q_anoms')
 ;  'q': varid=NCDF_VARID(inn,'blend_q_anoms')
 ;  'RH': varid=NCDF_VARID(inn,'anomalies')
   'RH': varid=NCDF_VARID(inn,'rh_anoms')
