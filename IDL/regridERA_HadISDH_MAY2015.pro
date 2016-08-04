@@ -5,8 +5,8 @@ pro regridERA_HadISDH_MAY2015
 
 ;--------------------------------------------------------
 indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
-;infil='_monthly_1by1_ERA-Interim_data_19792014.nc'
-infil='ERAINTERIM_evap_monthly00_12hr_1by1_197901201512.nc'
+infil='_monthly_1by1_ERA-Interim_data_19792015.nc'
+;infil='ERAINTERIM_evap_monthly00_12hr_1by1_197901201512.nc'
 inlandmask='HadCRUT.4.3.0.0.land_fraction.nc'
 outfil='_monthly_5by5_ERA-Interim_data_19792015.nc'
 outfilA='_monthly_5by5_ERA-Interim_data_19792015_anoms1981-2010.nc'
@@ -51,7 +51,7 @@ lons=(findgen(nlons)*lonlg)+stln
 
 absarr=fltarr(nlons,nlats,nmons)
 ;-----------------------------------------------------------
-FOR loo=7,7 DO BEGIN ; loop through the variables
+FOR loo=0,6 DO BEGIN ; loop through the variables 7,7 for just evap
   ; Read in 1by1 file
   IF (varlist[loo] NE 'evap') THEN BEGIN
     inn=NCDF_OPEN(indir+varlist[loo]+infil) 
