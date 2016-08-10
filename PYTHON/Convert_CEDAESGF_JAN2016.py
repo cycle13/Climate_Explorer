@@ -147,24 +147,24 @@ from WriteNetCDF_CEDAESGF_JAN2016 import WriteNCCF
 # Set up hardwired variables
 
 #************************************************************************
-MyChoice='dpd' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
+MyChoice='e' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
 
 # Generic Things
 # VERSION
-#version='v2-1-0-2015p'
-version='v2-0-1-2014p'
+version='v2-1-0-2015p'
+#version='v2-0-1-2014p'
 
 # Files
-#InPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
-#OutPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
-InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
-OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
+InPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
+OutPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
+#InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
+#OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
 
 # Dates
 StYr=1973
 StMon=1
-#EdYr=2015
-EdYr=2014
+EdYr=2015
+#EdYr=2014
 EdMon=12
 ClimPoints=(1976,2005)
 
@@ -286,11 +286,11 @@ netCDF_type = 'NETCDF4_CLASSIC'
 if (MyChoice == 'q'):
     # Files
 #    InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
-#    InFile='HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
-    InFile='HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+    InFile='HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+#    InFile='HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
 #    OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
-#    OutFile='huss-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-    OutFile='huss_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    OutFile='huss-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+#    OutFile='huss_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
 #    # Dates
 #    StYr=1973
@@ -580,10 +580,10 @@ if (MyChoice == 'q'):
 # Set up for rh
 if (MyChoice == 'rh'):	
     # Files
-#    InFile='HadISDH.landRH.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
-    InFile='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
-#    OutFile='hurs-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-    OutFile='hurs_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    InFile='HadISDH.landRH.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+#    InFile='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+    OutFile='hurs-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+#    OutFile='hurs_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 		
     # Data Object List - list of variable names to read in from the netCDF file
     DataObjectList=['rh_anoms',
@@ -805,10 +805,10 @@ if (MyChoice == 'rh'):
 # Set up for e
 if (MyChoice == 'e'):	
     # Files
-#    InFile='HadISDH.lande.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
-    InFile='HadISDH.lande.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
-#    OutFile='vps-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-    OutFile='vps_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    InFile='HadISDH.lande.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+#    InFile='HadISDH.lande.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+    OutFile='vps-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+#    OutFile='vps_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 		
     # Data Object List - list of variable names to read in from the netCDF file
     DataObjectList=['e_anoms',
@@ -845,6 +845,7 @@ if (MyChoice == 'e'):
 	            dict([('var_type','i4'),
 			  ('var_name','vps'),
 			  ('var_dims',('time','latitude','longitude',)), 
+			  ('standard_name','water_vapor_partial_pressure_in_air'),
 			  ('long_name','near surface (~2m) vapour pressure'),
 			  ('cell_methods','time: mean (interval: 1 month) area: mean where land (stations within gridbox)'),
 			  ('comment','gridbox mean monthly mean from stations'),
@@ -1029,10 +1030,10 @@ if (MyChoice == 'e'):
 # Set up for td
 if (MyChoice == 'td'):	
     # Files
-#    InFile='HadISDH.landTd.2.1.0.2015p_FLATgridPHADPD5by5_JAN2016_cf.nc'
-    InFile='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_cf.nc'
-#    OutFile='tds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-    OutFile='tds_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    InFile='HadISDH.landTd.2.1.0.2015p_FLATgridPHADPD5by5_JAN2016_cf.nc'
+#    InFile='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_cf.nc'
+    OutFile='tds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+#    OutFile='tds_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
     # Data Object List - list of variable names to read in from the netCDF file
     DataObjectList=['td_anoms',
@@ -1254,10 +1255,10 @@ if (MyChoice == 'td'):
 # Set up for tw
 if (MyChoice == 'tw'):	
     # Files
-#    InFile='HadISDH.landTw.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
-    InFile='HadISDH.landTw.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
-#    OutFile='tws-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-    OutFile='tws_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    InFile='HadISDH.landTw.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+#    InFile='HadISDH.landTw.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+    OutFile='tws-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+#    OutFile='tws_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
     # Data Object List - list of variable names to read in from the netCDF file
     DataObjectList=['tw_anoms',
@@ -1479,10 +1480,10 @@ if (MyChoice == 'tw'):
 # Set up for t
 if (MyChoice == 't'):	
     # Files
-#    InFile='HadISDH.landT.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
-    InFile='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
-#    OutFile='tas-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-    OutFile='tas_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    InFile='HadISDH.landT.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+#    InFile='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
+    OutFile='tas-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+#    OutFile='tas_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
     # Data Object List - list of variable names to read in from the netCDF file
     DataObjectList=['t_anoms',
@@ -1705,10 +1706,10 @@ if (MyChoice == 't'):
 # Set up for dpd
 if (MyChoice == 'dpd'):	
     # Files
-#    InFile='HadISDH.landDPD.2.1.0.2015p_FLATgridPHA5by5_JAN2016_cf.nc'
-    InFile='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_cf.nc'
-#    OutFile='dpds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-    OutFile='dpds_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    InFile='HadISDH.landDPD.2.1.0.2015p_FLATgridPHA5by5_JAN2016_cf.nc'
+#    InFile='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_cf.nc'
+    OutFile='dpds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+#    OutFile='dpds_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
     # Data Object List - list of variable names to read in from the netCDF file
     DataObjectList=['dpd_anoms',
