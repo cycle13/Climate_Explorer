@@ -8,9 +8,13 @@
 ; -----------------------
 ; CODE PURPOSE AND OUTPUT
 ; -----------------------
-; <brief summary of code purpose and main outputs>
+; This code finds the optimum linear trend to a time series of data based on the 
+; median of the pairwise slopes of all points of the time series. It can cope
+; with missing data and outputs a standard error, lower confidence interval and
+; upper confidence interval. These are essentially the 95% confidence range on the 
+; estimated linear trend value.
 ; 
-; <references to related published material, e.g. that describes data set>
+; Sen, 1968
 ; 
 ; -----------------------
 ; LIST OF MODULES
@@ -25,12 +29,18 @@
 ; -----------------------
 ; HOW TO RUN THE CODE
 ; -----------------------
-; <step by step guide to running the code>
+; .compile median_pairwise.pro
+; trend = median_pairwise(timeseries_array, mdi, se, lower_c, upper_c)
+; You do not need to preset se, lower_c and upper_c - these get filled by the code
+; mdi is the missing data indicator so you do not need to compress your time series array to data present
 ; 
 ; -----------------------
 ; OUTPUT
 ; -----------------------
-; <where this is written to and any other useful information about output>
+; This returns the linear trend at the time step resolution and optionally:
+; the standard error (se?)
+; the lower confidence interval (lower_c)
+; the upper confidence interval (upper_c)
 ; 
 ; -----------------------
 ; VERSION/RELEASE NOTES
