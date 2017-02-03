@@ -64,7 +64,7 @@ CASE param OF
 ENDCASE
 
 mdi=-1e30
-edyr=2015
+edyr=2016
 styr=1973	; 1973, 1971
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
