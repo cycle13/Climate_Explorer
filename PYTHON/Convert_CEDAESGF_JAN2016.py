@@ -147,23 +147,27 @@ from WriteNetCDF_CEDAESGF_JAN2016 import WriteNCCF
 # Set up hardwired variables
 
 #************************************************************************
-MyChoice='e' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
+MyChoice='q' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
 
 # Generic Things
 # VERSION
-version='v2-1-0-2015p'
+version='v3-0-0-2016p'
+#version='v2-1-0-2015p'
 #version='v2-0-1-2014p'
 
 # Files
-InPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
-OutPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
+InPath='/data/local/hadkw/HADCRUH2/UPDATE2016/STATISTICS/GRIDS/'
+OutPath='/data/local/hadkw/HADCRUH2/UPDATE2016/STATISTICS/GRIDS/'
+#InPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
+#OutPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
 #InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
 #OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
 
 # Dates
 StYr=1973
 StMon=1
-EdYr=2015
+EdYr=2016
+#EdYr=2015
 #EdYr=2014
 EdMon=12
 ClimPoints=(1976,2005)
@@ -259,14 +263,16 @@ Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
 Project = 'HadOBS: Met Office Hadley Centre Climate Monitoring Data-product www.metoffice.gov.uk/hadobs'
 Processing_level = 'Hourly station data selected for length and continuity, quality controlled, averaged \
                     to monthly means, adjusted to remove inhomogeneity and then averaged over 5deg by 5deg gridboxes.'
-Acknowledgement = 'Kate Willett, Robert Dunn and David Parker were supported by the Joint DECC/Defra \
+Acknowledgement = 'Kate Willett, Robert Dunn and David Parker were supported by the Joint UK BEIS/Defra \
                   Met Office Hadley Centre Climate Programme (GA01101). Phil D. Jones has been supported by the Office of Science (BER), US Department \
                   of Energy, Grant no. DE-SC0005689. Stephanie Bell and Michael de Podesta were supported by the UK National Measurement System Programme \
                   for Engineering and Flow Metrology, and by the MeteoMet Project of the European Metrology Research Programme. We also thank the internal \
                   reviewers at NCDC, NPL and the Met Office for their thorough reviews and advice. We thank Adrian Simmons and Andreas Becker for their \
                   thoughtful and constructive reviews.'
-Source = 'HadISD.1.0.4.2015p (Dunn et al. 2012) from the National Centres for Environmental Information \
+Source = 'HadISD.2.0.1.2016p (Dunn et al. 2016) from the National Centres for Environmental Information \
           International Surface Database (ISD): www.ncdc.noaa.gov/isd'
+#Source = 'HadISD.1.0.4.2015p (Dunn et al. 2012) from the National Centres for Environmental Information \
+#          International Surface Database (ISD): www.ncdc.noaa.gov/isd'
 #Source = 'HadISD.1.0.3.2014f (Dunn et al. 2012) from the National Centres for Environmental Information \
 #          International Surface Database (ISD): www.ncdc.noaa.gov/isd'
 Comment = ''
@@ -286,7 +292,8 @@ netCDF_type = 'NETCDF4_CLASSIC'
 if (MyChoice == 'q'):
     # Files
 #    InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
-    InFile='HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+    InFile='HadISDH.landq.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+#    InFile='HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
 #    OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
     OutFile='huss-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -580,7 +587,8 @@ if (MyChoice == 'q'):
 # Set up for rh
 if (MyChoice == 'rh'):	
     # Files
-    InFile='HadISDH.landRH.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+    InFile='HadISDH.landRH.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+#    InFile='HadISDH.landRH.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
     OutFile='hurs-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 #    OutFile='hurs_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -805,7 +813,8 @@ if (MyChoice == 'rh'):
 # Set up for e
 if (MyChoice == 'e'):	
     # Files
-    InFile='HadISDH.lande.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+    InFile='HadISDH.lande.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+#    InFile='HadISDH.lande.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.lande.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
     OutFile='vps-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 #    OutFile='vps_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -1030,7 +1039,8 @@ if (MyChoice == 'e'):
 # Set up for td
 if (MyChoice == 'td'):	
     # Files
-    InFile='HadISDH.landTd.2.1.0.2015p_FLATgridPHADPD5by5_JAN2016_cf.nc'
+    InFile='HadISDH.landTd.3.0.0.2016p_FLATgridPHADPD5by5_anoms7605_JAN2017_cf.nc'
+#    InFile='HadISDH.landTd.2.1.0.2015p_FLATgridPHADPD5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_cf.nc'
     OutFile='tds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 #    OutFile='tds_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -1255,7 +1265,8 @@ if (MyChoice == 'td'):
 # Set up for tw
 if (MyChoice == 'tw'):	
     # Files
-    InFile='HadISDH.landTw.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+    InFile='HadISDH.landTw.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+#    InFile='HadISDH.landTw.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landTw.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
     OutFile='tws-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 #    OutFile='tws_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -1480,7 +1491,8 @@ if (MyChoice == 'tw'):
 # Set up for t
 if (MyChoice == 't'):	
     # Files
-    InFile='HadISDH.landT.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
+    InFile='HadISDH.landT.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+#    InFile='HadISDH.landT.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
     OutFile='tas-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 #    OutFile='tas_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -1706,7 +1718,8 @@ if (MyChoice == 't'):
 # Set up for dpd
 if (MyChoice == 'dpd'):	
     # Files
-    InFile='HadISDH.landDPD.2.1.0.2015p_FLATgridPHA5by5_JAN2016_cf.nc'
+    InFile='HadISDH.landDPD.3.0.0.2016p_FLATgridPHA5by5_anoms7605_JAN2017_cf.nc'
+#    InFile='HadISDH.landDPD.2.1.0.2015p_FLATgridPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_cf.nc'
     OutFile='dpds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 #    OutFile='dpds_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
