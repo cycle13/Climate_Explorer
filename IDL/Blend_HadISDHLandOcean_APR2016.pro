@@ -93,10 +93,10 @@ BlendVersion  = '1.0.0.2016p'
 
 ; What Types?
 LandType   = 'standard' ; this is actually 'FLATgrid*5by5' where IDPHA, PHADPD and PHA are used
-;MarineType = 'OBSclim2BClocal' ; this is the QC'd and bias corrected version
-;BlendType  = 'FULL' ; FULL=QC and bias corrected marine, homogenised land
-MarineType = 'OBSclim2BClocalship' ; this is the QC'd and bias corrected version
-BlendType  = 'FULLship' ; FULL=QC and bias corrected marine, homogenised land
+MarineType = 'OBSclim2BClocal' ; this is the QC'd and bias corrected version
+BlendType  = 'FULL' ; FULL=QC and bias corrected marine, homogenised land
+;MarineType = 'OBSclim2BClocalship' ; this is the QC'd and bias corrected version
+;BlendType  = 'FULLship' ; FULL=QC and bias corrected marine, homogenised land
 
 ; What working versions?
 thenmon  = 'JAN'
@@ -306,7 +306,7 @@ for loo = 0,6 DO BEGIN
   latid = NCDF_DIMDEF(wilma,'latitude',nlats)
   lonid = NCDF_DIMDEF(wilma,'longitude',nlons)
   
-  timesvar = NCDF_VARDEF(wilma,'times',[tid],/SHORT)
+  timesvar = NCDF_VARDEF(wilma,'time',[tid],/SHORT)
   latsvar  = NCDF_VARDEF(wilma,'latitude',[latid],/FLOAT)
   lonsvar  = NCDF_VARDEF(wilma,'longitude',[lonid],/FLOAT)
   CASE loo OF
@@ -319,11 +319,11 @@ for loo = 0,6 DO BEGIN
     6:   anomvar = NCDF_VARDEF(wilma,'dpd_anoms',[lonid,latid,tid],/FLOAT)
   ENDCASE
   
-  NCDF_ATTPUT,wilma,'times','long_name','time'
-  NCDF_ATTPUT,wilma,'times','units','months beginning Jan 1973'
-  NCDF_ATTPUT,wilma,'times','axis','T'
-  NCDF_ATTPUT,wilma,'times','calendar','gregorian'
-  NCDF_ATTPUT,wilma,'times','valid_min',0.
+  NCDF_ATTPUT,wilma,'time','long_name','time'
+  NCDF_ATTPUT,wilma,'time','units','months beginning Jan 1973'
+  NCDF_ATTPUT,wilma,'time','axis','T'
+  NCDF_ATTPUT,wilma,'time','calendar','gregorian'
+  NCDF_ATTPUT,wilma,'time','valid_min',0.
   NCDF_ATTPUT,wilma,'latitude','long_name','Latitude'
   NCDF_ATTPUT,wilma,'latitude','units','Degrees'
   NCDF_ATTPUT,wilma,'latitude','valid_min',-90.
@@ -470,7 +470,7 @@ for loo = 0,6 DO BEGIN
   latid = NCDF_DIMDEF(wilma,'latitude',nlats)
   lonid = NCDF_DIMDEF(wilma,'longitude',nlons)
   
-  timesvar = NCDF_VARDEF(wilma,'times',[tid],/SHORT)
+  timesvar = NCDF_VARDEF(wilma,'time',[tid],/SHORT)
   latsvar  = NCDF_VARDEF(wilma,'latitude',[latid],/FLOAT)
   lonsvar  = NCDF_VARDEF(wilma,'longitude',[lonid],/FLOAT)
   CASE loo OF
@@ -483,11 +483,11 @@ for loo = 0,6 DO BEGIN
     6:   anomvar = NCDF_VARDEF(wilma,'dpd_anoms',[lonid,latid,tid],/FLOAT)
   ENDCASE
   
-  NCDF_ATTPUT,wilma,'times','long_name','time'
-  NCDF_ATTPUT,wilma,'times','units','months beginning Jan 1973'
-  NCDF_ATTPUT,wilma,'times','axis','T'
-  NCDF_ATTPUT,wilma,'times','calendar','gregorian'
-  NCDF_ATTPUT,wilma,'times','valid_min',0.
+  NCDF_ATTPUT,wilma,'time','long_name','time'
+  NCDF_ATTPUT,wilma,'time','units','months beginning Jan 1973'
+  NCDF_ATTPUT,wilma,'time','axis','T'
+  NCDF_ATTPUT,wilma,'time','calendar','gregorian'
+  NCDF_ATTPUT,wilma,'time','valid_min',0.
   NCDF_ATTPUT,wilma,'latitude','long_name','Latitude'
   NCDF_ATTPUT,wilma,'latitude','units','Degrees'
   NCDF_ATTPUT,wilma,'latitude','valid_min',-90.
