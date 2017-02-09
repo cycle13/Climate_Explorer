@@ -288,8 +288,8 @@ file_out=NCDF_CREATE(filename,/clobber)
 latid=NCDF_DIMDEF(file_out,'latitude',nlats)
 lonid=NCDF_DIMDEF(file_out,'longitude',nlons)
   
-latsvar=NCDF_VARDEF(file_out,'lat',[latid],/FLOAT)
-lonsvar=NCDF_VARDEF(file_out,'lon',[lonid],/FLOAT)
+latsvar=NCDF_VARDEF(file_out,'latitude',[latid],/FLOAT)
+lonsvar=NCDF_VARDEF(file_out,'longitude',[lonid],/FLOAT)
 qvar=NCDF_VARDEF(file_out,'anomalies',[lonid,latid],/FLOAT)
 
 NCDF_ATTPUT,file_out,latsvar,'long_name','Latitude'
@@ -306,6 +306,8 @@ NCDF_ATTPUT,file_out,qvar,'long_name','Annual average anomalies'
 NCDF_ATTPUT,file_out,qvar,'missing_value',mdi
 
 NCDF_CONTROL,file_out,/ENDEF
+NCDF_VARPUT,file_out,latsvar,lats
+NCDF_VARPUT,file_out,lonsvar,lons
 NCDF_VARPUT,file_out,qvar,maparr
 NCDF_CLOSE,file_out
 
