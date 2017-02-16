@@ -10,33 +10,33 @@ pro makeERAmonthlies_MAY2015
 
 ;************************************************
 ; File and vars set up
-indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
-outdir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
+indir='/data/local/hadkw/HADCRUH2/UPDATE2016/OTHERDATA/'
+outdir='/data/local/hadkw/HADCRUH2/UPDATE2016/OTHERDATA/'
 infilT='ERAINTERIM_drybulbT_6hr_1by1_'
 infilTd='ERAINTERIM_dewpointT_6hr_1by1_'
 infilP='ERAINTERIM_sp_6hr_1by1_'
-indecs=['1979010119881231','1989010119981231','1999010120081231','2009010120141231','2015010120151231']
-deckyrs=[10,10,10,6,1]
+indecs=['1979010119881231','1989010119981231','1999010120081231','2009010120161231'] ;,'2015010120151231']
+deckyrs=[10,10,10,8]
 
 extra=0	; 1 means add the extra file
 ;infilEXTRA='ERAINTERIM_ALL_6hr_1by1_'
-outfile='e2m_monthly_1by1_ERA-Interim_data_19792015.nc'
-outfilTw='tw2m_monthly_1by1_ERA-Interim_data_19792015.nc'
-outfilq='q2m_monthly_1by1_ERA-Interim_data_19792015.nc'
-outfilRH='rh2m_monthly_1by1_ERA-Interim_data_19792015.nc'
-outfilT='t2m_monthly_1by1_ERA-Interim_data_19792015.nc'
-outfilTd='td2m_monthly_1by1_ERA-Interim_data_19792015.nc'
-outfilDPD='dpd2m_monthly_1by1_ERA-Interim_data_19792015.nc'
+outfile='e2m_monthly_1by1_ERA-Interim_data_19792016.nc'
+outfilTw='tw2m_monthly_1by1_ERA-Interim_data_19792016.nc'
+outfilq='q2m_monthly_1by1_ERA-Interim_data_19792016.nc'
+outfilRH='rh2m_monthly_1by1_ERA-Interim_data_19792016.nc'
+outfilT='t2m_monthly_1by1_ERA-Interim_data_19792016.nc'
+outfilTd='td2m_monthly_1by1_ERA-Interim_data_19792016.nc'
+outfilDPD='dpd2m_monthly_1by1_ERA-Interim_data_19792016.nc'
 
 mdi=-1e30
 
 styr=1979	; 1979
-edyr=2015	; 2013
+edyr=2016	; 2013
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
-ndecs=5
+ndecs=4
 int_mons=indgen(nmons)
-nleaps=9	;1980,1984,1988,1992,1996,2000,2004,2008,2012
+nleaps=10	;1980,1984,1988,1992,1996,2000,2004,2008,2012,2016
 ;ndays=LONG((nyrs*365)+nleaps)
 ;nhrs=LONG(ndays*4)	;51136
 

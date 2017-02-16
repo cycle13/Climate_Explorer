@@ -4,13 +4,13 @@ pro regridERA_HadISDH_MAY2015
 ; make anomalies for 1981-2010 and 1979-2005
 
 ;--------------------------------------------------------
-indir='/data/local/hadkw/HADCRUH2/UPDATE2015/OTHERDATA/'
-infil='_monthly_1by1_ERA-Interim_data_19792015.nc'
+indir='/data/local/hadkw/HADCRUH2/UPDATE2016/OTHERDATA/'
+infil='_monthly_1by1_ERA-Interim_data_19792016.nc'
 ;infil='ERAINTERIM_evap_monthly00_12hr_1by1_197901201512.nc'
 inlandmask='HadCRUT.4.3.0.0.land_fraction.nc'
-outfil='_monthly_5by5_ERA-Interim_data_19792015.nc'
-outfilA='_monthly_5by5_ERA-Interim_data_19792015_anoms1981-2010.nc'
-outfilA7905='_monthly_5by5_ERA-Interim_data_19792015_anoms1979-2005.nc'
+outfil='_monthly_5by5_ERA-Interim_data_19792016.nc'
+outfilA='_monthly_5by5_ERA-Interim_data_19792016_anoms1981-2010.nc'
+outfilA7905='_monthly_5by5_ERA-Interim_data_19792016_anoms1979-2005.nc'
 
 varlist=['q2m','rh2m','e2m','t2m','td2m','tw2m','dpd2m','evap']
 unitslist=['g/kg','%rh','hPa','deg C','deg C','deg C','deg C','cm w.e']
@@ -18,7 +18,7 @@ mdi=-1e+30
 
 monarr=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
 styr=1979
-edyr=2015
+edyr=2016
 climst1=1981
 climed1=2010
 climst2=1979
@@ -170,7 +170,7 @@ FOR loo=0,6 DO BEGIN ; loop through the variables 7,7 for just evap
   NCDF_ATTPUT,wilma,/GLOBAL,'source',"http://apps.ecmwf.int/datasets/data/interim-full-daily/ to ERAMONTHLY_t2m_6hrly_1by1_ decade chunks"
   NCDF_ATTPUT,wilma,/GLOBAL,'comment'," "
   NCDF_ATTPUT,wilma,/GLOBAL,'reference',"NA"
-  NCDF_ATTPUT,wilma,/GLOBAL,'version',"Last Download May 2015"
+  NCDF_ATTPUT,wilma,/GLOBAL,'version',"Last Download Feb 2017"
   NCDF_ATTPUT,wilma,/GLOBAL,'Conventions',"CF-1.0"
 
   NCDF_CONTROL,wilma,/ENDEF
@@ -303,7 +303,7 @@ FOR loo=0,6 DO BEGIN ; loop through the variables 7,7 for just evap
   NCDF_ATTPUT,wilma,/GLOBAL,'source',"http://apps.ecmwf.int/datasets/data/interim-full-daily/ to ERAMONTHLY_t2m_6hrly_1by1_ decade chunks"
   NCDF_ATTPUT,wilma,/GLOBAL,'comment'," "
   NCDF_ATTPUT,wilma,/GLOBAL,'reference',"NA"
-  NCDF_ATTPUT,wilma,/GLOBAL,'version',"Last Download May 2015"
+  NCDF_ATTPUT,wilma,/GLOBAL,'version',"Last Download Feb 2017"
   NCDF_ATTPUT,wilma,/GLOBAL,'Conventions',"CF-1.0"
 
   NCDF_CONTROL,wilma,/ENDEF
@@ -433,7 +433,7 @@ FOR loo=0,6 DO BEGIN ; loop through the variables 7,7 for just evap
   NCDF_ATTPUT,wilma,/GLOBAL,'source',"http://apps.ecmwf.int/datasets/data/interim-full-daily/ to ERAMONTHLY_t2m_6hrly_1by1_ decade chunks"
   NCDF_ATTPUT,wilma,/GLOBAL,'comment'," "
   NCDF_ATTPUT,wilma,/GLOBAL,'reference',"NA"
-  NCDF_ATTPUT,wilma,/GLOBAL,'version',"Last Download May 2015"
+  NCDF_ATTPUT,wilma,/GLOBAL,'version',"Last Download Feb 2017"
   NCDF_ATTPUT,wilma,/GLOBAL,'Conventions',"CF-1.0"
 
   NCDF_CONTROL,wilma,/ENDEF
