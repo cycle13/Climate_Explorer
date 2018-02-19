@@ -2,7 +2,9 @@
 
 '''
 The CalcHums module contains a set of functions for calculating humidity
-variables. At present it can only cope with scalars, not arrays.
+variables. At present it can only cope with scalars AND arrays.
+
+PRESSURE CAN BE EITHER AN ARRAY OR A SCALAR
 
 There are routines for:
 specific humidity from dew point temperautre and temperature and pressure
@@ -21,7 +23,7 @@ Where vapour pressure is used as part of the equation a pseudo wet bulb
 temperature is calculated. If this is at or below 0 deg C then the ice bulb
 equation is used.
 
-ALL NUMBERS ARE RETURNED TO ONE SIGNIFICANT DECIMAL FIGURE.
+ALL NUMBERS ARE RETURNED TO ONE SIGNIFICANT DECIMAL FIGURE UNLESS roundit=False
 
 THIS ROUTINE CANNOT COPE WITH MISSING DATA
 
@@ -32,6 +34,7 @@ Otherwise - set roundit=False
 
 import numpy as np
 import math
+import pdb
 
 #******************************************************************************
 def vap(td,t,p,roundit=True):
@@ -62,7 +65,7 @@ def vap(td,t,p,roundit=True):
     Irrigation Water Requirements: ASCE Manuals and Reports on Engineering Practices No. 
     70, American Society of Civil Engineers, New York, 360 pp., 1990.
 
-    TESTED!
+    TESTED with scalars and arrays and mixes (p)!
     e = vap(10.,15.,1013.)
     e = 12.3
 
@@ -77,15 +80,31 @@ def vap(td,t,p,roundit=True):
     b = ((409.8*e) / ((td + 237.3)**2))
     w = (((a*t) + (b*td)) / (a + b))
 
+#    pdb.set_trace()
+
     # Now test for whether pseudo-wetbulb is above or below/equal to zero
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
-    if (w <= 0.0):
-        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
-        e = 6.1115*f*np.exp(((23.036 - (td/333.7))*td) / (279.82+td))
+    # Find instances of ice
+    icy = np.where(w <= 0.0)[0]
+    if (len(icy) > 0):    
+    
+#        print('found an icy')
+#	pdb.set_trace()
+        # Need to check whether pressure is an array or scalar
+	if (hasattr(p,'__len__') == False): # p is a scalar
+	    f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+        else: # p is an array
+	    f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
+	
+        e[icy] = 6.1115*f*np.exp(((23.036 - (td[icy]/333.7))*td[icy]) / (279.82+td[icy]))
+    
+#    if (w <= 0.0):
+#        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+#        e = 6.1115*f*np.exp(((23.036 - (td/333.7))*td) / (279.82+td))
 	
     if (roundit == True):
-        e = round(e*10)/10.	
+        e = np.round(e*10)/10.	
 	     
     return e
 
@@ -120,7 +139,7 @@ def vap_from_sh(sh,p,roundit=True):
     e = ((sh/1000.) * p) / (0.622 + (0.378 * (sh/1000.)))
 
     if (roundit == True):
-        e = round(e*10.)/10.	 
+        e = np.round(e*10.)/10.	 
 	    
     return e
 
@@ -167,14 +186,26 @@ def sh(td,t,p,roundit=True):
     # Now test for whether pseudo-wetbulb is above or below/equal to zero
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
-    if (w <= 0.0):
-        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
-        e = 6.1115*f*np.exp(((23.036 - (td/333.7))*td) / (279.82+td))
+    # Find instances of ice
+    icy = np.where(w <= 0.0)[0]
+    if (len(icy) > 0):    
+    
+        # Need to check whether pressure is an array or scalar
+	if (hasattr(p,'__len__') == False): # p is a scalar
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+        else: # p is an array
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
+	
+        e[icy] = 6.1115*f*np.exp(((23.036 - (td[icy]/333.7))*td[icy]) / (279.82+td[icy]))
+
+#    if (w <= 0.0):
+#        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+#        e = 6.1115*f*np.exp(((23.036 - (td/333.7))*td) / (279.82+td))
 
     q = 1000.*((0.622*e) / (p - ((1 - 0.622)*e)))
 
     if (roundit == True):
-        q = round(q*10.)/10.
+        q = np.round(q*10.)/10.
 	
     return q
 
@@ -210,7 +241,7 @@ def sh_from_vap(e,p,roundit=True):
     q = 1000.*((0.622*e) / (p - ((1 - 0.622)*e)))
 
     if (roundit == True):
-        q = round(q*10.)/10.    
+        q = np.round(q*10.)/10.    
     	
     return q
 
@@ -260,9 +291,21 @@ def rh(td,t,p,roundit=True):
     # Now test for whether pseudo-wetbulb is above or below/equal to zero
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
-    if (w <= 0.0):
-        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
-        e = 6.1115*f*np.exp(((23.036 - (td/333.7))*td) / (279.82+td))
+    # Find instances of ice
+    icy = np.where(w <= 0.0)[0]
+    if (len(icy) > 0):    
+    
+        # Need to check whether pressure is an array or scalar
+	if (hasattr(p,'__len__') == False): # p is a scalar
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+        else: # p is an array
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
+	
+        e[icy] = 6.1115*f*np.exp(((23.036 - (td[icy]/333.7))*td[icy]) / (279.82+td[icy]))
+
+#    if (w <= 0.0):
+#        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+#        e = 6.1115*f*np.exp(((23.036 - (td/333.7))*td) / (279.82+td))
 
     es = None
 
@@ -278,14 +321,26 @@ def rh(td,t,p,roundit=True):
     # Now test for whether pseudo-wetbulb is above or below/equal to zero
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
-    if (w <= 0.0):
-        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
-        es = 6.1115*f*np.exp(((23.036 - (t/333.7))*t) / (279.82+t))
+    # Find instances of ice
+    icy = np.where(w <= 0.0)[0]
+    if (len(icy) > 0):    
+    
+        # Need to check whether pressure is an array or scalar
+	if (hasattr(p,'__len__') == False): # p is a scalar
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+        else: # p is an array
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
+	
+        e[icy] = 6.1115*f*np.exp(((23.036 - (td[icy]/333.7))*td[icy]) / (279.82+td[icy]))
+
+#    if (w <= 0.0):
+#        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+#        es = 6.1115*f*np.exp(((23.036 - (t/333.7))*t) / (279.82+t))
 	     	
     r = (e / es)*100.
 
     if (roundit == True):
-        r = round(r*10.)/10.
+        r = np.round(r*10.)/10.
 	
     return r 
 
@@ -338,9 +393,21 @@ def wb(td,t,p,roundit=True):
     # Now test for whether pseudo-wetbulb is above or below/equal to zero
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
-    if (w <= 0.0):
-        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
-        e = 6.1115*f*np.exp(((23.036 - (td/333.7))*td) / (279.82+td))
+    # Find instances of ice
+    icy = np.where(w <= 0.0)[0]
+    if (len(icy) > 0):    
+    
+        # Need to check whether pressure is an array or scalar
+	if (hasattr(p,'__len__') == False): # p is a scalar
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+        else: # p is an array
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
+	
+        e[icy] = 6.1115*f*np.exp(((23.036 - (td[icy]/333.7))*td[icy]) / (279.82+td[icy]))
+
+#    if (w <= 0.0):
+#        f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+#        e = 6.1115*f*np.exp(((23.036 - (td/333.7))*td) / (279.82+td))
 
     # Now calculate a slightly better w
     a = 0.000066*p
@@ -349,7 +416,7 @@ def wb(td,t,p,roundit=True):
     w = (((a*t) + (b*td)) / (a + b))
 
     if (roundit == True):
-        w = round(w*10.)/10.
+        w = np.round(w*10.)/10.
 	
     return w 
 
@@ -378,7 +445,7 @@ def dpd(td,t,roundit=True):
     dp = t - td
 
     if (roundit == True):
-        dp = round(dp*10.)/10.
+        dp = np.round(dp*10.)/10.
 		
     return dp 
 
@@ -407,7 +474,7 @@ def td_from_vap(e,p,t,roundit=True):
     Irrigation Water Requirements: ASCE Manuals and Reports on Engineering Practices No. 
     70, American Society of Civil Engineers, New York, 360 pp., 1990.
     
-    TESTED!
+    TESTED with scalar and arrays and mixes (p)!
     td = td_from_vap(12.3,1013.,15.)
     td = 10.0
 
@@ -428,19 +495,47 @@ def td_from_vap(e,p,t,roundit=True):
     b = ((409.8 * e) / ((td + 237.3)**2))
     w = (((a * t) + (b * td)) / (a + b))
     
+#    pdb.set_trace()
+    
     # Now test for whether pseudo-wetbulb is above or below/equal to zero
     # to establish whether to calculate td with respect to ice or water
     # recalc if ice
-    if (w <= 0.0):
-        f = 1 + (3.*10.**(-4.)) + ((4.18*10.**(-6.)) * p)
+    # Find instances of ice
+    icy = np.where(w <= 0.0)[0]
+#    pdb.set_trace()
+    if (len(icy) > 0):    
+
+#        print('Found and icy!')    
+        # Need to check whether pressure is an array or scalar
+	if (hasattr(p,'__len__') == False): # p is a scalar
+#            print('A scalar p')    
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+        else: # p is an array
+#            print('An array p')    
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
 
         a = 1
-        b = (333.7 * np.log(e / (6.1115 * f))) - (23.036 * 333.7)
-        c = (279.82 * 333.7 * np.log(e / (6.1115 * f)))
+        b = (333.7 * np.log(e[icy] / (6.1115 * f))) - (23.036 * 333.7)
+#        print('got b')    
+#        pdb.set_trace()
+        c = (279.82 * 333.7 * np.log(e[icy] / (6.1115 * f)))
+#        print('got c')    
+#        pdb.set_trace()
 
-        td = (-b - np.sqrt(b**2 - (4 * a * c))) / (2 * a)
+        td[icy] = (-b - np.sqrt(b**2 - (4 * a * c))) / (2 * a)
+#        print('got td[icy]')    
+#        pdb.set_trace()
+	
+#    if (w <= 0.0):
+#        f = 1 + (3.*10.**(-4.)) + ((4.18*10.**(-6.)) * p)
+#
+#        a = 1
+#        b = (333.7 * np.log(e / (6.1115 * f))) - (23.036 * 333.7)
+#        c = (279.82 * 333.7 * np.log(e / (6.1115 * f)))
+#
+#        td = (-b - np.sqrt(b**2 - (4 * a * c))) / (2 * a)
 
     if (roundit == True):
-        td = round(td*10.)/10.
+        td = np.round(td*10.)/10.
 	    
     return td
