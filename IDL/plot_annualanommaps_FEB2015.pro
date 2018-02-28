@@ -64,7 +64,7 @@ CASE param OF
 ENDCASE
 
 mdi=-1e30
-edyr=2016
+edyr=2017
 styr=1973	; 1973, 1971
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
@@ -116,22 +116,22 @@ loctims=n_elements(tmp(0,0,*))
 print,loctims
 tmp=tmp(*,*,loctims-nmons:loctims-1)
 
-IF (climst NE 1976) THEN BEGIN	; rezero over new climatology period
-  FOR i=0,nlons-1 DO BEGIN
-    FOR j=0,nlats-1 DO BEGIN
-      newtmp=reform(tmp(i,j,*),12,nyrs)
-      FOR mm=0,11 DO BEGIN
-        climperiod=newtmp(mm,climst-styr:climed-styr)
-	gotsclim=WHERE(climperiod NE mdi,count)
-	IF (count GE 15) THEN BEGIN
-	  gotsobs=where(newtmp(mm,*) NE mdi,count)
-	  newtmp(mm,gotsobs)=newtmp(mm,gotsobs)-MEAN(climperiod(gotsclim))
-	ENDIF
-      ENDFOR
-      tmp(i,j,*)=REFORM(newtmp,nmons)
-    ENDFOR
-  ENDFOR
-ENDIF
+;IF (climst NE 1976) THEN BEGIN	; rezero over new climatology period
+;  FOR i=0,nlons-1 DO BEGIN
+;    FOR j=0,nlats-1 DO BEGIN
+;      newtmp=reform(tmp(i,j,*),12,nyrs)
+;      FOR mm=0,11 DO BEGIN
+;        climperiod=newtmp(mm,climst-styr:climed-styr)
+;	gotsclim=WHERE(climperiod NE mdi,count)
+;	IF (count GE 15) THEN BEGIN
+;	  gotsobs=where(newtmp(mm,*) NE mdi,count)
+;	  newtmp(mm,gotsobs)=newtmp(mm,gotsobs)-MEAN(climperiod(gotsclim))
+;	ENDIF
+;      ENDFOR
+;      tmp(i,j,*)=REFORM(newtmp,nmons)
+;    ENDFOR
+;  ENDFOR
+;ENDIF
 
 ;pull out the 12 months
 subarr=tmp(*,*,getyrmonst:getyrmoned)
