@@ -86,7 +86,7 @@ def vap(td,t,p,roundit=True):
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
     # Find instances of ice
-    icy = np.where(w <= 0.0)[0]
+    icy = np.where(w <= 0.0) # no [0] at the end of np.where() because we need a pointer array rather than a np.array we can work witth
     if (len(icy) > 0):    
     
 #        print('found an icy')
@@ -187,7 +187,7 @@ def sh(td,t,p,roundit=True):
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
     # Find instances of ice
-    icy = np.where(w <= 0.0)[0]
+    icy = np.where(w <= 0.0)
     if (len(icy) > 0):    
     
         # Need to check whether pressure is an array or scalar
@@ -292,7 +292,7 @@ def rh(td,t,p,roundit=True):
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
     # Find instances of ice
-    icy = np.where(w <= 0.0)[0]
+    icy = np.where(w <= 0.0)
     if (len(icy) > 0):    
     
         # Need to check whether pressure is an array or scalar
@@ -322,7 +322,7 @@ def rh(td,t,p,roundit=True):
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
     # Find instances of ice
-    icy = np.where(w <= 0.0)[0]
+    icy = np.where(w <= 0.0)
     if (len(icy) > 0):    
     
         # Need to check whether pressure is an array or scalar
@@ -394,7 +394,7 @@ def wb(td,t,p,roundit=True):
     # to establish whether to calculate e with respect to ice or water
     # recalc if ice
     # Find instances of ice
-    icy = np.where(w <= 0.0)[0]
+    icy = np.where(w <= 0.0)
     if (len(icy) > 0):    
     
         # Need to check whether pressure is an array or scalar
@@ -501,7 +501,7 @@ def td_from_vap(e,p,t,roundit=True):
     # to establish whether to calculate td with respect to ice or water
     # recalc if ice
     # Find instances of ice
-    icy = np.where(w <= 0.0)[0]
+    icy = np.where(w <= 0.0)
 #    pdb.set_trace()
     if (len(icy) > 0):    
 
