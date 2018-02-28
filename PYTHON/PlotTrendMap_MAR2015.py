@@ -162,15 +162,20 @@ mdi=-1e30 # may set up as masked arrays later
 
 # Output date stamp
 nowmon='JAN'
-nowyear='2017'
+nowyear='2018'
+
+# Trend selection
+sttrend = '1973'
+edtrend = '2017'
+trendchoice = sttrend+edtrend
 
 # Set up directories and files
 #INDIRC='/data/local/hadkw/HADCRUH2/MARINE/DATA/'
-INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2016/STATISTICS/TRENDS/'
+INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2017/STATISTICS/TRENDS/'
 #INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2016/OTHERDATA/'	# may be needed for non-HadISDH variables
-INDIRO='/data/local/hadkw/HADCRUH2/UPDATE2016/OTHERDATA/'
+INDIRO='/data/local/hadkw/HADCRUH2/UPDATE2017/OTHERDATA/'
 #OUTDIR='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/'
-OUTDIR='/data/local/hadkw/HADCRUH2/UPDATE2016/IMAGES/OTHER/'
+OUTDIR='/data/local/hadkw/HADCRUH2/UPDATE2017/IMAGES/OTHER/'
 
 # Land cover file:
 #incover='new_coverpercentjul08'
@@ -191,11 +196,11 @@ Letty=['a)','b)']
 # CHOOSE/ADD A DICTIONARY BUNDLE!!!
 #MyBundle = 'HadISDH.landq.ID'
 #MyBundle = 'HadISDH.landRH.ID'
-#MyBundle = 'HadISDH.landT.ID'
+MyBundle = 'HadISDH.landT.ID'
 #MyBundle = 'HadISDH.landTw.ID'
 #MyBundle = 'HadISDH.lande.ID'
 #MyBundle = 'HadISDH.landTd.DPD'
-MyBundle = 'HadISDH.landDPD.PHA'
+#MyBundle = 'HadISDH.landDPD.PHA'
 #MyBundle = 'HadISDH.landq.RAW'
 #MyBundle = 'HadISDH.landRH.RAW'
 #MyBundle = 'HadISDH.landT.RAW'
@@ -219,10 +224,10 @@ MyBundle = 'HadISDH.landDPD.PHA'
 #MyBundle = 'BLEND_HadISDH.landT'
 
 if (MyBundle == 'HadISDH.landq.ID'):
-    candidate='HadISDH.landq.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf_MPtrends_19732016'
-    OUTPLOT='TrendMap_HadISDH.landq.3.0.0.2016p_'+nowmon+nowyear
+    candidate='HadISDH.landq.4.0.0.2017f_FLATgridIDPHA5by5_anoms8110_JAN2018_cf_MPtrends_'+trendchoice
+    OUTPLOT='TrendMap_HadISDH.landq.3.0.0.2016p_'+nowmon+nowyear+'_'+trendchoice
     Unit='g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.landq.3.0.0.2016p decadal trends'
+    Namey='HadISDH.landq.3.0.0.2016p decadal trends '+trendchoice
     nlats=36	       #set once file read in
     nlons=72	       #set once file read in
     LatInfo=list(['latitude',nlats,-87.5])
@@ -245,10 +250,10 @@ if (MyBundle == 'BLEND_HadISDH.landq'):
     IsLand = None # True for land, False for marine, None for blend
 
 if (MyBundle == 'HadISDH.landRH.ID'):
-    candidate='HadISDH.landRH.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf_MPtrends_19732016'
-    OUTPLOT='TrendMap_HadISDH.landRH.3.0.0.2016p_'+nowmon+nowyear
+    candidate='HadISDH.landRH.4.0.0.2017f_FLATgridIDPHA5by5_anoms8110_JAN2018_cf_MPtrends_'+trendchoice
+    OUTPLOT='TrendMap_HadISDH.landRH.4.0.0.2017f_'+nowmon+nowyear+'_'+trendchoice
     Unit='%rh'  
-    Namey='HadISDH.landRH.3.0.0.2016p decadal trends'
+    Namey='HadISDH.landRH.4.0.0.2017f decadal trends '+trendchoice
     nlats=36	     #set once file read in
     nlons=72	     #set once file read in
     LatInfo=list(['latitude',nlats,-87.5])
@@ -271,10 +276,10 @@ if (MyBundle == 'BLEND_HadISDH.landRH'):
     IsLand = None # True for land, False for marine, None for blend
 
 if (MyBundle == 'HadISDH.landT.ID'):
-    candidate='HadISDH.landT.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf_MPtrends_19732016'
-    OUTPLOT='TrendMap_HadISDH.landT.3.0.0.2016p_'+nowmon+nowyear
+    candidate='HadISDH.landT.4.0.0.2017f_FLATgridIDPHA5by5_anoms8110_JAN2018_cf_MPtrends_'+trendchoice
+    OUTPLOT='TrendMap_HadISDH.landT.3.0.0.2016p_'+nowmon+nowyear+'_'+trendchoice
     Unit='$^{o}$C'  #'degrees C'
-    Namey='HadISDH.landT.3.0.0.2016p decadal trends'
+    Namey='HadISDH.landT.3.0.0.2016p decadal trends '+trendchoice
     nlats=36	      #set once file read in
     nlons=72	      #set once file read in
     LatInfo=list(['latitude',nlats,-87.5])
