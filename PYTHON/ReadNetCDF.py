@@ -11,6 +11,8 @@
 # -----------------------
 # This reads in a netCDF file and outputs numpy arrays or lists of numpy arrays:
 #    GetGrid: of a time,lat,lon gridded dataset
+#    GetGrid4: of a time,lat,lon gridded dataset using netCDF4
+#    GetGrid4Slice: of a time,lat,lon gridded dataset slice using netCDF4
 #    GetField: of a lat,lon gridded field of e.g trends
 #    GetTS: of a time, point/station dataset 
 # 
@@ -90,6 +92,7 @@
 # ---------
 #  
 # Enhancements
+# GetGrid4Slice can now pull out a slice (time, lat or lon) 
 #  
 # Changes
 # I've added a new GetGrid4 which does the same as GetGrid but works using netCDF4.
@@ -243,7 +246,7 @@ def GetGrid4(FileName,
     # If LatInfo is only 1 element long then read in the variable, else calculate using given nlats, start_lat
     if (len(LatInfo) == 1):
         var = ncf.variables[LatInfo[0]] # loads the data and attributes
-        TheLatList = var[:]             # just pulls out the data as a numpy array
+        TheLatList = np.copy(var[:])             # just pulls out the data as a numpy array
 	#var.ncattrs() # prints the attributues
     else:	
         if (LatInfo[1] < 0):
@@ -254,7 +257,7 @@ def GetGrid4(FileName,
     # If LonInfo is only 1 element long then read in the variable, else calculate using given nlons, start_lon
     if (len(LonInfo) == 1):
         var = ncf.variables[LonInfo[0]]
-        TheLonList = var[:]
+        TheLonList = np.copy(var[:])
     else:
         if (LonInfo[1] < 10):
             TheLonList=np.arange(LonInfo[1], LonInfo[1]+360.,(360./LonInfo[0]))
@@ -264,7 +267,7 @@ def GetGrid4(FileName,
     # If ReadInfo is only 1 element long then read into a numpy array, else make a list of arrays and then read in all
     if (len(ReadInfo) == 1):
         var = ncf.variables[ReadInfo[0]]
-        TheData = var[:] # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
+        TheData = np.copy(var[:]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
 	#var.ncattrs() # prints the attributues
 	#pdb.set_trace()
     else:
@@ -275,13 +278,124 @@ def GetGrid4(FileName,
 	    #var.ncattrs() # prints the attributues
 	    #var.add_offset # prints the add_offset attribute
 	    #pdb.set_trace()
-            TmpData = var[:] # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
+            TmpData = np.copy(var[:]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
 	    TheData.append(TmpData)	
 
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)
     ncf.close()
     
+    return TheData,TheLatList,TheLonList # GetGrid4
+
+#*********************************************************************************
+#************************************************************************
+# GETGRID4SLICE
+def GetGrid4Slice(FileName,
+            ReadInfo,
+	    SliceInfo,
+	    LatInfo = ['latitude'],
+	    LonInfo = ['longitude']):
+    ''' Open the NetCDF File
+        Get the list of latitudes either from file or derive
+        Get the list of longitudes either from file or derive
+        Get the data (1 to 10 fields)
+	INPUTS:
+	FileName: string containing filepath/name
+	ReadInfo: a LIST of string variable names (1+) for the grid to read in
+	SliceInfo: a dictionary of TimeSlice, LatSlice and LonSlice
+	           each element is either a 2 element list of start and stop+1 of slice
+            SliceInfo = dict([('TimeSlice',[0,12]), # a slice (e.g., 12 months of a year
+	                      ('LatSlice',[0,180]), # all at 1deg res
+			      ('LonSlice',[0,360])]) # all 1deg res
+	LatInfo: 
+	    LatInfo=['latitude'[ # DEFAULT
+	    LatInfo=['lat'[ # alternative LIST of string variable name
+	    LatInfo=[36,-87.5] # list containing number of lats, a float for the start latitude
+	    NOTE: THIS HAS TO BE ALL LATS EVEN IF YOU'RE PULLING OUT A SLICE
+	    LATS WILL BE SUBSET TO SLICE 
+	LonInfo: 
+	    LonInfo=['longitude'[ # DEFAULT
+	    LonInfo=['lon'[ # alternative LIST of string variable name
+	    LonInfo=[72,-177.5] # list containing number of lons, a float for the start longitude 
+	    NOTE: THIS HAS TO BE ALL LonS EVEN IF YOU'RE PULLING OUT A SLICE
+	    LonS WILL BE SUBSET TO SLICE 
+	OUTPUTS:
+	LatList: a numpy array of latitude gridbox centres
+	LonList: a numpy array of longitude gridbox centres
+	TheData:
+	    1 variable: a numpy array of time,lat,lon
+	    2+ variables: a list of numpy arrays of time,lat,lon to be unpacked 
+	    IF MORE THAN ONE VARIABLE THE SLICES MUST BE THE SAME'''
+
+    # Set up python imports
+    import numpy as np
+    import scipy.stats
+    from scipy.io import netcdf
+    #from netCDF4 import Dataset  
+    import netCDF4 as nc4  
+    import pdb # pdb.set_trace() or c
+    
+#    print(FileName,ReadInfo,LatInfo,LonInfo)
+
+    # Open the netCDF file
+    ncf=nc4.Dataset(FileName,'r')
+
+    # ncf.variables this lists the variable names
+    
+    # If LatInfo is only 1 element long then read in the variable, else calculate using given nlats, start_lat
+    if (len(LatInfo) == 1):
+        var = ncf.variables[LatInfo[0]] # loads the data and attributes
+        TheLatList = np.copy(var[:])             # just pulls out the data as a numpy array
+	#var.ncattrs() # prints the attributues
+    else:	
+        if (LatInfo[1] < 0):
+            TheLatList=np.arange(LatInfo[1], LatInfo[1]+180.,(180./LatInfo[0]))
+        else:
+            TheLatList=np.arange(LatInfo[1], LatInfo[1]-180.,-(180./LatInfo[0]))    
+
+    # If LonInfo is only 1 element long then read in the variable, else calculate using given nlons, start_lon
+    if (len(LonInfo) == 1):
+        var = ncf.variables[LonInfo[0]]
+        TheLonList = np.copy(var[:])
+    else:
+        if (LonInfo[1] < 10):
+            TheLonList=np.arange(LonInfo[1], LonInfo[1]+360.,(360./LonInfo[0]))
+        else:
+            TheLonList=np.arange(LonInfo[1], LonInfo[1]-360.,-(360./LonInfo[0]))    
+
+    # If ReadInfo is only 1 element long then read into a numpy array, else make a list of arrays and then read in all
+    if (len(ReadInfo) == 1):
+    
+        var = ncf.variables[ReadInfo[0]]
+        TheData = np.copy(var[SliceInfo['TimeSlice'][0]:SliceInfo['TimeSlice'][1],
+	              SliceInfo['LatSlice'][0]:SliceInfo['LatSlice'][1],
+		      SliceInfo['LonSlice'][0]:SliceInfo['LonSlice'][1]]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
+	#var.ncattrs() # prints the attributues
+	#pdb.set_trace()
+    else:
+        # Initialise TheData as a list
+	TheData = []
+	for loo in range(len(ReadInfo)):
+            var = ncf.variables[ReadInfo[loo]]
+	    #var.ncattrs() # prints the attributues
+	    #var.add_offset # prints the add_offset attribute
+	    #pdb.set_trace()
+            TmpData = np.copy(var[SliceInfo['TimeSlice'][0]:SliceInfo['TimeSlice'][1],
+	              SliceInfo['LatSlice'][0]:SliceInfo['LatSlice'][1],
+		      SliceInfo['LonSlice'][0]:SliceInfo['LonSlice'][1]]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
+	    TheData.append(TmpData)	
+
+#    # Maybe I've done something wrong but its reading it transposed
+#    TheData=np.transpose(TheData)
+    ncf.close()
+
+    # Sort out the lons and lats to slice if necessary
+    if ((SliceInfo['LatSlice'][1] - SliceInfo['LatSlice'][0]) != len(TheLatList)):
+        TheLatList = TheLatList[SliceInfo['LatSlice'][0]:SliceInfo['LatSlice'][1]]
+
+    if ((SliceInfo['LonSlice'][1] - SliceInfo['LonSlice'][0]) != len(TheLonList)):
+        TheLonList = TheLonList[SliceInfo['LonSlice'][0]:SliceInfo['LonSlice'][1]]
+        
     return TheData,TheLatList,TheLonList # GetGrid4
 
 #*********************************************************************************
