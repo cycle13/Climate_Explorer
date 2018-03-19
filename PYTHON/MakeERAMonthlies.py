@@ -2,18 +2,16 @@
 # PYTHON2.7
 # 
 # Author: Kate Willett
-# Created: 19 Feb 2018
-# Last update: 19 Feb 2018
+# Created: 8 Mar 2018
+# Last update: 8 Mar 2018
 # Location: /data/local/hadkw/HADCRUH2/UPDATE2017/PROGS/HADISDH_BUILD/	
 # GitHub: https://github.com/Kate-Willett/HadISDH_Build					
 # -----------------------
 # CODE PURPOSE AND OUTPUT
 # -----------------------
-# This code reads in the exisiting ERA-Interim monthly 1by1 derived
-# humidity variables and the updates of 6 hourly T, Td and Surface Pressure.
+# This code reads in the ERA-Interim monthly 1by1 6 hourly T, Td and Surface Pressure for the full time period
 #
-# It converts the update to humidity variables and monthly means and merges 
-# with the existing.
+# It converts to humidity variables and monthly means and saves.
 #
 # You can then run regridERA_HadISDH_MAY2015.pro (IDL) to create ERA-Interim
 # anomalies (1981-2010) and regrid to 5by5 degree so that it can be compared
@@ -56,14 +54,13 @@
 # import CalcHums - written by kate Willett to calculate humidity variables
 # import TestLeap - written by Kate Willett to identify leap years
 # from ReadNetCDF import GetGrid4 - written by Kate Willett to pull out netCDF data
+# from ReadNetCDF import GetGrid4Slice - written by Kate Willett to pull out a slice of netCDF data
 #
 #-------------------------------------------------------------------
 # DATA
 # -----------------------
-# Old ERA-Interim 1by1 monthly gridded data
-# OldERA<var> = /data/local/hadkw/HADCRUH2/UPDATE<yyyy>/OTHERDATA/<var>2m_monthly_1by1_ERA-Interim_data_1979<yyyy>.nc
-# New ERA-Interim 1by1 6 hrly gridded data
-# NewERA<Mmm> = /data/local/hadkw/HADCRUH2/UPDATE<yyyy>/OTHERDATA/ERAINTERIM_6hr_1by1_<MMYYYY>.nc
+# ERA-Interim 1by1 6 hrly gridded data
+# ERA<Mmm> = /data/local/hadkw/HADCRUH2/UPDATE<yyyy>/OTHERDATA/ERAINTERIM_<var>_6hr_1by1_<MMYYYY>.nc
 #
 # -----------------------
 # HOW TO RUN THE CODE
@@ -81,7 +78,7 @@
 # VERSION/RELEASE NOTES
 # -----------------------
 #
-# Version 1 (19 Feb 2018)
+# Version 1 (8 Feb 2018)
 # ---------
 #  
 # Enhancements
@@ -125,12 +122,13 @@ import pdb
 import CalcHums 
 import TestLeap 
 from ReadNetCDF import GetGrid4
+from ReadNetCDF import GetGrid4Slice
 
 # Set up initial run choices
 # Start and end years
 styr       = 1979
 edyr       = 2017
-edOLD      = (edyr-styr)*12
+#edOLD      = (edyr-styr)*12
 stmon      = 1
 edmon      = 12
 
@@ -139,9 +137,18 @@ updateyy  = str(edyr)[2:4]
 updateyyyy  = str(edyr)
 workingdir  = '/data/local/hadkw/HADCRUH2/UPDATE'+updateyyyy
 
-OldERAStr   = '2m_monthly_1by1_ERA-Interim_data_1979'+str(edyr-1)+'.nc'
+#OldERAStr   = '2m_monthly_1by1_ERA-Interim_data_1979'+str(edyr-1)+'.nc'
 NewERAStr   = '2m_monthly_1by1_ERA-Interim_data_1979'+updateyyyy+'.nc'
+# ERA updates from 2017 onwards
 UpdateERAStr = 'ERAINTERIM_6hr_1by1_'
+# ERA updates pre2017 
+UpdateERAStrT = 'ERAINTERIM_drybulbT_6hr_1by1_'
+UpdateERAStrTd = 'ERAINTERIM_dewpointT_6hr_1by1_'
+UpdateERAStrSP = 'ERAINTERIM_sp_6hr_1by1_'
+# DateString for pre-2017
+Decs = ['1979010119881231','1989010119981231','1999010120081231','2009010120161231','2017']
+StDec = [1979,1989,1999,2009,2017]
+EdDec = [1988,1998,2008,2016,2017]
 
 # Set up variables
 mdi = -1e30
@@ -156,9 +163,10 @@ nmons = nyrs*12
 nlons = 360
 nlats = 181
 
-# Array for monthly mean data for q, RH, e, T, Tw, Td, DPD
-FullMonthArray = np.empty((nmons,nlats,nlons,7),dtype = float)
-FullMonthArray.fill(mdi)
+## Array for monthly mean data for q, RH, e, T, Tw, Td, DPD one at a time though
+##FullMonthArray = np.empty((nmons,nlats,nlons,7),dtype = float)
+#FullMonthArray = np.empty((nmons,nlats,nlons),dtype = float)
+#FullMonthArray.fill(mdi)
 
 #************************************************************
 # SUBROUTINES
@@ -174,136 +182,211 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon):
 	import numpy as np '''
     
     # set up arrays for month mid points and month bounds
-    DaysArray=np.empty(((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1))
-    BoundsArray=np.empty((((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1),2))
+    DaysArray = np.empty(((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1))
+    BoundsArray = np.empty((((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1),2))
     
     # make a date object for each time point and subtract start date
-    StartDate=datetime(TheStYr,TheStMon,1,0,0,0)	# January
-    TheYear=TheStYr
-    TheMonth=TheStMon
+    StartDate = datetime(TheStYr,TheStMon,1,0,0,0)	# January
+    TheYear = TheStYr
+    TheMonth = TheStMon
     for mm in range(len(DaysArray)):
         if (TheMonth < 12):
-	    DaysArray[mm]=(datetime(TheYear,TheMonth+1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
-	    BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
-	    BoundsArray[mm,1]=(datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
+	    DaysArray[mm] = (datetime(TheYear,TheMonth+1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
+	    BoundsArray[mm,0] = (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+	    BoundsArray[mm,1] = (datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
         else:
-	    DaysArray[mm]=(datetime(TheYear+1,1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
-	    BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
-	    BoundsArray[mm,1]=(datetime(TheYear+1,1,1,0,0,0)-StartDate).days
+	    DaysArray[mm] = (datetime(TheYear+1,1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
+	    BoundsArray[mm,0] = (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+	    BoundsArray[mm,1] = (datetime(TheYear+1,1,1,0,0,0)-StartDate).days
 	TheMonth=TheMonth+1
 	if (TheMonth == 13):
-	    TheMonth=1
-	    TheYear=TheYear+1
+	    TheMonth = 1
+	    TheYear = TheYear+1
 	    
     return DaysArray,BoundsArray
 
 #************************************************************
+# GetHumidity
+def GetHumidity(TheTDat,TheTdDat,TheSPDat,TheVar):
+    ''' Calculates the desired humidity variable '''
+    
+    if (TheVar == 't'):
+        TheHumDat = TheTDat
+
+    elif (TheVar == 'td'):
+        TheHumDat = TheTdDat
+
+    elif (TheVar == 'q'):
+        TheHumDat = CalcHums.sh(TheTdDat,TheTDat,TheSPDat,roundit=False)
+    
+    elif (TheVar == 'e'):
+        TheHumDat = CalcHums.vap(TheTdDat,TheTDat,TheSPDat,roundit=False)
+
+    elif (TheVar == 'rh'):
+        TheHumDat = CalcHums.rh(TheTdDat,TheTDat,TheSPDat,roundit=False)
+
+    elif (TheVar == 'tw'):
+        TheHumDat = CalcHums.wb(TheTdDat,TheTDat,TheSPDat,roundit=False)
+
+    elif (TheVar == 'dpd'):
+        TheHumDat = CalcHums.dpd(TheTdDat,TheTDat,roundit=False)
+    
+    return TheHumDat
+
+#************************************************************
 # MAIN
 #************************************************************
-# First work out the time pointers for the year we're working with
-# Is it a leap year or not?
-if (TestLeap.TestLeap(edyr) == 0.0):
-    sttim    = 0
-    edtim    = 366*4
-    mnarr    = [31,29,31,30,31,30,31,31,30,31,30,31]
-else:
-    sttim    = 0
-    edtim    = 365*4
-    mnarr    = [31,28,31,30,31,30,31,31,30,31,30,31]
-    
-print('TestLeap: ',mnarr[1])
-
-# Read in the New Files for each month
-ReadInfo = ['sp','t2m','d2m']
+# For memory we had better do one variable at a time or its going to get BIG!
 LatInfo = ['latitude'] 
 LonInfo = ['longitude'] 
 
-for m in range(12):
-    # string for file name
-    mm = '%02i' % (m+1)
-
-    # Month pointer
-    MonthPointer = edOLD+m
-    print('Month Pointer: ',m)
-    
-    print('Reading in Month: ',mm)
-
-    # DOES automatically unpack the scale and offset 
-    # However, SP is Pa and T and Td are Kelvin
-    # This kills memory so need to be tidy
-    FileName = workingdir+'/OTHERDATA/'+UpdateERAStr+mm+updateyyyy+'.nc'
-
-    TmpData,Lats,Lons = GetGrid4(FileName,ReadInfo,LatInfo,LonInfo)
-
-    # Unpack into month of t, td, and sp
-    T_Data  = TmpData[1]-273.15
-    Td_Data = TmpData[2]-273.15
-    SP_Data = TmpData[0]/100.
-    # Empty the TmpData array
-    TmpData = 0
-
-    # Convert to desired humidity variable
-    # Start with vapour pressure - automatically does ice bulb!!!
-    e_Data = CalcHums.vap(Td_Data,T_Data,SP_Data,roundit=False)
-
-    # Now all others can be calculated
-    Tw_Data  = CalcHums.wb(Td_Data,T_Data,SP_Data,roundit=False)
-    DPD_Data = CalcHums.dpd(Td_Data,T_Data,roundit=False)
-    RH_Data  = CalcHums.rh(Td_Data,T_Data,SP_Data,roundit=False)
-    q_Data   = CalcHums.sh(Td_Data,T_Data,SP_Data,roundit=False)
-    
-    # Empty the SP_Data array
-    SP_Data = 0
-
-    # Place the monthly means in the full array
-    # Can we do this on mass or by lat/lon individually?
-    # I think we have to loop over the gridboxes
-    for ltt in range(nlats):
-        for lnn in range(nlons):
-    
-            # For q
-            FullMonthArray[MonthPointer,ltt,lnn,0] = np.mean(q_Data[:,ltt,lnn])
-            # For RH
-            FullMonthArray[MonthPointer,ltt,lnn,1] = np.mean(e_Data[:,ltt,lnn])
-            # For e
-            FullMonthArray[MonthPointer,ltt,lnn,2] = np.mean(RH_Data[:,ltt,lnn])
-            # For T
-            FullMonthArray[MonthPointer,ltt,lnn,3] = np.mean(T_Data[:,ltt,lnn])
-            # For Tw
-            FullMonthArray[MonthPointer,ltt,lnn,4] = np.mean(Tw_Data[:,ltt,lnn])
-            # For Td
-            FullMonthArray[MonthPointer,ltt,lnn,5] = np.mean(Td_Data[:,ltt,lnn])
-            # For DPD
-            FullMonthArray[MonthPointer,ltt,lnn,6] = np.mean(DPD_Data[:,ltt,lnn])
-
-    # Empty the data arrays
-    T_Data   = 0
-    Td_Data  = 0
-    Tw_Data  = 0
-    q_Data   = 0
-    RH_Data  = 0
-    e_Data   = 0
-    DPD_Data = 0
-
-    # Check that these are unpacked correctly float(var*scale)+offset [int((var-offset)/scale)]     
-    # pdb.set_trace()
-    # ALL OK!
-    
-# Loop through each variable
-# Array for monthly mean data for q, RH, e, T, Tw, Td, DPD
-LatInfo = ['latitude'] 
-LonInfo = ['longitude'] 
 for v,var in enumerate(VarArray):
 
+    # If you want to skip a variable then do it here
+    if ((v == 3) or (v == 5)):
+        continue
+    
+    print(v,var)
+    
+    # Array for monthly mean data for q, RH, e, T, Tw, Td, DPD one at a time though
+    FullMonthArray = np.empty((nmons,nlats,nlons),dtype = float)
+    FullMonthArray.fill(mdi)
+
+    # Loop through the decs
+    for d,dec in enumerate(Decs):
+        
+	# Number of years and months in dec
+	ndecyrs = (EdDec[d] - StDec[d]) + 1
+	ndecmons = ndecyrs*12
+	
+	# Begin the hour counter for this dec
+	# 0 to ~14600 + leap days
+	HrStPoint = 0 # set as HrEdPoint which is actual ed point +1
+	HrEdPoint = 0 # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
+		
+        # Loop through the years in the dec
+	for y in range(ndecyrs):
+	
+	    # Get actual year we're working on
+	    yr = y + StDec[d]
+
+            # First work out the time pointers for the year we're working with
+            # Is it a leap year or not?
+            if (TestLeap.TestLeap(yr) == 0.0):
+                mnarr    = [31,29,31,30,31,30,31,31,30,31,30,31]
+            else:
+                mnarr    = [31,28,31,30,31,30,31,31,30,31,30,31]
+    
+            print('TestLeap: ',mnarr[1], yr)
+	    
+            # Loop through each month
+	    for m in range(12):
+                    
+		# string for file name
+                mm = '%02i' % (m+1)
+
+                # Month pointer
+                MonthPointer = ((yr - styr) * 12)+m
+                print('Month Pointer: ',m)
+
+	        # Set the hour counter for this dec
+	        # 0 to ~14600 + leap days
+	        HrStPoint = np.copy(HrEdPoint)  # set as HrEdPoint which is actual end point +1
+	        HrEdPoint = HrStPoint + (mnarr[m]*4) # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
+                print('Hr Pointies for this month: ',HrStPoint,HrEdPoint)
+    
+                print('Reading in Month: ',mm)
+
+	        # Open and read in the ERAINTERIM files for the month
+	        # Until 2017 there is a seperate file for t, td and sp
+	        # From 2017 onwards each month is seperate but contains all variables
+	        if (yr < 2017): # test the string length to check its a pre-2017 dec
+
+                    # Sort out time pointers to pull out month
+		    SliceInfo = dict([('TimeSlice',[HrStPoint,HrEdPoint]),
+		                      ('LatSlice',[0,181]),
+				      ('LonSlice',[0,360])]) 
+	
+	            # Read in the data from the dec
+                    print('Reading in T for dec: ',dec)
+
+                    # DOES automatically unpack the scale and offset 
+                    # However, SP is Pa and T and Td are Kelvin
+                    # This kills memory so need to be tidy
+                    ReadInfo = ['t2m']
+                    FileName = workingdir+'/OTHERDATA/'+UpdateERAStrT+dec+'.nc'
+                    T_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
+
+                    # Unpack t
+                    T_Data  = T_Data-273.15
+
+                    print('Reading in Td for dec: ',dec)
+
+                    # DOES automatically unpack the scale and offset 
+                    # However, SP is Pa and T and Td are Kelvin
+                    # This kills memory so need to be tidy
+                    ReadInfo = ['d2m']
+                    FileName = workingdir+'/OTHERDATA/'+UpdateERAStrTd+dec+'.nc'
+                    Td_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
+
+                    # Unpack td
+                    Td_Data = Td_Data-273.15
+
+                    print('Reading in SP for dec: ',dec)
+
+                    # DOES automatically unpack the scale and offset 
+                    # However, SP is Pa and T and Td are Kelvin
+                    # This kills memory so need to be tidy
+                    ReadInfo = ['sp']
+                    FileName = workingdir+'/OTHERDATA/'+UpdateERAStrSP+dec+'.nc'
+                    SP_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
+
+                    # Unpack sp
+                    SP_Data = SP_Data/100.
+
+	        # IF its 2017+ then we'll need to loop through each month and read in the data
+	        elif (yr >= 2017):
+
+                    # Read in the New Files for each month
+                    ReadInfo = ['sp','t2m','d2m']
+
+                    # DOES automatically unpack the scale and offset 
+                    # However, SP is Pa and T and Td are Kelvin
+                    # This kills memory so need to be tidy
+                    FileName = workingdir+'/OTHERDATA/'+UpdateERAStr+mm+str(yr)+'.nc'
+
+                    TmpData,Latitudes,Longitudes = GetGrid4(FileName,ReadInfo,LatInfo,LonInfo)
+
+                    # Unpack into month of t, td, and sp
+                    T_Data  = np.copy(TmpData[1]-273.15)
+                    Td_Data = np.copy(TmpData[2]-273.15)
+                    SP_Data = np.copy(TmpData[0]/100.)
+                    # Empty the TmpData array
+                    TmpData = 0
+
+	    
+	        # Convert to desired humidity variable
+ 	        Hum_Data = GetHumidity(T_Data,Td_Data,SP_Data,var)
+
+	        # Empty the SP_Data array
+                SP_Data = 0
+                T_Data = 0
+                Td_Data = 0
+
+                # Place the monthly means in the full array
+                # Can we do this on mass or by lat/lon individually?
+                # I think we have to loop over the gridboxes
+                for ltt in range(nlats):
+                    for lnn in range(nlons):
+    
+                        FullMonthArray[MonthPointer,ltt,lnn] = np.mean(Hum_Data[:,ltt,lnn])
+
+                # Empty the data arrays
+                Hum_Data = 0 
+
+    # Now we should have a complete monthly mean dataset
+    # Write out
     print('Writing out: ',var)
-
-    # Read in existing ERA data
-    FileName = workingdir+'/OTHERDATA/'+var+OldERAStr
-    ReadInfo = [var+'2m']
-    TmpData,Latitudes,Longitudes = GetGrid4(FileName,ReadInfo,LatInfo,LonInfo)
-
-    # Merge New and old
-    FullMonthArray[0:edOLD,:,:,v] = TmpData
 
     # Write out 
     TimPoints,TimBounds = MakeDaysSince(styr,stmon,edyr,edmon)
@@ -334,35 +417,35 @@ for v,var in enumerate(VarArray):
     ncfw.createDimension('longitude',nlons)
 	
     # Go through each dimension and set up the variable and attributes for that dimension if needed
-    MyVar = ncfw.createVariable('time','f4',('time',))
-    MyVar.standard_name = 'time'
-    MyVar.long_name = 'time'
-    MyVar.units = 'days since 1979-1-1 00:00:00'
-    MyVar.start_year = str(styr)
-    MyVar.end_year = str(edyr)
-    MyVar[:] = TimPoints
+    MyVarT = ncfw.createVariable('time','f4',('time',))
+    MyVarT.standard_name = 'time'
+    MyVarT.long_name = 'time'
+    MyVarT.units = 'days since 1979-1-1 00:00:00'
+    MyVarT.start_year = str(styr)
+    MyVarT.end_year = str(edyr)
+    MyVarT[:] = TimPoints
 
-    MyVar = ncfw.createVariable('latitude','f4',('latitude',))
-    MyVar.standard_name = 'latitude'
-    MyVar.long_name = 'gridbox centre latitude'
-    MyVar.units = 'degrees_north'
-    MyVar[:] = Latitudes
+    MyVarLt = ncfw.createVariable('latitude','f4',('latitude',))
+    MyVarLt.standard_name = 'latitude'
+    MyVarLt.long_name = 'gridbox centre latitude'
+    MyVarLt.units = 'degrees_north'
+    MyVarLt[:] = Latitudes
 
-    MyVar = ncfw.createVariable('longitude','f4',('longitude',))
-    MyVar.standard_name = 'longitude'
-    MyVar.long_name = 'gridbox centre longitude'
-    MyVar.units = 'degrees_east'
-    MyVar[:] = Longitudes
+    MyVarLn = ncfw.createVariable('longitude','f4',('longitude',))
+    MyVarLn.standard_name = 'longitude'
+    MyVarLn.long_name = 'gridbox centre longitude'
+    MyVarLn.units = 'degrees_east'
+    MyVarLn[:] = Longitudes
 
     # Go through each variable and set up the variable attributes
     # I've added zlib=True so that the file is in compressed form
     # I've added least_significant_digit=4 because we do not need to store information beyone 4 significant figures.
-    MyVar = ncfw.createVariable(var+'2m','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
-    MyVar.standard_name = StNameArr[v]
-    MyVar.units = UnitArr[v]
-    MyVar.missing_value = mdi
+    MyVarD = ncfw.createVariable(var+'2m','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+    MyVarD.standard_name = StNameArr[v]
+    MyVarD.units = UnitArr[v]
+    MyVarD.missing_value = mdi
     # Provide the data to the variable - depending on howmany dimensions there are
-    MyVar[:,:,:] = FullMonthArray[:,:,:,v]	    
+    MyVarD[:,:,:] = FullMonthArray	    
 	    
     ncfw.close()
 
