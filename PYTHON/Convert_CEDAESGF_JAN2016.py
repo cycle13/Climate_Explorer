@@ -147,30 +147,30 @@ from WriteNetCDF_CEDAESGF_JAN2016 import WriteNCCF
 # Set up hardwired variables
 
 #************************************************************************
-MyChoice='q' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
+MyChoice='dpd' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
 
 # Generic Things
 # VERSION
-version='v3-0-0-2016p'
+version = 'v4-0-0-2017f'
+#version='v3-0-0-2016p'
 #version='v2-1-0-2015p'
 #version='v2-0-1-2014p'
-
-# Files
-InPath='/data/local/hadkw/HADCRUH2/UPDATE2016/STATISTICS/GRIDS/'
-OutPath='/data/local/hadkw/HADCRUH2/UPDATE2016/STATISTICS/GRIDS/'
-#InPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
-#OutPath='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/GRIDS/'
-#InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
-#OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
+verstring = '4.0.0.2017f'
+nowmon = 'JAN'
+nowyear = '2018'
 
 # Dates
 StYr=1973
 StMon=1
-EdYr=2016
-#EdYr=2015
-#EdYr=2014
+EdYr=2017
 EdMon=12
-ClimPoints=(1976,2005)
+ClimPoints=(1981,2010)
+#ClimPoints=(1976,2005)
+climbo = str(ClimPoints[0])[2:4]+str(ClimPoints[1])[2:4]
+
+# Files
+InPath='/data/local/hadkw/HADCRUH2/UPDATE'+str(EdYr)+'/STATISTICS/GRIDS/'
+OutPath='/data/local/hadkw/HADCRUH2/UPDATE'+str(EdYr)+'/STATISTICS/GRIDS/'
 
 # Space Dimensions
 LatInfo=[36,-87.5] # list of gridbox centres calc by ReadNetCDF prog
@@ -269,7 +269,8 @@ Acknowledgement = 'Kate Willett, Robert Dunn and David Parker were supported by 
                   for Engineering and Flow Metrology, and by the MeteoMet Project of the European Metrology Research Programme. We also thank the internal \
                   reviewers at NCDC, NPL and the Met Office for their thorough reviews and advice. We thank Adrian Simmons and Andreas Becker for their \
                   thoughtful and constructive reviews.'
-Source = 'HadISD.2.0.1.2016p (Dunn et al. 2016) from the National Centres for Environmental Information \
+# THIS BIT NEEDS EDITING EVERY YEAR **************************
+Source = 'HadISD.2.0.2.2017p (Dunn et al. 2016) from the National Centres for Environmental Information \
           International Surface Database (ISD): www.ncdc.noaa.gov/isd'
 #Source = 'HadISD.1.0.4.2015p (Dunn et al. 2012) from the National Centres for Environmental Information \
 #          International Surface Database (ISD): www.ncdc.noaa.gov/isd'
@@ -291,24 +292,13 @@ netCDF_type = 'NETCDF4_CLASSIC'
 # Set up for q
 if (MyChoice == 'q'):
     # Files
-#    InPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
-    InFile='HadISDH.landq.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+    InFile='HadISDH.landq.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+#    InFile='HadISDH.landq.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
 #    InFile='HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landq.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
-#    OutPath='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/GRIDS/'
     OutFile='huss-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 #    OutFile='huss_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
-#    # Dates
-#    StYr=1973
-#    StMon=1
-#    EdYr=2014
-#    EdMon=12
-#    ClimPoints=(1976,2005)
-	
-#    # Space Dimensions
-#    LatInfo=[36,-87.5] # list of gridbox centres calc by ReadNetCDF prog
-#    LonInfo=[72,-177.5] # list of gridbox centres calc by ReadNetCDF prog
 	
     # Data Object List - list of variable names to read in from the netCDF file
     DataObjectList=['q_anoms',
@@ -325,63 +315,7 @@ if (MyChoice == 'q'):
 	            'actual_n_stations',
 		    'q_rbar',
 		    'q_sbarSQ']
-					
-#    # DimObject list
-#    DimObjectList=[['time','month','characters','latitude','longitude','bound_pairs'],
-#                   [((EdYr-StYr)*12)+EdMon,12,10,36,72,2],
-#	           dict([('var_type','f4'),
-#		   	 ('var_name','time'),
-#		   	 ('var_dims',('time',)),
-#		   	 ('standard_name','time'),
-#		   	 ('long_name','time'),
-#		   	 ('units','days since 1973-1-1 00:00:00'),
-#		   	 ('axis','T'),
-#		   	 ('calendar','gregorian'),
-#		   	 ('start_year',1973),
-#		   	 ('end_year',2014),
-#		   	 ('start_month',1),
-#		   	 ('end_month',12),
-#		   	 ('bounds','bounds_time')]),
-#		   dict([('var_type','i4'),
-#		   	 ('var_name','bounds_time'),
-#		   	 ('var_dims',('time','bound_pairs',)), 
-#		   	 ('standard_name','time'),
-#		   	 ('long_name','time period boundaries')]),
-#		   dict([('var_type','S1'),
-#		   	 ('var_name','month'),
-#		   	 ('var_dims',('month','characters',)), 
-#		   	 ('long_name','month of year')]),
-#		   dict([('var_type','S1'),
-#		   	 ('var_name','climbounds'),
-#		   	 ('var_dims',('month','bound_pairs','characters')), 
-#		   	 ('long_name','climatology period boundaries')]),
-#	           dict([('var_type','f4'),
-#		   	 ('var_name','latitude'),
-#		   	 ('var_dims',('latitude',)), 
-#		   	 ('standard_name','latitude'),
-#		   	 ('long_name','gridbox centre latitude'),
-#		   	 ('units','degrees_north'),
-#		   	 ('point_spacing','even'),
-#		   	 ('bounds','bounds_lat')]),
-#		   dict([('var_type','f4'),
-#		   	 ('var_name','bounds_lat'),
-#		   	 ('var_dims',('latitude','bound_pairs',)), 
-#		   	 ('standard_name','latitude'),
-#		   	 ('long_name','latitude gridbox boundaries')]),
-#	           dict([('var_type','f4'),
-#		   	 ('var_name','longitude'),
-#		   	 ('var_dims',('longitude',)), 
-#		   	 ('standard_name','longitude'),
-#		   	 ('long_name','gridbox centre longitude'),
-#		   	 ('units','degrees_east'),
-#		   	 ('point_spacing','even'),
-#		   	 ('bounds','bounds_lon')]),
-#		   dict([('var_type','f4'),
-#		   	 ('var_name','bounds_lon'),
-#		   	 ('var_dims',('longitude','bound_pairs',)), 
-#		   	 ('standard_name','longitude'),
-#		   	 ('long_name','longitude gridbox boundaries')])]
-	
+						
     # AttrObject list
     AttrObjectList=[dict([('var_type','i4'),
 			  ('var_name','hussa'),
@@ -396,7 +330,7 @@ if (MyChoice == 'q'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005'),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
 			  ('ancillary_variables','stdunc sampunc stnunc measunc adjunc climunc')]),
 	            dict([('var_type','i4'),
 			  ('var_name','huss'),
@@ -439,7 +373,7 @@ if (MyChoice == 'q'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005')]),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
 	            dict([('var_type','i4'),
 			  ('var_name','stdunc'),
 			  ('var_dims',('time','latitude','longitude',)), 
@@ -587,7 +521,7 @@ if (MyChoice == 'q'):
 # Set up for rh
 if (MyChoice == 'rh'):	
     # Files
-    InFile='HadISDH.landRH.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+    InFile='HadISDH.landRH.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
 #    InFile='HadISDH.landRH.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landRH.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
     OutFile='hurs-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -623,7 +557,7 @@ if (MyChoice == 'rh'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005'),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
 			  ('ancillary_variables','stdunc sampunc stnunc measunc adjunc climunc')]),
 	            dict([('var_type','i4'),
 			  ('var_name','hurs'),
@@ -666,7 +600,7 @@ if (MyChoice == 'rh'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005')]),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
 	            dict([('var_type','i4'),
 			  ('var_name','stdunc'),
 			  ('var_dims',('time','latitude','longitude',)), 
@@ -813,7 +747,7 @@ if (MyChoice == 'rh'):
 # Set up for e
 if (MyChoice == 'e'):	
     # Files
-    InFile='HadISDH.lande.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+    InFile='HadISDH.lande.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
 #    InFile='HadISDH.lande.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.lande.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
     OutFile='vps-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -849,7 +783,7 @@ if (MyChoice == 'e'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005'),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
 			  ('ancillary_variables','stdunc sampunc stnunc measunc adjunc climunc')]),
 	            dict([('var_type','i4'),
 			  ('var_name','vps'),
@@ -892,7 +826,7 @@ if (MyChoice == 'e'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005')]),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
 	            dict([('var_type','i4'),
 			  ('var_name','stdunc'),
 			  ('var_dims',('time','latitude','longitude',)), 
@@ -1039,7 +973,7 @@ if (MyChoice == 'e'):
 # Set up for td
 if (MyChoice == 'td'):	
     # Files
-    InFile='HadISDH.landTd.3.0.0.2016p_FLATgridPHADPD5by5_anoms7605_JAN2017_cf.nc'
+    InFile='HadISDH.landTd.'+verstring+'_FLATgridPHADPD5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
 #    InFile='HadISDH.landTd.2.1.0.2015p_FLATgridPHADPD5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landTd.2.0.1.2014p_FLATgridPHADPD5by5_JAN2015_cf.nc'
     OutFile='tds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -1075,7 +1009,7 @@ if (MyChoice == 'td'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005'),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
 			  ('ancillary_variables','stdunc sampunc stnunc measunc adjunc climunc')]),
 	            dict([('var_type','i4'),
 			  ('var_name','tds'),
@@ -1118,7 +1052,7 @@ if (MyChoice == 'td'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005')]),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
 	            dict([('var_type','i4'),
 			  ('var_name','stdunc'),
 			  ('var_dims',('time','latitude','longitude',)), 
@@ -1265,7 +1199,7 @@ if (MyChoice == 'td'):
 # Set up for tw
 if (MyChoice == 'tw'):	
     # Files
-    InFile='HadISDH.landTw.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+    InFile='HadISDH.landTw.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
 #    InFile='HadISDH.landTw.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landTw.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
     OutFile='tws-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -1301,7 +1235,7 @@ if (MyChoice == 'tw'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005'),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
 			  ('ancillary_variables','stdunc sampunc stnunc measunc adjunc climunc')]),
 	            dict([('var_type','i4'),
 			  ('var_name','tws'),
@@ -1344,7 +1278,7 @@ if (MyChoice == 'tw'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005')]),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
 	            dict([('var_type','i4'),
 			  ('var_name','stdunc'),
 			  ('var_dims',('time','latitude','longitude',)), 
@@ -1491,7 +1425,7 @@ if (MyChoice == 'tw'):
 # Set up for t
 if (MyChoice == 't'):	
     # Files
-    InFile='HadISDH.landT.3.0.0.2016p_FLATgridIDPHA5by5_anoms7605_JAN2017_cf.nc'
+    InFile='HadISDH.landT.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
 #    InFile='HadISDH.landT.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_cf.nc'
     OutFile='tas-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -1528,7 +1462,7 @@ if (MyChoice == 't'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005'),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
 			  ('ancillary_variables','stdunc sampunc stnunc measunc adjunc climunc')]),
 	            dict([('var_type','i4'),
 			  ('var_name','tas'),
@@ -1571,7 +1505,7 @@ if (MyChoice == 't'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005')]),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
 	            dict([('var_type','i4'),
 			  ('var_name','stdunc'),
 			  ('var_dims',('time','latitude','longitude',)), 
@@ -1718,7 +1652,7 @@ if (MyChoice == 't'):
 # Set up for dpd
 if (MyChoice == 'dpd'):	
     # Files
-    InFile='HadISDH.landDPD.3.0.0.2016p_FLATgridPHA5by5_anoms7605_JAN2017_cf.nc'
+    InFile='HadISDH.landDPD.'+verstring+'_FLATgridPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
 #    InFile='HadISDH.landDPD.2.1.0.2015p_FLATgridPHA5by5_JAN2016_cf.nc'
 #    InFile='HadISDH.landDPD.2.0.1.2014p_FLATgridPHA5by5_JAN2015_cf.nc'
     OutFile='dpds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
@@ -1754,7 +1688,7 @@ if (MyChoice == 'dpd'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005'),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
 			  ('ancillary_variables','stdunc sampunc stnunc measunc adjunc climunc')]),
 	            dict([('var_type','i4'),
 			  ('var_name','dpds'),
@@ -1797,7 +1731,7 @@ if (MyChoice == 'dpd'):
 			  ('valid_max',30000), # max integer
 			  ('missing_value',-999),
 			  ('_FillValue',-999),
-			  ('reference_period','1976, 2005')]),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
 	            dict([('var_type','i4'),
 			  ('var_name','stdunc'),
 			  ('var_dims',('time','latitude','longitude',)), 
