@@ -3,7 +3,7 @@
 # 
 # Author: Kate Willett
 # Created: 8th October 2015
-# Last update: 8th October 2015
+# Last update: 16th April 2018
 # Location: /data/local/hadkw/HADCRUH2/UPDATE2014/PROGS/PYTHON/	# this will probably change
 # GitHub: https://github.com/Kate-Willett/Climate_Explorer/tree/master/PYTHON/
 # -----------------------
@@ -80,6 +80,16 @@
 # VERSION/RELEASE NOTES
 # -----------------------
 # 
+# Version 3 16 April 2018
+# ---------
+#  
+# Enhancements
+# Updated editable info so fewer edits are required to run for the most recent version/year
+#  
+# Changes
+#  
+# Bug fixes
+#
 # Version 2 9 August 2016
 # ---------
 #  
@@ -123,11 +133,14 @@ import pdb #stop: pdb.set_trace(), start: c
 TimeRes='Y'	# M=month, Y=year	
 Region='A'	# A=All, G=Globe, N=NHemi, T=Tropics, S=SHemi
 homogtype='IDPHA'	# 'IDPHA','PHA','PHADPD'
-nowmon='AUG'
-nowyear='2016'
+thenmon='MAR'
+thenyear='2018'
+nowmon='APR'
+nowyear='2018'
+version='4.0.0.2017f'
 
 styr=1973
-edyr=2015
+edyr=2017
 nyrs=(edyr-styr)+1
 nmons=(nyrs)*12
 if (TimeRes == 'Y'):
@@ -138,15 +151,15 @@ YrStr=np.array(range(styr,edyr+1),dtype=str)
 YrStr=np.array(([i[2:5] for i in YrStr])) # now a string array of the last two digits
 
 # Set up directories and files
-INDIR='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/TIMESERIES/'
-OUTDIR='/data/local/hadkw/HADCRUH2/UPDATE2015/IMAGES/ANALYSIS/'
+INDIR='/data/local/hadkw/HADCRUH2/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
+OUTDIR='/data/local/hadkw/HADCRUH2/UPDATE'+str(edyr)+'/IMAGES/ANALYSIS/'
 
-In_q='HadISDH.landq.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_anoms7605_areaTS_19732015.nc'
-In_RH='HadISDH.landRH.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_anoms7605_areaTS_19732015.nc'
-In_T='HadISDH.landT.2.1.0.2015p_FLATgridIDPHA5by5_JAN2016_anoms7605_areaTS_19732015.nc'
+In_q='HadISDH.landq.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_areaTS_1973'+str(edyr)+'.nc'
+In_RH='HadISDH.landRH.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_areaTS_1973'+str(edyr)+'.nc'
+In_T='HadISDH.landT.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_areaTS_1973'+str(edyr)+'.nc'
 
-OutPlotTq='ScatterTqbyRH_HadISDH.2.1.0.2015p_'+Region+'_'+nowmon+nowyear
-OutPlotTRH='ScatterTRHbyq_HadISDH.2.1.0.2015p_'+Region+'_'+nowmon+nowyear
+OutPlotTq='ScatterTqbyRH_HadISDH.'+version+'_'+Region+'_'+nowmon+nowyear
+OutPlotTRH='ScatterTRHbyq_HadISDH.'+version+'_'+Region+'_'+nowmon+nowyear
  
 # Set up variables
 q_arr=0	#set once file read in
