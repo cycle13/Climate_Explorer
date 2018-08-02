@@ -186,12 +186,12 @@ def GetGrid(FileName,
 	#pdb.set_trace()
     else:
         # Initialise TheData as a list
-	TheData=[]
-	for loo in range(len(ReadInfo)):
+        TheData=[]
+        for loo in range(len(ReadInfo)):
             var=ncf.variables[ReadInfo[loo]]
-	    #pdb.set_trace()
+            #pdb.set_trace()
             TmpData=np.array(var.data) # times, lats, lons
-	    TheData.append(TmpData)	
+            TheData.append(TmpData)	
 
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)
@@ -204,8 +204,8 @@ def GetGrid(FileName,
 # GETGRID4
 def GetGrid4(FileName,
             ReadInfo,
-	    LatInfo = ['latitude'],
-	    LonInfo = ['longitude']):
+            LatInfo = ['latitude'],
+            LonInfo = ['longitude']):
     ''' Open the NetCDF File
         Get the list of latitudes either from file or derive
         Get the list of longitudes either from file or derive
@@ -272,14 +272,14 @@ def GetGrid4(FileName,
 	#pdb.set_trace()
     else:
         # Initialise TheData as a list
-	TheData = []
-	for loo in range(len(ReadInfo)):
+        TheData = []
+        for loo in range(len(ReadInfo)):
             var = ncf.variables[ReadInfo[loo]]
-	    #var.ncattrs() # prints the attributues
+            #var.ncattrs() # prints the attributues
 	    #var.add_offset # prints the add_offset attribute
 	    #pdb.set_trace()
             TmpData = np.copy(var[:]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
-	    TheData.append(TmpData)	
+            TheData.append(TmpData)	
 
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)
@@ -292,9 +292,9 @@ def GetGrid4(FileName,
 # GETGRID4SLICE
 def GetGrid4Slice(FileName,
             ReadInfo,
-	    SliceInfo,
-	    LatInfo = ['latitude'],
-	    LonInfo = ['longitude']):
+            SliceInfo,
+            LatInfo = ['latitude'],
+            LonInfo = ['longitude']):
     ''' Open the NetCDF File
         Get the list of latitudes either from file or derive
         Get the list of longitudes either from file or derive
@@ -368,22 +368,22 @@ def GetGrid4Slice(FileName,
     
         var = ncf.variables[ReadInfo[0]]
         TheData = np.copy(var[SliceInfo['TimeSlice'][0]:SliceInfo['TimeSlice'][1],
-	              SliceInfo['LatSlice'][0]:SliceInfo['LatSlice'][1],
-		      SliceInfo['LonSlice'][0]:SliceInfo['LonSlice'][1]]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
+                      SliceInfo['LatSlice'][0]:SliceInfo['LatSlice'][1],
+        	      SliceInfo['LonSlice'][0]:SliceInfo['LonSlice'][1]]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
 	#var.ncattrs() # prints the attributues
 	#pdb.set_trace()
     else:
         # Initialise TheData as a list
-	TheData = []
-	for loo in range(len(ReadInfo)):
+        TheData = []
+        for loo in range(len(ReadInfo)):
             var = ncf.variables[ReadInfo[loo]]
-	    #var.ncattrs() # prints the attributues
+            #var.ncattrs() # prints the attributues
 	    #var.add_offset # prints the add_offset attribute
 	    #pdb.set_trace()
             TmpData = np.copy(var[SliceInfo['TimeSlice'][0]:SliceInfo['TimeSlice'][1],
-	              SliceInfo['LatSlice'][0]:SliceInfo['LatSlice'][1],
-		      SliceInfo['LonSlice'][0]:SliceInfo['LonSlice'][1]]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
-	    TheData.append(TmpData)	
+                      SliceInfo['LatSlice'][0]:SliceInfo['LatSlice'][1],
+        	      SliceInfo['LonSlice'][0]:SliceInfo['LonSlice'][1]]) # times, lats, lons - THIS AUTOMATICALLY APPLIES SCALE AND OFFSET!!!
+            TheData.append(TmpData)	
 
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)

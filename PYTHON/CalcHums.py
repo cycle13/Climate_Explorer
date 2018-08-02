@@ -82,12 +82,12 @@ def vap(td,t,p,roundit=True):
     if (np.isscalar(td) == True):
     
         # We have scalars so temporarily make them numpy arrays
-	td = np.array([td])
+        td = np.array([td])
         t = np.array([t])
-	p = np.array([p])
+        p = np.array([p])
 	
 	# Set the scalar flag to 1 so that we convert back again
-	ScalarFlag = 1    
+        ScalarFlag = 1    
 
     e = None
 
@@ -113,10 +113,10 @@ def vap(td,t,p,roundit=True):
 #        print('found an icy')
 #	pdb.set_trace()
         # Need to check whether pressure is an array or scalar
-	if (hasattr(p,'__len__') == False): # p is a scalar
-	    f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
+        if (hasattr(p,'__len__') == False): # p is a scalar
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
         else: # p is an array
-	    f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
+            f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
 	
         e[icy] = 6.1115*f*np.exp(((23.036 - (td[icy]/333.7))*td[icy]) / (279.82+td[icy]))
     
@@ -130,7 +130,7 @@ def vap(td,t,p,roundit=True):
     if (ScalarFlag == 1):
     
         # Return a scalar
-	e = e[0]
+        e = e[0]
 	     
     return e
 
@@ -205,12 +205,12 @@ def sh(td,t,p,roundit=True):
     if (np.isscalar(td) == True):
     
         # We have scalars so temporarily make them numpy arrays
-	td = np.array([td])
+        td = np.array([td])
         t = np.array([t])
-	p = np.array([p])
+        p = np.array([p])
 	
 	# Set the scalar flag to 1 so that we convert back again
-	ScalarFlag = 1    
+        ScalarFlag = 1    
 
     q = None
 
@@ -233,7 +233,7 @@ def sh(td,t,p,roundit=True):
     if (len(icy[0]) > 0):    
     
         # Need to check whether pressure is an array or scalar
-	if (hasattr(p,'__len__') == False): # p is a scalar
+        if (hasattr(p,'__len__') == False): # p is a scalar
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
         else: # p is an array
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
@@ -252,7 +252,7 @@ def sh(td,t,p,roundit=True):
     if (ScalarFlag == 1):
     
         # Return a scalar
-	q = q[0]
+        q = q[0]
 	
     return q
 
@@ -330,12 +330,12 @@ def rh(td,t,p,roundit=True):
     if (np.isscalar(td) == True):
     
         # We have scalars so temporarily make them numpy arrays
-	td = np.array([td])
+        td = np.array([td])
         t = np.array([t])
-	p = np.array([p])
+        p = np.array([p])
 	
 	# Set the scalar flag to 1 so that we convert back again
-	ScalarFlag = 1    
+        ScalarFlag = 1    
     
     r = None
 
@@ -360,7 +360,7 @@ def rh(td,t,p,roundit=True):
     if (len(icy[0]) > 0):    
     
         # Need to check whether pressure is an array or scalar
-	if (hasattr(p,'__len__') == False): # p is a scalar
+        if (hasattr(p,'__len__') == False): # p is a scalar
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
         else: # p is an array
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
@@ -396,7 +396,7 @@ def rh(td,t,p,roundit=True):
     if (len(icy[0]) > 0):    
     
         # Need to check whether pressure is an array or scalar
-	if (hasattr(p,'__len__') == False): # p is a scalar
+        if (hasattr(p,'__len__') == False): # p is a scalar
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
         else: # p is an array
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
@@ -419,7 +419,7 @@ def rh(td,t,p,roundit=True):
     if (ScalarFlag == 1):
     
         # We need a scalars to return
-	r = r[0]
+        r = r[0]
 	
     return r 
 
@@ -464,12 +464,12 @@ def wb(td,t,p,roundit=True):
     if (np.isscalar(td) == True):
     
         # We have scalars so temporarily make them numpy arrays
-	td = np.array([td])
+        td = np.array([td])
         t = np.array([t])
-	p = np.array([p])
+        p = np.array([p])
 	
 	# Set the scalar flag to 1 so that we convert back again
-	ScalarFlag = 1    
+        ScalarFlag = 1    
 
     w = None
 
@@ -491,7 +491,7 @@ def wb(td,t,p,roundit=True):
     if (len(icy[0]) > 0):    
     
         # Need to check whether pressure is an array or scalar
-	if (hasattr(p,'__len__') == False): # p is a scalar
+        if (hasattr(p,'__len__') == False): # p is a scalar
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
         else: # p is an array
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p[icy])
@@ -514,7 +514,7 @@ def wb(td,t,p,roundit=True):
     if (ScalarFlag == 1):
     
         # Return a scalar
-	w = w[0]
+        w = w[0]
 	
     return w 
 
@@ -585,12 +585,12 @@ def td_from_vap(e,p,t,roundit=True):
     if (np.isscalar(e) == True):
     
         # We have scalars so temporarily make them numpy arrays
-	e = np.array([e])
+        e = np.array([e])
         t = np.array([t])
-	p = np.array([p])
+        p = np.array([p])
 	
 	# Set the scalar flag to 1 so that we convert back again
-	ScalarFlag = 1    
+        ScalarFlag = 1    
 
     td = None
     
@@ -620,7 +620,7 @@ def td_from_vap(e,p,t,roundit=True):
 
 #        print('Found and icy!')    
         # Need to check whether pressure is an array or scalar
-	if (hasattr(p,'__len__') == False): # p is a scalar
+        if (hasattr(p,'__len__') == False): # p is a scalar
 #            print('A scalar p')    
             f = 1 + (3.*(10**(-4.))) + ((4.18*(10**(-6.)))*p)
         else: # p is an array
@@ -654,6 +654,6 @@ def td_from_vap(e,p,t,roundit=True):
     if (ScalarFlag == 1):
     
         # Return a scalar
-	td = td[0]
+        td = td[0]
 	    
     return td

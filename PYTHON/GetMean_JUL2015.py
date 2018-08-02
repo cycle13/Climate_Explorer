@@ -21,7 +21,7 @@
 #                                 START
 #************************************************************************
 # USE python2.7
-# python2.7 gETmEAN_jul2015.py
+# python2.7 GetMean_JUL2015.py
 #
 # REQUIRES
 # 
