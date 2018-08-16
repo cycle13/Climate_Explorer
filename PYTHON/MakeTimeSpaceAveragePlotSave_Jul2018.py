@@ -107,6 +107,11 @@
 #************************************************************************
 # Set up python imports
 import matplotlib.pyplot as plt
+# some jiggery pokery to make this work with scitools/experimental-current
+plt.switch_backend('tkagg')
+plt.clf()
+# https://matplotlib.org/users/customizing.html 
+# I don't have anything in my .config/matplotlib/ - should there be matplotlibrc? 
 import numpy as np
 import numpy.ma as ma
 import sys, os, getopt
@@ -676,7 +681,7 @@ def main(argv):
 
         # pass to plotter
         MyFile = OUTDIRP+OUTPLOTMAP    
-        PlotMap(MyFile,PctLand,LatList,LonList,MySlice,Unit,Namey,ColourMapChoice,IsLand,LatInfo,LonInfo,GlobSwitch)
+        PlotMap(MyFile,LatList,LonList,MySlice,Unit,Namey,ColourMapChoice,IsLand,LatInfo,LonInfo,GlobSwitch)
         print('PLotted map of time average grids')
 	
         # Write the slice of data out to a netCDF file
@@ -1307,7 +1312,7 @@ def PlotTimeSeries(TheFile,TheData,ThePackages,TheUnitee,TheNamey,TheMCount,TheY
        
 #**********************************************************************************************    
 # PlotMap
-def PlotMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheUnitee,TheNamee,ColourMapChoice,IsLand,TheLatInfo,TheLonInfo,GlobSwitch):
+def PlotMap(TheFile,TheLatList,TheLonList,TheCandData,TheUnitee,TheNamee,ColourMapChoice,IsLand,TheLatInfo,TheLonInfo,GlobSwitch):
     ''' Create a masked array of trends
         Create a masked array of significant trends
         Plot trends on map, bounded if significant
