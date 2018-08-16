@@ -70,7 +70,7 @@
 #
 # or with some/all command line arguments
 # > module load scitools/experimental-current
-# >python MakeTimeSpaceAveragePlotSave_JUL2018.py --sy 1973 --ey 1973 --sm 1 --em 1 --ss 1 --sc JJA --gs 0 --slt -10.0 --sln -10.0 etc
+# >python MakeTimeSpaceAveragePlotSave_Jul2018.py --sy 1973 --ey 1973 --sm 1 --em 1 --ss 1 --sc JJA --gs 0 --slt -10.0 --sln -10.0 etc
 #
 # -----------------------
 # OUTPUT
@@ -165,7 +165,7 @@ def main(argv):
     SeasonSwitch = 1 # 1 means over selected seasons; 0 means over one entire year (12 month)
     SeasonChoice = 'JJA' # This can be any word from the SeasonDict dictionary below or add new entries to the dictionary
 
-    GlobSwitch = 0 # 1 means global (all lat and lon), 0 means chosing regions
+    GlobSwitch = 1 # 1 means global (all lat and lon), 0 means chosing regions
     StLt = -20 # -90 - 90
     StLn = -65 # - 180 - 180
     EdLt = 0 # -90 - 90
@@ -203,7 +203,8 @@ def main(argv):
 		       ('DJF',[11,0,1]),
 		       ('MAM',[2,3,4]),
 		       ('JJA',[5,6,7]),
-		       ('SON',[8,9,10])]) # add extended autum, winter; and wet/dry seasons!
+		       ('SON',[8,9,10]),
+                       ('Annual',[0,1,2,3,4,5,6,7,8,9,10,11])]) # add extended autum, winter; and wet/dry seasons!
 
 #### Overwriting variables with any given values from the command line and testing their validity ####
 ### This may not test validity of variables specified within the code rather than at the command line - check ####
@@ -350,7 +351,7 @@ def main(argv):
         print('Creating a spatial average for each timepoint')
     print('Working on dataset: ',MyBundle)
  
-    pdb.set_trace() 
+    #pdb.set_trace() 
 
     # Set up directories and files
     # working directory
@@ -604,6 +605,7 @@ def main(argv):
     if GlobSwitch == 1: # means all data, no region choice
         # Read in Data and Pull out only the time slice of interest.
         CandData,LatList,LonList = ReadNetCDFGrid(MyFile,ReadInfo,LatInfo,LonInfo,TimeInfo)
+        print('Read in netcdf for global')
         #pdb.set_trace()
 	
     else:
@@ -614,6 +616,7 @@ def main(argv):
 
         # Read in Data and Pull out only the time and region slice of interest.
         CandData,LatList,LonList = ReadNetCDFGridRegion(MyFile,ReadInfo,LatInfo,LonInfo,TimeInfo,RegionInfo)
+        print('Read in netcdf for region')
         # reset nlons and nlats to the region
         nlons = len(LonList)
         nlats = len(LatList)
@@ -626,12 +629,14 @@ def main(argv):
         # Read in Data and Pull out only the time slice of interest.
         print('SeasonInfo: ',SeasonInfo)
         NewCandData = CreateSeasons(CandData,mdi,nlats,nlons,SeasonInfo) 
+        print('Averaged to season')
         #pdb.set_trace()
 	
     else:
 
         # Changing the name of CandData to NewCandData
         NewCandData = CandData #for seperate copy it would be: np.copy()
+        print('Renamed data array for further processing')
         #pdb.set_trace()
     
     ############################ Create a spatial average of the data for each time step
@@ -639,10 +644,12 @@ def main(argv):
     if (SpatialSwitch == 1):
         # Create Spatial average of slices
         MySpatials = CreateSpatials(NewCandData,mdi,LatList,LonList)
+        print('Averaged over region for each time point')
 
         # pass to plotter
         MyFile = OUTDIRP+OUTPLOTTS    
         PlotTimeSeries(MyFile,MySpatials,Packages,Unit,Namey,NMonths,NYears,styr,edyr,mdi)
+        print('Plotted single time series')
 
        # Write the time series of data out to a netCDF file
         # Dictionary for looking up variable names for netCDF read in of variables
@@ -654,9 +661,10 @@ def main(argv):
                  ('vmax',np.max(MySpatials)),
                  ('mdi',mdi)])
 
-	OutFile = OUTDIRDT+OUTPLOTTS+'.nc'
+        OutFile = OUTDIRDT+OUTPLOTTS+'.nc'
 	# pass 0s for LatList,LonList,nlats and nlons to tell the code its a time series
         WriteOut(OutFile,MySpatials,0,0,styr,stmn,edyr,edmn,NMonths,0,0,PassingOutDict)
+        print('Written time series netCDF')
 
     ############################ Create a time average of the data for each gridbox
 
@@ -664,10 +672,12 @@ def main(argv):
         # Create Time average of slice
         # This has the option of plotting a time series on the fly for each gridbox up to 10 figures
         MySlice = CreateSlice(NewCandData,mdi,nlats,nlons,LatList,LonList,Packages,Unit,TimeSeriesSwitch)
+        print('Averaged over all time points for each gridbox')
 
         # pass to plotter
         MyFile = OUTDIRP+OUTPLOTMAP    
         PlotMap(MyFile,PctLand,LatList,LonList,MySlice,Unit,Namey,ColourMapChoice,IsLand,LatInfo,LonInfo,GlobSwitch)
+        print('PLotted map of time average grids')
 	
         # Write the slice of data out to a netCDF file
         # Dictionary for looking up variable names for netCDF read in of variables
@@ -679,15 +689,17 @@ def main(argv):
                  ('vmax',np.max(MySlice)),
                  ('mdi',mdi)])
 
-	OutFile = OUTDIRDG+OUTPLOTMAP+'.nc'
+        OutFile = OUTDIRDG+OUTPLOTMAP+'.nc'
 	# pass 0s for NMonts to tell the code its a map with no time elements
         WriteOut(OutFile,MySlice,LatList,LonList,styr,stmn,edyr,edmn,0,nlats,nlons,PassingOutDict)
+        print('Written out time average map to netCDF')
 
     ########################### Plot all gridbox time series if a region and TimeSeriesSwitch is 1
 
     if (GlobSwitch == 0) & (TimeSeriesSwitch == 1):
         MyFile = OUTDIRP+OUTPLOTTS+'_multi'
         PlotMultipleTimeSeries(MyFile,NewCandData,LatList,LonList,Packages,Unit,Namey,NMonths,NYears,styr,edyr,mdi)
+        print('Plotted multiple time series')
 
 
     print("And, we are done!")
@@ -735,7 +747,7 @@ def ReadNetCDFGrid(FileName,ReadInfo,LatInfo,LonInfo,TimeInfo):
     # This would have the start and end years and months which you can then work out which months to pull out
     # You would then need to know the start year and month of the dataset you're working with - HadISDH is Jan 1973, ERA is Jan 1979
 #    TheData = np.array(var.data)
-    TheData = np.array(var.data[TimeInfo[0]:TimeInfo[1],:,:])
+    TheData = np.array(var[TimeInfo[0]:TimeInfo[1],:,:])
 
 #    var=ncf.variables[ReadInfo[1]]
 #    TheLower=np.array(var.data)
@@ -1089,9 +1101,9 @@ def PlotMultipleTimeSeries(TheFile,TheData,TheLatList,TheLonList,ThePackages,The
         for m in range(TheMCount):
             TheMonths.append(dt.date(yr,mon,1))
             mon=mon+1
-        if mon == 13:
-            mon=1
-            yr=yr+1
+            if mon == 13:
+                mon=1
+                yr=yr+1
         TheMonths=np.array(TheMonths)
     else:
         TheMonths=[]
@@ -1237,9 +1249,10 @@ def PlotTimeSeries(TheFile,TheData,ThePackages,TheUnitee,TheNamey,TheMCount,TheY
         for m in range(TheMCount):
             TheMonths.append(dt.date(yr,mon,1))
             mon=mon+1
-        if mon == 13:
-            mon=1
-            yr=yr+1
+# FLORENTINE WILL NEED TO MOVE THIS IN TOO
+            if mon == 13:
+                mon=1
+                yr=yr+1
         TheMonths=np.array(TheMonths)
     else:
         TheMonths=[]
@@ -1250,16 +1263,16 @@ def PlotTimeSeries(TheFile,TheData,ThePackages,TheUnitee,TheNamey,TheMCount,TheY
             yr=yr+1
         TheMonths=np.array(TheMonths)
 
-#pdb.set_trace()
+    #pdb.set_trace()
 
     xtitlee='Years'
 
-        #plt.clf()
+    plt.clf()
     f = plt.figure(1,figsize=(12,6))
     axarr = plt.axes([0.15,0.1,0.8,0.80])
 
     print('Plot positions')
-    #pdb.set_trace()
+#    pdb.set_trace()
 
     if ThePackages == 'month':
         axarr.set_xlim([TheMonths[0],TheMonths[TheMCount-1]])
@@ -1269,8 +1282,12 @@ def PlotTimeSeries(TheFile,TheData,ThePackages,TheUnitee,TheNamey,TheMCount,TheY
         axarr.set_ylim([np.floor(np.min(TheData[np.where(TheData > TheMDI)])), np.ceil(np.max(TheData))])
         lw=2
       
+#    pdb.set_trace()
+
     DataMask = np.where(TheData > TheMDI)
     axarr.plot(TheMonths[DataMask],TheData[DataMask[0]],c='black',linewidth=lw)
+
+#    pdb.set_trace()
   
 # Now we only want axis labels and ticks along the left and bottom
 # need to do some work on the xticks/xticklabels because there are too many so it looks rubbish
@@ -1473,10 +1490,46 @@ def PlotMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheUnitee,TheNam
     return #PlotMap
 
 #**********************************************************************************************    
+# MakeDaysSince
+def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon):
+    ''' This function makes lists of times for monthly data suitable for saving to a netCDF file '''
+    ''' Take counts of months since styr, stmn (assume 15th day of month) '''
+    ''' Work out counts of days since styr,stmn, January - incl leap days '''
+    ''' Also work out time boundaries 1st and last day of month '''
+    ''' This can cope with incomplete years or individual months '''
+    ''' REQUIRES: 
+        from datetime import datetime
+	import numpy as np '''
+    
+    # set up arrays for month mid points and month bounds
+    DaysArray = np.empty(((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1))
+    BoundsArray = np.empty((((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1),2))
+    
+    # make a date object for each time point and subtract start date
+    StartDate = dt.datetime(TheStYr,TheStMon,1,0,0,0)	# January
+    TheYear = TheStYr
+    TheMonth = TheStMon
+    for mm in range(len(DaysArray)):
+        if (TheMonth < 12):
+            DaysArray[mm] = (dt.datetime(TheYear,TheMonth+1,1,0,0,0)-dt.datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (dt.datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
+            BoundsArray[mm,0] = (dt.datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+            BoundsArray[mm,1] = (dt.datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
+        else:
+            DaysArray[mm] = (dt.datetime(TheYear+1,1,1,0,0,0)-dt.datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (dt.datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
+            BoundsArray[mm,0] = (dt.datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+            BoundsArray[mm,1] = (dt.datetime(TheYear+1,1,1,0,0,0)-StartDate).days
+        TheMonth=TheMonth+1
+        if (TheMonth == 13):
+            TheMonth = 1
+            TheYear = TheYear+1
+	    
+    return DaysArray,BoundsArray
+
+#*********************************************************************************************
 # WriteOut
-def WriteOut(OutFile,OutputData,Latitudes,Longitudes,TheStyr,TheStmn,TheEdyr,TheEdmn,nmons,nlatsIn,nlonsIn,PassingOutDict): # styr,stmon,edyr,edmon to create 3D file
+def WriteOut(OutFile,OutputData,Latitudes,Longitudes,TheStyr,TheStmn,TheEdyr,TheEdmn,nmons,nlats,nlons,PassingOutDict): # styr,stmon,edyr,edmon to create 3D file
     # Write out
-    if (nlatsIn > 0):
+    if (nlats > 0):
         print('Writing out map of time average slices: ',OutFile)
         # We'll need LatBounds and LonBounds for this one
         LatBounds = np.empty((len(Latitudes),2),dtype='float')
@@ -1490,7 +1543,7 @@ def WriteOut(OutFile,OutputData,Latitudes,Longitudes,TheStyr,TheStmn,TheEdyr,The
     if (nmons > 0):
         print('Writing out time series of space average: ',OutFile)
         # We'll need time elements for this one
-	TimPoints,TimBounds = MakeDaysSince(TheStyr,TheStmn,TheEdyr,TheEdmon)
+        TimPoints,TimBounds = MakeDaysSince(TheStyr,TheStmn,TheEdyr,TheEdmn)
         nTims = len(TimPoints)
     		    
 
@@ -1515,9 +1568,9 @@ def WriteOut(OutFile,OutputData,Latitudes,Longitudes,TheStyr,TheStmn,TheEdyr,The
         MyVarT.end_year = str(TheEdyr)
         MyVarT[:] = TimPoints
 
-    if (nlatsIn > 0):
-        ncfw.createDimension('latitude',nlatsIn)
-        ncfw.createDimension('longitude',nlonsIn)
+    if (nlats > 0):
+        ncfw.createDimension('latitude',nlats)
+        ncfw.createDimension('longitude',nlons)
 
         MyVarLt = ncfw.createVariable('latitude','f4',('latitude',))
         MyVarLt.standard_name = 'latitude'
