@@ -2,7 +2,7 @@
 
 #***************************************
 # 1 April 2014 KMW - v1
-# Plots station locations for each variable including removed sub/super sats  
+# Plots HadISDH regional average time series alongside difference series from other datasets for all variables
 #
 #************************************************************************
 #                                 START

@@ -31,16 +31,16 @@ from scipy.io import netcdf
 Restarter='------'				#'------'		#'681040'
 
 # Set up initial run choices
-param='e'	# tw, q, e, rh, t, td, dpd
-param2='e'	# Tw, q, e, RH, T, Td, DPD
+param='q'	# tw, q, e, rh, t, td, dpd
+param2='q'	# Tw, q, e, RH, T, Td, DPD
 homogtype='IDPHA'	# 'IDPHA','PHA','PHADPD'
-nowmon='SEP'
-nowyear='2014'
+nowmon='MAY'
+nowyear='2018'
 thenmon='JAN'
-thenyear='2014'
-version='2.0.0.2013p'
+thenyear='2018'
+version='4.0.0.2017f'
 styr=1973
-edyr=2013
+edyr=2017
 nyrs=edyr-styr
 nmons=(nyrs+1)*12
 
@@ -60,17 +60,17 @@ elif param=='td':
 elif param=='dpd': 
     STATIONDIR='PHANETCDF/DPDDIR/'
 
-LISTDIR='/data/local/hadkw/HADCRUH2/UPDATE2013/LISTS_DOCS/'
-PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/'
-DATADIR='/data/local/hadkw/HADCRUH2/UPDATE2013/MONTHLIES/HOMOG/'+STATIONDIR
+LISTDIR='/data/local/hadkw/HADCRUH2/UPDATE2017/LISTS_DOCS/'
+PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE2017/IMAGES/BUILD/'
+DATADIR='/data/local/hadkw/HADCRUH2/UPDATE2017/MONTHLIES/HOMOG/'+STATIONDIR
 
-INLIST='Posthomog'+homogtype+param+'_goodsHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
-INSATS='Posthomog'+homogtype+param+'_satsHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
-INSUBS='Posthomog'+homogtype+param+'_subzerosHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
+INLIST='Posthomog'+homogtype+param+'_anoms8110_goodsHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
+INSATS='Posthomog'+homogtype+param+'_anoms8110_satsHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
+INSUBS='Posthomog'+homogtype+param+'_anoms8110_subzerosHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
 OUTPLOT='TemporalCoverageWMO.land'+param2+'.'+version+'_'+nowmon+nowyear
 OUTLIST='TemporalCoverageWMO.land'+param2+'.'+version+'_'+nowmon+nowyear+'.txt'
 
-DATAFILE='_homogJAN2014.nc'
+DATAFILE='_anoms8110_homogJAN2018.nc'
 
 # Set up variables
 ngoods=0	#set once file read in
@@ -260,10 +260,10 @@ def PlotNiceCoverageGraph(TheFile,TheWMOs,TheGots,TheTotalGots,
 
     ax1.set_xticks([TheMonths[2*12],TheMonths[7*12],TheMonths[12*12],
                 TheMonths[17*12],TheMonths[22*12],TheMonths[27*12],
-		TheMonths[32*12],TheMonths[37*12]])
+		TheMonths[32*12],TheMonths[37*12],TheMonths[42*12]])
     ax1.set_xticklabels([TheMonths[2*12].year,TheMonths[7*12].year,TheMonths[12*12].year,
                 TheMonths[17*12].year,TheMonths[22*12].year,TheMonths[27*12].year,
-		TheMonths[32*12].year,TheMonths[37*12].year],fontsize=17)
+		TheMonths[32*12].year,TheMonths[37*12].year,TheMonths[42*12].year],fontsize=17)
 
     ax1.tick_params(axis='both', which='major', labelsize=17)
 
@@ -279,7 +279,7 @@ def PlotNiceCoverageGraph(TheFile,TheWMOs,TheGots,TheTotalGots,
     ax1.set_ylabel(ytitlee1,size=18)
     
     ax2=ax1.twinx()
-    ax2.set_ylim([0,4000])
+    ax2.set_ylim([0,9000])
     ax2.set_ylabel(ytitlee2,size=18)
     ax2.tick_params(axis='both', which='major', labelsize=17)
     ax2.plot(TheMonths,TheTotalGots,'black',linewidth=4)

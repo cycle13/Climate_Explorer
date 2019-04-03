@@ -2,7 +2,7 @@
 
 #***************************************
 # 1 April 2014 KMW - v1
-# Plots station locations for each variable including removed sub/super sats  
+# Plots global time series from netCDF - cannot work with uncertainties right now
 #
 #************************************************************************
 #                                 START
@@ -36,13 +36,13 @@ nparams=7
 param=list(['q','e','rh','tw','td','t','dpd'])	# tw, q, e, rh, t, td, dpd
 param2=list(['q','e','RH','Tw','Td','T','DPD'])	# Tw, q, e, RH, T, Td, DPD
 unitees=list(['g/kg','hPa','%rh','degrees C','degrees C','degrees C','degrees C'])
-nowmon='APR'
-nowyear='2016'
-#thenmon='MAY'
-#thenyear='2014'
-#version='2.0.0.2013p'
+nowmon='MAR'
+nowyear='2018'
+thenmon='JAN'
+thenyear='2018'
+version='4.0.0.2017f'
 styr=1973
-edyr=2015
+edyr=2017
 nyrs=(edyr-styr)+1
 nmons=(nyrs)*12
 climst=1981
@@ -52,8 +52,8 @@ edcl=climed-styr
 
 # Set up directories and files
 
-PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE2015/IMAGES/TIMESERIES/'
-DATADIR='/data/local/hadkw/HADCRUH2/UPDATE2015/STATISTICS/TIMESERIES/'
+PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE'+str(edyr)+'/IMAGES/TIMESERIES/'
+DATADIR='/data/local/hadkw/HADCRUH2/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
 
 IfType='.nc'	#'.nc','.dat'
 #INHFILEST='HadISDH.land'
@@ -76,14 +76,15 @@ IfType='.nc'	#'.nc','.dat'
 #InFilEd = '_APR2016_areaTS_19732015'
 
 InFilSt = 'HadISDH.land'
-InFilMd = ['q.2.1.0.2015p_FLATgridIDPHA5by5',
-           'e.2.1.0.2015p_FLATgridIDPHA5by5',
-	   'RH.2.1.0.2015p_FLATgridIDPHA5by5',
-	   'Tw.2.1.0.2015p_FLATgridIDPHA5by5',
-	   'Td.2.1.0.2015p_FLATgridPHADPD5by5',
-	   'T.2.1.0.2015p_FLATgridIDPHA5by5',
-	   'DPD.2.1.0.2015p_FLATgridPHA5by5']
-InFilEd = '_JAN2016_areaTS_19732015'
+InFilMd = '.'+version+'_FLATgridIDPHA5by5'
+#InFilMd = ['q.'+version+'_FLATgridIDPHA5by5',
+#           'e.2.1.0.2015p_FLATgridIDPHA5by5',
+#	   'RH.2.1.0.2015p_FLATgridIDPHA5by5',
+#	   'Tw.2.1.0.2015p_FLATgridIDPHA5by5',
+#	   'Td.2.1.0.2015p_FLATgridPHADPD5by5',
+#	   'T.2.1.0.2015p_FLATgridIDPHA5by5',
+#	   'DPD.2.1.0.2015p_FLATgridPHA5by5']
+InFilEd = '_'+thenmon+thenyear+'_areaTS_1973'+str(edyr)
 
 #InFilSt = 'ERAclimNBC_5x5_monthly_anomalies_from_daily_both_relax_'
 #InFilMd = ['q',
@@ -300,7 +301,7 @@ for nv in range(nparams):
     print('Reading in: ',param2[nv])
 # read in HadISDH time series
     if IfType == '.nc':
-        MyNCFile=DATADIR+InFilSt+InFilMd[nv]+InFilEd+'.nc'
+        MyNCFile=DATADIR+InFilSt+param2[nv]+InFilMd+InFilEd+'.nc'
         #MyNCFile=DATADIR+INHFILEST+param2[nv]+'.'+version+'_FLATgrid'+homogtype[nv]+INHFILEED+'.nc'
         f=netcdf.netcdf_file(MyNCFile,'r')
         if param[nv]=='q': 
@@ -341,8 +342,8 @@ for nv in range(nparams):
 	tmpvar = copy.copy(newtmpvar)
 	newtmpvar = 0        	
 	    
-# If HadISDH_land rezero HadISDH to 1981-2010 anomalies - ASSUME NO MISSING DATA!!!
-    if (InFilSt == 'HadISDH.land'):
+# If HadISDH_land and climatology not 1981-2010 then rezero HadISDH to climatology - ASSUME NO MISSING DATA!!!
+    if (InFilSt == 'HadISDH.land') & ((climst != 1981) | (climed != 2010)):
         print('Renorming...')
         if timetype == 'monthly':
 	    tmpvar=np.reshape(tmpvar,(nyrs,12))

@@ -28,15 +28,9 @@
 # This requires a key to be set up in .ecmwfapirc annually - obtained from logging in to ECMWF
 # https://confluence.ecmwf.int/display/WEBAPI/How+to+retrieve+ECMWF+Public+Datasets
 # It also requires ecmwfapi to be downloaded and in the directory as you are running to code from
+#
+# The ERA5 updates have to be downloaded using ERA5Download.py which is in cdsapi-0.1.3/
 
-
-# I DONT THINK THE BELOW APPLIES ANYMORE!!!
-# This can be done using as individual months  and their file
-# names changed which is tedious.
-# Go to: http://apps.ecmwf.int/datasets/data/interim-full-daily/levtype=sfc/
-# Log in with ECMWF log in details
-# Download month by month - all hours, 0 time step, 2mT, 2mTdewpoint, Surface Pressure
-# Change to 1x1 degree (select on second page!!!) before downloading as netCDF
 # Each time you download change the filename to ERAINTERIM_6hr_1by1_MMYYYY.nc
 # Save to /data/local/hadkw/HADCRUH2/UPDATE<yyyy>/OTHERDATA/
 # Copy previous years of monthly ERAINTERIM data from the previous 
@@ -69,6 +63,7 @@
 # import TestLeap - written by Kate Willett to identify leap years
 # from ReadNetCDF import GetGrid4 - written by Kate Willett to pull out netCDF data
 # from ReadNetCDF import GetGrid4Slice - written by Kate Willett to pull out a slice of netCDF data
+# from GetNiceTimes import make_days_since
 #
 #-------------------------------------------------------------------
 # DATA
@@ -109,14 +104,6 @@
 #************************************************************************
 #                                 START
 #************************************************************************
-# USE python2.7
-# python2.7 MakeERAMonthlies.py
-#
-# REQUIRES
-# TestLeap.py
-# CalcHums.py
-# ReadNetCDF.py
-#************************************************************************
 # inbuilt:
 from datetime import datetime
 import matplotlib.pyplot as plt
@@ -138,40 +125,29 @@ import CalcHums
 import TestLeap 
 from ReadNetCDF import GetGrid4
 from ReadNetCDF import GetGrid4Slice
+from GetNiceTimes import make_days_since
 
 ### START OF EDITABLES ###############################
 
 # Set up initial run choices
 # Start and end years
 styr       = 1979
-edyr       = 2017
+edyr       = 2018
 #edOLD      = (edyr-styr)*12
 stmon      = 1
 edmon      = 12
 
-# Decs for working on monthly data
-#Decs = ['197901197912']
-Decs = ['197901197912',
-        '198001198912',
-	'199001199912',
-	'200001200912',
-	'201001201712'] # edit the last dec?
+# Set up output variables - for q, e, RH, dpd, Tw we will need to read in multiple input files
+OutputVar = 't' # this can be 't','td','q','rh','e','dpd','tw','ws','slp','sp','uv','sst'
 
-## Decs for working on 6hourly data?
-#Decs = ['1979010119791231',
-#        '1980010119891231',
-#	'1990010119991231',
-#	'2000010120091231'
-#	'2010010120171231'] # edit the last dec?
+# Is this a new run or an update?
+ThisProg = 'Update' # Update for updating an existing file, Build for building from scratch, Convert for changing spatial or temporal res
 
-# Starting year of Decs
-StDec = [1979,1980,1990,2000,2010] # this will be edited annually
-
-# Endind year of Decs
-EdDec = [1979,1989,1999,2009,2017] # this will be edited annually
+# Is this ERA-Interim or ERA5?
+ThisRean = 'ERA-Interim' # 'ERA5' or 'ERA-Interim'
 
 # Are you reading in hourlies or monthlies?
-ReadInTime = 'monthly' # this can be '6hr' or 'month' or maybe 'day' later
+ReadInTime = '6hr' # this can be '1hr', '6hr' or 'month' or maybe 'day' later
 
 # Are you converting to monthlies? We will output hourlies anyway if they are read in
 OutputTime = 'monthly' # this could be 'monthly' or '6hr'
@@ -180,43 +156,83 @@ OutputTime = 'monthly' # this could be 'monthly' or '6hr'
 ReadInGrid = '1by1' # this can be '1by1' or '5by5'
 
 # Are you converting to 5by5?
-OutputGrid = '5by5' # this can be '1by1' or '5by5'
+OutputGrid = '1by1' # this can be '1by1' or '5by5'
 
 # Do you want to create anomalies and if so, what climatology period? We will output absolutes anyway
 CreateAnoms = 1 # 1 for create anomalies, 0 for do NOT create anomalies
 ClimStart = 1981 # any year but generally 1981
 ClimEnd = 2010 # any year but generally 2010
+
+### END OF EDITABLES ################
+
+# Set up file paths and other necessary things
 if (CreateAnoms == 1): # set the filename string for anomalies
     AnomStr = 'anoms'+str(ClimStart)+'-'+str(ClimEnd)
 else:
     AnomStr = ''
 
-# Set up file locations
-ThisYearDir = 2017
-updateyy  = str(ThisYearDir)[2:4]
-updateyyyy  = str(ThisYearDir)
-workingdir  = '/data/local/hadkw/HADCRUH2/UPDATE'+updateyyyy
-
 LandMask = workingdir+'/OTHERDATA/HadCRUT.4.3.0.0.land_fraction.nc' # 0 = 100% sea, 1 = 100% land - no islands!
 
-# Set up output variables - for q, e, RH, dpd, Tw we will need to read in multiple input files
-OutputVar = 'sst' # this can be 't','td','q','rh','e','dpd','tw','ws','slp','sp','uv','sst'
+# Set up file locations
+updateyy  = str(edyr)[2:4]
+updateyyyy  = str(edyr)
+workingdir  = '/data/local/hadkw/HADCRUH2/UPDATE'+updateyyyy
 
-### END OF EDITABLES ################
+#if ThisRean == 'ERA-Interim':
+#    UpdateERAStr = ThisRean+'_1by1_6hr_'
+#else:
+#    UpdateERAStr = ThisRean+'_1by1_1hr_'
+
+if ThisProg == 'Update':
+
+    # Starting year of Decs
+    StDec = [styr,edyr] 
+
+    # Endind year of Decs
+    EdDec = [edyr-1,edyr] 
+
+elif ThisProg == 'Build':
+#    ## Decs for working on 6hourly or hourly data - full build only?
+#    Decs = ['1979010119881231',
+#        '1989010119981231',
+#	'1999010120081231',
+#	'2009010120181231'] # edit the last dec?
+
+    # Starting year of Decs
+    StDec = [1979,1989,1999,2009] 
+
+    # Endind year of Decs
+    EdDec = [1988,1998,2008,2018] 
+
+elif ThisProg == 'Convert':
+
+    # Starting year of Decs
+    StDec = [styr] 
+
+    # Endind year of Decs
+    EdDec = [edyr] 
 
 if (OutputVar in ['t','td']): # these are the simple ones that do not require conversion
-    InputERA = 'era_interim_'+OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'
+    InputERA = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_'+OutputVar+'2m_'
+    OldERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
+    NewERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+updateyyyy+'.nc'
 elif (OutputVar in ['ws','uv']):
-    InputERA = 'era_interim_'+OutputVar+'10m_'+ReadInGrid+'_'+ReadInTime+'_'
+    InputERA = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_'+OutputVar+'10m_'
+    OldERAStr   = OutputVar+'10m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
+    NewERAStr   = OutputVar+'10m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+updateyyyy+'.nc'
 elif (OutputVar in ['slp','sp','sst']):
-    InputERA = 'era_interim_'+OutputVar+'_'+ReadInGrid+'_'+ReadInTime+'_'
+    InputERA = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_'+OutputVar+'_'
+    OldERAStr   = OutputVar+'_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
+    NewERAStr   = OutputVar+'_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+updateyyyy+'.nc'
 else:
     if (OutputVar in ['tw','q','rh','e','dpd']): # these require T, Td and SLP
         # This is phoney and never used but needs to be defined
         #InputERA = 'era_interim_'+OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'
-        InputERAT = 'era_interim_t2m_'+ReadInGrid+'_'+ReadInTime+'_'
-        InputERATd = 'era_interim_td2m_'+ReadInGrid+'_'+ReadInTime+'_'
-        InputERAsp = 'era_interim_sp2m_'+ReadInGrid+'_'+ReadInTime+'_'
+        InputERAT = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_t2m_'
+        InputERATd = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_td2m_'
+        InputERAsp = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_sp_'
+        OldERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
+        NewERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+updateyyyy+'.nc'
 	
     # Might have some other options
 
@@ -274,6 +290,10 @@ UnitDict = dict([('q','g/kg'),
 
 nyrs = (edyr+1)-styr
 nmons = nyrs*12
+#ndays = 
+#n6hrs = 
+#n1hrs = 
+## May set this up for pentads at some point
 
 # set up nlons and nlats depending on what we are reading in and out
 if (ReadInGrid == '1by1'):
@@ -298,42 +318,6 @@ elif (OutputGrid == '5by5'):
 
 #************************************************************
 # SUBROUTINES
-#************************************************************
-# MakeDaysSince
-def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon):
-    ''' This function makes lists of times for monthly data suitable for saving to a netCDF file '''
-    ''' Take counts of months since styr, stmn (assume 15th day of month) '''
-    ''' Work out counts of days since styr,stmn, January - incl leap days '''
-    ''' Also work out time boundaries 1st and last day of month '''
-    ''' This can cope with incomplete years or individual months '''
-    ''' REQUIRES: 
-        from datetime import datetime
-	import numpy as np '''
-    
-    # set up arrays for month mid points and month bounds
-    DaysArray = np.empty(((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1))
-    BoundsArray = np.empty((((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1),2))
-    
-    # make a date object for each time point and subtract start date
-    StartDate = datetime(TheStYr,TheStMon,1,0,0,0)	# January
-    TheYear = TheStYr
-    TheMonth = TheStMon
-    for mm in range(len(DaysArray)):
-        if (TheMonth < 12):
-            DaysArray[mm] = (datetime(TheYear,TheMonth+1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
-            BoundsArray[mm,0] = (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
-            BoundsArray[mm,1] = (datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
-        else:
-            DaysArray[mm] = (datetime(TheYear+1,1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
-            BoundsArray[mm,0] = (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
-            BoundsArray[mm,1] = (datetime(TheYear+1,1,1,0,0,0)-StartDate).days
-        TheMonth=TheMonth+1
-        if (TheMonth == 13):
-            TheMonth = 1
-            TheYear = TheYear+1
-	    
-    return DaysArray,BoundsArray
-
 #************************************************************
 # GetHumidity
 def GetHumidity(TheTDat,TheTdDat,TheSPDat,TheVar):
@@ -371,17 +355,28 @@ def GetHumidity(TheTDat,TheTdDat,TheSPDat,TheVar):
 print('Working variable: ',OutputVar)
 print('Input Time and Grid: ',ReadInTime,ReadInGrid)
 print('Output Time and Grid: ',OutputTime,OutputGrid)
+print('Type of run: ',ThisProg, styr, edyr)
+print('Reanalysis: ',ThisRean)
 
-# Set up the interim output arrays - ReadInGrid monthly - interim arrays will be saved
-FullInterimArray = np.empty((nmons,nlatsIn,nlonsIn),dtype = float)
-FullInterimArray.fill(mdi)
+# If output time is monthly then we will need these grids else they are done on the fly
+if OutputTime == 'monthly':
 
-# Set up the desired output array - OutputGrid monthly interim arrays will be saved
-FullOutputArray = np.empty((nmons,nlatsOut,nlonsOut),dtype = float)
-FullOutputArray.fill(mdi)
+    # Set up the interim output arrays - ReadInGrid monthly - interim arrays will be saved
+    FullInterimArray = np.empty((nmons,nlatsIn,nlonsIn),dtype = float)
+    FullInterimArray.fill(mdi)
 
-# Loop through the decs
-for d,dec in enumerate(Decs):
+    # Set up the desired output array - OutputGrid monthly interim arrays will be saved
+    FullOutputArray = np.empty((nmons,nlatsOut,nlonsOut),dtype = float)
+    FullOutputArray.fill(mdi)
+
+# Loop through the decs - both for Update and Build and Convert
+for d in range(len(StDec)):
+
+    # Set up dec for reading in either the Build files or the Update file
+    if ReadInGrid == 'monthly':
+        dec = str(StDec[d])+'01'+EdDec[d]+'12'
+    else: # these are for 6hr or 1hr
+        dec = str(StDec[d])+'0101'+EdDec[d]+'1231'
         
     # Number of years and months in dec
     ndecyrs = (EdDec[d] - StDec[d]) + 1
@@ -390,7 +385,8 @@ for d,dec in enumerate(Decs):
     print('Working Decs: ',d,dec,ndecyrs)
     #pdb.set_trace()
 
-    # Begin the time counter for this dec
+    # Begin the time counter for this dec - may need to do hourly in 5 year or 1 year chunks
+    # 0 to ~87600 + leap days for 1 hourly data (24*365*10)
     # 0 to ~14600 + leap days for 6 hourly data (4*365*10)
     # 0 to 120 for monthly data
     HrStPoint = 0 # set as HrEdPoint which is actual ed point +1
@@ -405,7 +401,7 @@ for d,dec in enumerate(Decs):
         yr = y + StDec[d]
 
         # First work out the time pointers for the year we're working with
-        # ONLY USED IF WORKING ON 6 HOURLY
+        # ONLY USED IF WORKING ON 1 or 6 HOURLY
         # Is it a leap year or not?
         if (TestLeap.TestLeap(yr) == 0.0):
             mnarr    = [31,29,31,30,31,30,31,31,30,31,30,31]
@@ -415,7 +411,7 @@ for d,dec in enumerate(Decs):
         print('TestLeap: ',mnarr[1], yr)
     	
         # Loop through each month
-        # This is a long way of doing this but it allows the code to work on both 6hourly and monthly input data
+        # This is a long way of doing this but it allows the code to work on 1 hourly,  6hourly and monthly input data
         for m in range(12):
 		
     	    # string for file name
@@ -428,7 +424,9 @@ for d,dec in enumerate(Decs):
     	    # Set the time counter for this dec
     	    # 0 to ~14600 + leap days
             HrStPoint = np.copy(HrEdPoint)  # set as HrEdPoint which is actual end point +1
-            if (ReadInTime == '6hourly'):
+            if (ReadInTime == '1hr'):
+                HrEdPoint = HrStPoint + (mnarr[m]*24) # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
+            elif (ReadInTime == '6hr'):
                 HrEdPoint = HrStPoint + (mnarr[m]*4) # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
             else:
                 HrEdPoint = HrStPoint + 1 # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
@@ -437,8 +435,9 @@ for d,dec in enumerate(Decs):
 
             #print('Reading in Month: ',mm)
 
-    	    # Open and read in the ERAINTERIM files for the month
+    	    # Open and read in the ERA files for the month
 	    # Sort out time pointers to pull out month
+	    # This assumes we're always reading in 1by1!!!!
             SliceInfo = dict([('TimeSlice',[HrStPoint,HrEdPoint]),
                               ('LatSlice',[0,181]),
                               ('LonSlice',[0,360])]) 
@@ -510,12 +509,12 @@ for d,dec in enumerate(Decs):
                 if (OutputVar in ['t','td','sst']): # t
                     if (OutputVar == 'sst'): # there are missing values over land.
                         New_Data[np.where(New_Data < 270.03)] = mdi # ERA Mdi is actually -32767 but in ncview it is 270.024
-                    New_Data = New_Data-273.15
+                    New_Data[np.where(New_Data > mdi)] = New_Data[np.where(New_Data > mdi)]-273.15
                 elif (OutputVar in ['slp','sp']): # pressure are Pa so need to be converted to hPa
                     New_Data = New_Data/100.
 
-	    # If we're creating monthly means from 6hr then average and place in the full array
-            if (ReadInTime == '6hr') & (OutputTime == 'monthly'):
+	    # If we're creating monthly means from 1hr or 6hr then average and place in the full array
+            if (ReadInTime != 'monthly') & (OutputTime == 'monthly'):
                 for ltt in range(nlatsIn):
                     for lnn in range(nlonsIn):
 
@@ -534,6 +533,7 @@ for d,dec in enumerate(Decs):
 # Write out
 print('Writing out interim monthly array: ',OutputVar)
 
+GOT TO HERE
 # Write out 
 TimPoints,TimBounds = MakeDaysSince(styr,stmon,edyr,edmon)
 nTims = len(TimPoints)

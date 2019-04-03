@@ -33,44 +33,47 @@ Restarter='------'				#'------'		#'681040'
 # Set up initial run choices
 param='q'	# tw, q, e, rh, t, td, dpd
 param2='q'	# Tw, q, e, RH, T, Td, DPD
-homogtype='IDPHA'	# 'IDPHA','PHA','PHADPD'
-nowmon='SEP'
-nowyear='2014'
+homogtype='RAW'	# 'IDPHA','PHA','PHADPD', 'RAW'
+nowmon='MAY'
+nowyear='2018'
 thenmon='JAN'
-thenyear='2014'
-version='2.0.0.2013p'
+thenyear='2018'
+version='4.0.0.2017f'
 styr=1973
-edyr=2013
+edyr=2017
 nyrs=edyr-styr
 nmons=(nyrs+1)*12
 
 # Set up directories and files
-if param=='q': 
-    STATIONDIR='IDPHANETCDF/QDIR/'
-elif param=='e': 
-    STATIONDIR='IDPHANETCDF/EDIR/'
-elif param=='rh': 
-    STATIONDIR='IDPHANETCDF/RHDIR/'
-elif param=='t': 
-    STATIONDIR='IDPHANETCDF/TDIR/'
-elif param=='tw': 
-    STATIONDIR='IDPHANETCDF/TWDIR/'
-elif param=='td': 
-    STATIONDIR='IDPHANETCDF/TDDIR/'
-elif param=='dpd': 
-    STATIONDIR='PHANETCDF/DPDDIR/'
+if homogtype == 'RAW':
+    STATIONDIR = 'NETCDF/'
+else:
+    if param=='q': 
+        STATIONDIR='IDPHANETCDF/QDIR/'
+    elif param=='e': 
+        STATIONDIR='IDPHANETCDF/EDIR/'
+    elif param=='rh': 
+        STATIONDIR='IDPHANETCDF/RHDIR/'
+    elif param=='t': 
+        STATIONDIR='IDPHANETCDF/TDIR/'
+    elif param=='tw': 
+        STATIONDIR='IDPHANETCDF/TWDIR/'
+    elif param=='td': 
+        STATIONDIR='IDPHANETCDF/TDDIR/'
+    elif param=='dpd': 
+        STATIONDIR='PHANETCDF/DPDDIR/'
 
-LISTDIR='/data/local/hadkw/HADCRUH2/UPDATE2013/LISTS_DOCS/'
-PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/'
-DATADIR='/data/local/hadkw/HADCRUH2/UPDATE2013/MONTHLIES/HOMOG/'+STATIONDIR
+LISTDIR='/data/local/hadkw/HADCRUH2/UPDATE2017/LISTS_DOCS/'
+PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE2017/IMAGES/BUILD/'
+DATADIR='/data/local/hadkw/HADCRUH2/UPDATE2017/MONTHLIES/HOMOG/'+STATIONDIR
 
-INLIST='Posthomog'+homogtype+param+'_goodsHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
-INSATS='Posthomog'+homogtype+param+'_satsHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
-INSUBS='Posthomog'+homogtype+param+'_subzerosHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
+INLIST='Posthomog'+homogtype+param+'_anoms8110_goodsHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
+INSATS='Posthomog'+homogtype+param+'_anoms8110_satsHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
+INSUBS='Posthomog'+homogtype+param+'_anoms8110_subzerosHadISDH.'+version+'_'+thenmon+thenyear+'.txt'
 OUTPLOT='TemporalCoverage.land'+param2+'.'+version+'_'+nowmon+nowyear
 OUTLIST='TemporalCoverage.land'+param2+'.'+version+'_'+nowmon+nowyear+'.txt'
 
-DATAFILE='_homogJAN2014.nc'
+DATAFILE='_anoms8110_homogJAN2018.nc'
 
 # Set up variables
 ngoods=0	#set once file read in
@@ -179,12 +182,16 @@ def PlotNiceCoverageGraph(TheFile,TheWMOs,TheGots,TheTotalGots,
 	      ['East Asia',440000,599999],
 	      ['Africa',600000,689999],
 	      ['North America',690000,749999],
-	      ['Central America',760000,799999],
+	      ['Central America',750000,799999],
+#	      ['Central America',760000,799999],
 	      ['South America',800000,879999],
 	      ['Antarctica',880000,899999],
-	      ['Pacific Islands',910000,919999],
-	      ['Australasia',930000,949999],
-	      ['Indonesia/Philippines/Borneo',960000,999999]])
+	      ['Pacific Islands',900000,919999],
+#	      ['Pacific Islands',910000,919999],
+	      ['Australasia',920000,949999],
+#	      ['Australasia',930000,949999],
+	      ['Indonesia/Philippines/Borneo',950000,999999]])
+#	      ['Indonesia/Philippines/Borneo',960000,999999]])
     
     colpoints=[]
     Beginner=0	# this is a pointer to tell us when to make a Y axis label, store the location too
@@ -297,10 +304,10 @@ def PlotNiceCoverageGraph(TheFile,TheWMOs,TheGots,TheTotalGots,
 #        print(TheMonths[TheGots[wmo] > 0])
 #	print(np.repeat(TheWMOs[wmo].astype(int),len(TheMonths[TheGots[wmo] > 0])))
 
-#        plt.plot(TheMonths[TheGots[wmo] == 0],np.repeat(wmo,len(TheMonths[TheGots[wmo] == 0])),
-#	         color=colpoints[wmo],marker='.',markersize=0.01, ls='')	#,linewidth=2)	
-        plt.plot(TheMonths[TheGots[wmo] > 0],np.repeat(wmo,len(TheMonths[TheGots[wmo] > 0])),#
+        plt.plot(TheMonths[TheGots[wmo] == 0],np.repeat(wmo,len(TheMonths[TheGots[wmo] == 0])),
 	         color=colpoints[wmo],marker='.',markersize=0.01, ls='')	#,linewidth=2)	
+#        plt.plot(TheMonths[TheGots[wmo] > 0],np.repeat(wmo,len(TheMonths[TheGots[wmo] > 0])),#
+#	         color=colpoints[wmo],marker='.',markersize=0.01, ls='')	#,linewidth=2)	
     
     ax1.set_title(titlee,size=18)
     #ax1=plt.axes([0.15,0.1,0.85,0.9])
@@ -311,7 +318,7 @@ def PlotNiceCoverageGraph(TheFile,TheWMOs,TheGots,TheTotalGots,
     ax1.set_xlim([TheMonths[0],TheMonths[TheMCount-1]])
     plt.xticks([TheMonths[2*12],TheMonths[7*12],TheMonths[12*12],
                 TheMonths[17*12],TheMonths[22*12],TheMonths[27*12],
-		TheMonths[32*12],TheMonths[37*12]])
+		TheMonths[32*12],TheMonths[37*12],TheMonths[42*12]])
     ax1.tick_params(axis='both', which='major', labelsize=17)
 #    plt.xlim([TheStYr,TheStYr+TheYCount])
    
@@ -320,7 +327,7 @@ def PlotNiceCoverageGraph(TheFile,TheWMOs,TheGots,TheTotalGots,
     ax1.set_ylabel(ytitlee1,size=18)
     
     ax2=ax1.twinx()
-    ax2.set_ylim([0,4000])
+    ax2.set_ylim([0,9000])
     ax2.set_ylabel(ytitlee2,size=18)
     ax2.tick_params(axis='both', which='major', labelsize=17)
     plt.plot(TheMonths,TheTotalGots,'black',linewidth=4)

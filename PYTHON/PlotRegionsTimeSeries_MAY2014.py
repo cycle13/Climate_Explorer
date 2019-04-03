@@ -2,7 +2,7 @@
 
 #***************************************
 # 1 April 2014 KMW - v1
-# Plots station locations for each variable including removed sub/super sats  
+# Plots TIME SERIES with uncertainties for each region other than globe
 #
 #************************************************************************
 #                                 START
@@ -45,13 +45,13 @@ homogtype=list(['IDPHA','IDPHA','PHADPD','IDPHA','IDPHA','IDPHA','PHA'])	# 'IDPH
 #unitees=list(['g kg$^{-1}$','hPa','%rh','$^{o}$C','$^{o}$C','$^{o}$C','$^{o}$C'])
 #homogtype=list(['IDPHA','IDPHA','IDPHA','IDPHA','PHADPD','IDPHA','PHA'])	# 'IDPHA','PHA','PHADPD'
 
-nowmon='MAY'
-nowyear='2014'
-thenmon='MAY'
-thenyear='2014'
-version='2.0.0.2013p'
+nowmon='MAR'
+nowyear='2018'
+thenmon='MAR'
+thenyear='2018'
+version='4.0.0.2017f'
 styr=1973
-edyr=2013
+edyr=2017
 nyrs=(edyr-styr)+1
 nmons=(nyrs)*12
 climst=1981
@@ -61,29 +61,29 @@ edcl=climed-styr
 
 # Set up directories and files
 
-PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE2013/IMAGES/'
-DATADIR='/data/local/hadkw/HADCRUH2/UPDATE2013/STATISTICS/'
+PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE'+str(edyr)+'/IMAGES/TIMESERIES/'
+DATADIR='/data/local/hadkw/HADCRUH2/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
 
 IfType='.dat'	#'.nc'
 INHFILEST='HadISDH.land'
 #INHFILEED='5by5_'+thenmon+thenyear+'_areaTS_19732013'
 if timetype == 'monthly':
-    INHFILEEDG='.'+version+'_global_ts_monthly_'+thenmon+thenyear+'.dat'
+    INHFILEEDG='.'+version+'_global_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
 else:
-    INHFILEEDG='.'+version+'_global_ts_annual_'+thenmon+thenyear+'.dat'
+    INHFILEEDG='.'+version+'_global_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
 if timetype == 'monthly':
-    INHFILEEDN='.'+version+'_nhemi_ts_monthly_'+thenmon+thenyear+'.dat'
+    INHFILEEDN='.'+version+'_northern_hemisphere_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
 else:
-    INHFILEEDN='.'+version+'_nhemi_ts_annual_'+thenmon+thenyear+'.dat'
+    INHFILEEDN='.'+version+'_northern_hemisphere_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
 if timetype == 'monthly':
-    INHFILEEDS='.'+version+'_shemi_ts_monthly_'+thenmon+thenyear+'.dat'
+    INHFILEEDS='.'+version+'_southern_hemisphere_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
 else:
-    INHFILEEDS='.'+version+'_shemi_ts_annual_'+thenmon+thenyear+'.dat'
+    INHFILEEDS='.'+version+'_southern_hemisphere_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
 if timetype == 'monthly':
-    INHFILEEDT='.'+version+'_trop_ts_monthly_'+thenmon+thenyear+'.dat'
+    INHFILEEDT='.'+version+'_tropics_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
 else:
-    INHFILEEDT='.'+version+'_trop_ts_annual_'+thenmon+thenyear+'.dat'
-OUTPLOT='PlotRegionsTimeSeries.'+version+'_'+timetype+'_'+nowmon+nowyear
+    INHFILEEDT='.'+version+'_tropics_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
+OUTPLOT='PlotRegionsTimeSeries.'+version+'_'+timetype+'_anoms8110_'+nowmon+nowyear
 
 # Set up variables
 mdi=-1e30
@@ -228,7 +228,7 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
 	    axarr[pp].hlines(0,TheMonths[0],TheMonths[TheYCount-1],
 	        color='black',linewidth=0.5)
 	
-    axarr[0].annotate('N. Hemi (20$^{o}$N to 70$^{0}$N)',xy=(0.5,0.84),
+    axarr[0].annotate('N. Hemi (20$^{o}$N to 70$^{o}$N)',xy=(0.5,0.84),
              xycoords='axes fraction',size=16,ha='center')
     axarr[nplots-1].set_xlabel(xtitlee,fontsize=12)
      
@@ -295,7 +295,7 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
 	    axarr[pp+nplots].hlines(0,TheMonths[0],TheMonths[TheYCount-1],
 	        color='black',linewidth=0.5)
 
-    axarr[7].annotate('S. Hemi (70$^{o}$S to 20$^{0}$S)',xy=(0.5,0.84),
+    axarr[7].annotate('S. Hemi (70$^{o}$S to 20$^{o}$S)',xy=(0.5,0.84),
              xycoords='axes fraction',size=16,ha='center')	
     axarr[(nplots*2)-1].set_xlabel(xtitlee,fontsize=12)
 
@@ -364,7 +364,7 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
 	    axarr[pp+nplots+nplots].hlines(0,TheMonths[0],
 	        TheMonths[TheYCount-1],color='black',linewidth=0.5)
 	
-    axarr[14].annotate('Tropics (20$^{o}$S to 20$^{0}$N)',xy=(0.5,0.84),
+    axarr[14].annotate('Tropics (20$^{o}$S to 20$^{o}$N)',xy=(0.5,0.84),
              xycoords='axes fraction',size=16,ha='center')
     axarr[(nplots*3)-1].set_xlabel(xtitlee,fontsize=12)
     
@@ -442,8 +442,8 @@ for nr in range(3):
         else:	# its a text file
             MyDatFile=DATADIR+INHFILEST+param2[nv]+FILIN
             MyTypes=("|S10","float","float","float","float","float")
-            MyDelimiters=[10,10,10,10,10,10]
-	    MySkips=1
+            MyDelimiters=[10,11,11,11,11,11]
+	    MySkips=0
             RawData=ReadData(MyDatFile,MyTypes,MyDelimiters,MySkips)
             tmpvar=np.array(RawData['f1'])
             tmpvarUcov=np.array(RawData['f3'])
@@ -451,21 +451,26 @@ for nr in range(3):
             tmpvarUstat=np.array(RawData['f4'])
             tmpvarUtot=np.array(RawData['f5'])
     
-    # rezero HadISDH to 1981-2010 anomalies - ASSUME NO MISSING DATA!!!
-        print('Renorming...')
-        if timetype == 'monthly':
-            tmpvar=np.reshape(tmpvar,(nyrs,12))
-            for mm in range(12):
-                subarr=tmpvar[:,mm]
-	        climarr=subarr[stcl:edcl]
-	        subarr[:]=subarr[:]-np.mean(climarr)
-	        tmpvar[:,mm]=subarr[:]
-            varH[nv,nr,:]=np.reshape(tmpvar,(1,nmons))
-        else:
-            climarr=tmpvar[stcl:edcl]
-	    tmpvar[:]=tmpvar[:]-np.mean(climarr)
-            varH[nv,nr,:]=np.reshape(tmpvar,(1,nyrs))
-        
+    # rezero HadISDH to non 1981-2010 anomalies if not 1981-2010 - ASSUME NO MISSING DATA!!!
+        if (climst != 1981) | (climed != 2010):
+	    print('Renorming...')
+            if timetype == 'monthly':
+                tmpvar=np.reshape(tmpvar,(nyrs,12))
+                for mm in range(12):
+                    subarr=tmpvar[:,mm]
+	            climarr=subarr[stcl:edcl]
+	            subarr[:]=subarr[:]-np.mean(climarr)
+	            tmpvar[:,mm]=subarr[:]
+                varH[nv,nr,:]=np.reshape(tmpvar,(1,nmons))
+            else:
+                climarr=tmpvar[stcl:edcl]
+	        tmpvar[:]=tmpvar[:]-np.mean(climarr)
+                varH[nv,nr,:]=np.reshape(tmpvar,(1,nyrs))
+       
+    # Still need to populate main array   
+        else:         
+            varH[nv,nr,:] = tmpvar
+	            
         if len(tmpvarUcov) > 0:
             uncsHcov[nv,nr,:]=tmpvarUcov
             uncsHsamp[nv,nr,:]=tmpvarUsamp

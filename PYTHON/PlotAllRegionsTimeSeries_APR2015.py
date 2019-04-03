@@ -2,6 +2,7 @@
 
 #***************************************
 # 27 April 2015 KMW - v1
+# For TEMPERATURE ONLY
 # Plots a time series for any or all regions
 # Option to overplot the same region from another source too 
 # Option to add trends of each source

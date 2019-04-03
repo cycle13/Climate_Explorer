@@ -156,7 +156,7 @@ version = 'v4-0-0-2017f'
 #version='v2-1-0-2015p'
 #version='v2-0-1-2014p'
 verstring = '4.0.0.2017f'
-nowmon = 'JAN'
+nowmon = 'MAR'
 nowyear = '2018'
 
 # Dates

@@ -546,6 +546,7 @@ def PlotCorrMapTS(TheFile,LandCover,TheLatList,TheLonList,TheCorrData,TheCandTS,
 #************************************************************************
 # read in grids
 
+# read in the percentage land cover dataset
 ncf=netcdf.netcdf_file(incover+'.nc','r')
 var=ncf.variables['pct_land']
 PctLand=np.array(var.data)
@@ -553,15 +554,18 @@ PctLand=np.array(var.data)
 PctLand=np.flipud(PctLand)
 ncf.close()
 
+# read in the main dataset (q, RH etc)
 MyFile=candidateGB+'.nc'
 CandGrid,LatList,LonList=ReadNetCDFGrid(MyFile,CandGridName)
 print('Read in Cand Grid')
 #stop()
 
+# read in the global average time series of the main dataset (this is only essential for this code which plots it at the bottom)
 MyFile=candidateTS+'.nc'
 CandTS=ReadNetCDFTS(MyFile,CandTSName)
 print('Read in Cand TS')
 
+# Test the name of the comparisonTS (time series to compare e.g., ENSO SOI) to see if it is a netCDF file - I'm looking at the 61st character
 if (comparisonTS[60] == 'C') | (comparisonTS[60] == 'H'):
     MyFile=comparisonTS+'.nc'
     CompTS=ReadNetCDFTS(MyFile,CompTSName)
@@ -570,7 +574,7 @@ if (comparisonTS[60] == 'C') | (comparisonTS[60] == 'H'):
         CompTS2=ReadNetCDFTS(MyFile,CompTSName)
 	CompTS=CompTS-CompTS2
     print('Read in Comp TS')
-else:
+else: # if its not a netCDF file then it is a text file so read in the time series from the text file.
     MyFile=comparisonTS+'.txt'
     MyTypes="float" # if all elements read in are same type then output is a normal array, if not it is a structured array with a tuple for each row ANNOYING
     MyColumns=(1,2,3,4,5,6,7,8,9,10,11,12) # ignore the year (first column)
@@ -584,22 +588,25 @@ else:
     # need to rearrange this to make a month time series
     CompTS=np.reshape(RawData,np.size(RawData)) # puts each year of months consecutively in one vector
 
-# do some lagging to get the best fit - already tested
+# do some lagging to get the best fit if comparisonTS is the SOI or PDO - already tested this and decided on lags 5 for SOI and 7 for PDO
 # this rolls the data forward so CandTS Jan 1973 Compares with CompTS Dec 1972
-# So this needs to be done before chopping up so that it doesn't move Dec 2014 to Jan 1973
+# The comparisonTS is a long time series so we'll need to chop it to match the time period of the candidate data
+# However, rolling the data needs to be done before chopping up so that it doesn't move Dec 2014 to Jan 1973
+# for the ENSO SOI:
 if comparisonTS[48] == 'S':
     CompTS=np.roll(-CompTS,5)
+# for the PDO
 if comparisonTS[48] == 'P':
     CompTS=np.roll(CompTS,7)
 
 # cut grids and ts down to desired time points and renormalise if necessary
 #CandGrid=ExtractTimes(CandGrid,CompStyr,CompEdyr,Styr,Edyr,ClimSt,ClimEd,mdi)    
 #CandTS=ExtractTimes(CandTS,CompStyr,CompEdyr,Styr,Edyr,ClimSt,ClimEd,mdi) 
-print('Extracted CandTS')   
+#print('Extracted CandTS')   
 CompTS=ExtractTimes(CompTS,CompStyr,CompEdyr,Styr,Edyr,ClimSt,ClimEd,mdi)    
 print('Extracted CompTS')   
 
-# detrend the Candidate date if its SOI and PDO
+# detrend the Candidate data if the comparisonTS is SOI and PDO
 if (comparisonTS[48] == 'S') | (comparisonTS[48] == 'P'):
     # first check what the correlation is without detrending.
     gots=np.where((CandTS > mdi) & (CompTS > mdi))[0]
