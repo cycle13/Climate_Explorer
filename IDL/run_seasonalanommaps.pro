@@ -1,12 +1,12 @@
 pro run_seasonalanommaps
 
 version='4.0.0.2017f'
-nowmon='JAN'
+nowmon='MAR'
 nowyear='2018'
-thenmon='JAN'
+thenmon='MAR'
 thenyear='2018'
-homogtype='IDPHA'
-param='T'
+homogtype='PHA'  ; 'PHA','PHADPD','IDPHA'
+param='DPD'  ;q,e,RH,T,Tw,Td,DPD
 climst=1981
 climed=2010
 climie=strmid(strcompress(climst,/remove_all),2,2)+strmid(strcompress(climed,/remove_all),2,2)

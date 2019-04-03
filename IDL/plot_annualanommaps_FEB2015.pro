@@ -64,7 +64,7 @@ CASE param OF
 ENDCASE
 
 mdi=-1e30
-edyr=2017
+edyr=2018
 styr=1973	; 1973, 1971
 nyrs=(edyr+1)-styr
 nmons=nyrs*12
@@ -110,6 +110,10 @@ NCDF_VARGET,inn,latid,lats
 NCDF_VARGET,inn,lonid,lons
 NCDF_CLOSE,inn
 
+; For files produced in python the mdi is greater so we need to reset it
+; it should always be the minimum value
+mdi = min(tmp)
+
 ; reduce to desired time frame
 ;stop
 loctims=n_elements(tmp(0,0,*))
@@ -141,8 +145,9 @@ subarr=tmp(*,*,getyrmonst:getyrmoned)
 FOR ltt=0,nlats-1 DO BEGIN
   FOR lnn=0,nlons-1 DO BEGIN
     monalls=subarr(lnn,ltt,*)
-    gots=WHERE(monalls NE mdi,count)
+    gots=WHERE(monalls GT mdi,count)
     IF (count GE 6) THEN maparr(lnn,ltt)=MEAN(monalls(gots))
+;    IF (ltt EQ 12) AND (lnn EQ 64) THEN stop
   ENDFOR
 ENDFOR
 
