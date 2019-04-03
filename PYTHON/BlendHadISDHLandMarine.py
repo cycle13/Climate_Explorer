@@ -184,7 +184,7 @@ def BlendIt(TheLand, TheOcean, PctLandArr, TheMDI, IsUnc):
         BlendedHadISDH[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))] = (PctLandArr[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))]*TheLand[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))]) + ((1 - PctLandArr[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))])*TheOcean[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))])
 
     ## Test it
-    #pdb.set_trace()
+    pdb.set_trace()
 
 #    print('Test the Blending of BlendedHadISDH from TheLand, TheOcean and PctLandArr')
     return BlendedHadISDH
