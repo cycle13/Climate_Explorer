@@ -9,6 +9,13 @@
 # -----------------------
 # CODE PURPOSE AND OUTPUT
 # -----------------------
+# THIS CODE DOES MANY THINGS BUT ONLY ONE THING AT A TIME! SO RE-RUN FOR MULTIPLE THINGS
+# NOTE THAT FOR ANY 1BY1 OUTPUT IT REGRIDS TO BE 89.5 to -89.5 rather than 90 - -90 (180 boxes rather than 181!!!)
+# AND ROLLS LONGITUDE TO -179.5 to 179.5
+#
+# AT THE MOMENT THIS ASSUMES COMPLETE FIELDS SO WON'T WORK FOR SST!!!
+#
+#
 # This code reads in the ERA-Interim months of 1by1 6 hourly or monthly variables
 # (e.g., T, Td and Surface Pressure etc) for the full time period
 #
@@ -125,7 +132,7 @@ import CalcHums
 import TestLeap 
 from ReadNetCDF import GetGrid4
 from ReadNetCDF import GetGrid4Slice
-from GetNiceTimes import make_days_since
+from GetNiceTimes import MakeDaysSince
 
 ### START OF EDITABLES ###############################
 
@@ -138,105 +145,88 @@ stmon      = 1
 edmon      = 12
 
 # Set up output variables - for q, e, RH, dpd, Tw we will need to read in multiple input files
-OutputVar = 't' # this can be 't','td','q','rh','e','dpd','tw','ws','slp','sp','uv','sst'
+OutputVar = 'q' # this can be 't','td','q','rh','e','dpd','tw','ws','slp','sp','uv','sst'
 
 # Is this a new run or an update?
-ThisProg = 'Update' # Update for updating an existing file, Build for building from scratch, Convert for changing spatial or temporal res
+ThisProg = 'Regrid' 
+# Update for updating an existing file (1by1 monthly or pentad)
+# Build for building from scratch (1by1 6hr to 1by1 monthly or pentad)
+	# THIS AUTOMATICALLY REGRIDS LATS TO BE 180 RATHER THAN 181!!!
+# Regrid for changing spatial res from 1by1 to 6hr
+	# IF OutputGrid = 1by1 then this just changes lats from 181 to 180
+	# IF OutputGrid = 5by5 then this changes to 36 lats (-87.5 to 87.5) and 72 lons (-177.5 to 177.5)
 
 # Is this ERA-Interim or ERA5?
 ThisRean = 'ERA-Interim' # 'ERA5' or 'ERA-Interim'
 
 # Are you reading in hourlies or monthlies?
-ReadInTime = '6hr' # this can be '1hr', '6hr' or 'month' or maybe 'day' later
+ReadInTime = 'monthly' # this can be '1hr', '6hr' or 'month' or maybe 'day' later
 
 # Are you converting to monthlies? We will output hourlies anyway if they are read in
-OutputTime = 'monthly' # this could be 'monthly' or '6hr'
+OutputTime = 'monthly' # this could be 'monthly' or 'pentad'
 
 # Are you reading in 1by1 or 5by5? We will output 1by1 anyway if they are read in.
 ReadInGrid = '1by1' # this can be '1by1' or '5by5'
 
 # Are you converting to 5by5?
-OutputGrid = '1by1' # this can be '1by1' or '5by5'
+OutputGrid = '5by5' # this can be '1by1' or '5by5'
 
 # Do you want to create anomalies and if so, what climatology period? We will output absolutes anyway
-CreateAnoms = 1 # 1 for create anomalies, 0 for do NOT create anomalies
+MakeAnoms = 1 # 1 for create anomalies (and clim and stdev fields), 0 for do NOT create anomalies
 ClimStart = 1981 # any year but generally 1981
 ClimEnd = 2010 # any year but generally 2010
 
 ### END OF EDITABLES ################
 
 # Set up file paths and other necessary things
-if (CreateAnoms == 1): # set the filename string for anomalies
-    AnomStr = 'anoms'+str(ClimStart)+'-'+str(ClimEnd)
+if (MakeAnoms == 1): # set the filename string for anomalies
+    AnomsStr = 'anoms'+str(ClimStart)+'-'+str(ClimEnd)+'_'
 else:
-    AnomStr = ''
-
-LandMask = workingdir+'/OTHERDATA/HadCRUT.4.3.0.0.land_fraction.nc' # 0 = 100% sea, 1 = 100% land - no islands!
+    AnomsStr = ''
 
 # Set up file locations
 updateyy  = str(edyr)[2:4]
 updateyyyy  = str(edyr)
-workingdir  = '/data/local/hadkw/HADCRUH2/UPDATE'+updateyyyy
+workingdir  = '/data/users/hadkw/WORKING_HADISDH/UPDATE'+updateyyyy
 
-#if ThisRean == 'ERA-Interim':
-#    UpdateERAStr = ThisRean+'_1by1_6hr_'
-#else:
-#    UpdateERAStr = ThisRean+'_1by1_1hr_'
-
-if ThisProg == 'Update':
-
-    # Starting year of Decs
-    StDec = [styr,edyr] 
-
-    # Endind year of Decs
-    EdDec = [edyr-1,edyr] 
-
-elif ThisProg == 'Build':
-#    ## Decs for working on 6hourly or hourly data - full build only?
-#    Decs = ['1979010119881231',
-#        '1989010119981231',
-#	'1999010120081231',
-#	'2009010120181231'] # edit the last dec?
-
-    # Starting year of Decs
-    StDec = [1979,1989,1999,2009] 
-
-    # Endind year of Decs
-    EdDec = [1988,1998,2008,2018] 
-
-elif ThisProg == 'Convert':
-
-    # Starting year of Decs
-    StDec = [styr] 
-
-    # Endind year of Decs
-    EdDec = [edyr] 
+if (OutputGrid == '5by5'):
+    LandMask = workingdir+'/OTHERDATA/HadCRUT.4.3.0.0.land_fraction.nc' # 0 = 100% sea, 1 = 100% land - no islands!, latitude, longitude, land_area_fraction, -87.5 to 87.5, -177.5 to 177.5
+elif (OutputGrid == '1by1'):
+    LandMask = workingdir+'/OTHERDATA/lsmask.nc' # 1 = sea, 0 = land - no islands! lat, lon, mask 89.5 to -89.5Lat, 0.5 to 359.5 long 
 
 if (OutputVar in ['t','td']): # these are the simple ones that do not require conversion
     InputERA = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_'+OutputVar+'2m_'
-    OldERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
-    NewERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+updateyyyy+'.nc'
+    if (ThisProg == 'Update'):
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
+    else:
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr)+'.nc'
+    NewERAStr   = OutputVar+'2m_'+OutputGrid+'_'+OutputTime+'_'+AnomsStr+ThisRean+'_data_1979'+updateyyyy+'.nc'
+
 elif (OutputVar in ['ws','uv']):
     InputERA = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_'+OutputVar+'10m_'
-    OldERAStr   = OutputVar+'10m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
-    NewERAStr   = OutputVar+'10m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+updateyyyy+'.nc'
+    if (ThisProg == 'Update'):
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
+    else:
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr)+'.nc'
+    NewERAStr   = OutputVar+'10m_'+OutputGrid+'_'+OutputTime+'_'+AnomsStr+ThisRean+'_data_1979'+updateyyyy+'.nc'
+
 elif (OutputVar in ['slp','sp','sst']):
     InputERA = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_'+OutputVar+'_'
-    OldERAStr   = OutputVar+'_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
-    NewERAStr   = OutputVar+'_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+updateyyyy+'.nc'
-else:
-    if (OutputVar in ['tw','q','rh','e','dpd']): # these require T, Td and SLP
-        # This is phoney and never used but needs to be defined
-        #InputERA = 'era_interim_'+OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'
-        InputERAT = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_t2m_'
-        InputERATd = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_td2m_'
-        InputERAsp = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_sp_'
-        OldERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
-        NewERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_'+ThisRean+'_data_1979'+updateyyyy+'.nc'
+    if (ThisProg == 'Update'):
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
+    else:
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr)+'.nc'
+    NewERAStr   = OutputVar+'_'+OutputGrid+'_'+OutputTime+'_'+AnomsStr+ThisRean+'_data_1979'+updateyyyy+'.nc'
+
+elif (OutputVar in ['tw','q','rh','e','dpd']): # these require T, Td and SLP
+    InputERA = ThisRean+'_'+ReadInGrid+'_'+ReadInTime+'_'
+    if (ThisProg == 'Update'):
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
+    else:
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr)+'.nc'
+    NewERAStr   = OutputVar+'2m_'+OutputGrid+'_'+OutputTime+'_'+AnomsStr+ThisRean+'_data_1979'+updateyyyy+'.nc'
 	
     # Might have some other options
-
-#NewERAStr   = OutputVar+'2m_'+OutputTime+'_'+OutputGrid+'_ERA-Interim_data_'+AnomStr+'_'+str(styr)+str(edyr)+'.nc'
 
 # Set up variables
 mdi = -1e30
@@ -273,6 +263,20 @@ StandardNameDict = dict([('q','specific_humidity'),
 	     ('ws','10 metre windspeed'),
 	     ('sst','sea_surface_temperature')])
 
+# Dictionary for looking up variable long names for netCDF output of variables
+LongNameDict = dict([('q','specific_humidity'),
+             ('rh','2m relative humidity from 1by1 6hrly T and Td '+ThisRean),
+	     ('e','2m vapour_pressure from 1by1 6hrly T and Td '+ThisRean),
+	     ('tw','2m wetbulb_temperature from 1by1 6hrly T and Td '+ThisRean),
+	     ('t','2m drybulb_temperature from 1by1 6hrly T '+ThisRean),
+	     ('td','2m dewpoint_temperature from 1by1 6hrly Td '+ThisRean),
+	     ('dpd','2m dewpoint depression from 1by1 6hrly T and Td '+ThisRean),
+	     ('slp','2m mean_sea_level_pressure from 1by1 6hrly msl '+ThisRean),
+	     ('sp','2m surface_pressure from 1by1 6hrly sp '+ThisRean),
+	     ('uv',['10 metre U wind component from 1by1 6hrly '+ThisRean,'10 metre V wind component from 1by1 6hrly'+ThisRean]), # this one might not work
+	     ('ws','10 metre windspeed from 1by1 6hrly'+ThisRean),
+	     ('sst','sea surface temperature from 1by1 6hrly'+ThisRean)])
+
 # Dictionary for looking up unit of variables
 UnitDict = dict([('q','g/kg'),
              ('rh','%rh'),
@@ -290,10 +294,10 @@ UnitDict = dict([('q','g/kg'),
 
 nyrs = (edyr+1)-styr
 nmons = nyrs*12
+npts = nyrs*73
 #ndays = 
 #n6hrs = 
 #n1hrs = 
-## May set this up for pentads at some point
 
 # set up nlons and nlats depending on what we are reading in and out
 if (ReadInGrid == '1by1'):
@@ -305,7 +309,7 @@ elif (ReadInGrid == '5by5'):
 
 if (OutputGrid == '1by1'):
     nlonsOut = 360
-    nlatsOut = 181 # ERA style to have grids over the poles rather than up to the poles
+    nlatsOut = 180 # ERA style to have grids over the poles rather than up to the poles but this will be changed here with Build or Regrid
 elif (OutputGrid == '5by5'):
     nlonsOut = 72 # assuming this is correct
     nlatsOut = 36 # assuming this is correct
@@ -349,41 +353,121 @@ def GetHumidity(TheTDat,TheTdDat,TheSPDat,TheVar):
     return TheHumDat
 
 #************************************************************
-# MAIN
+# RegridField
+def RegridField(TheOutputGrid,TheOldData,TheNewData):
+    '''
+    This function does a simple regridding of data by averaging over the larger gridboxes
+    NO COSINE WEIGHTING FOR LATITUDE!!!!
+    
+    NOTE: 
+    FOR OutputGrid = 5by5 THIS AUTOMATICALLY FLIPS LATITUDE AND ROLLS LONGITUDE TO BE -87.5 to 87.5 and -177,5 to 177.5
+    FOR OutputGrid = 1by1 THIS JUST REGRIDS LATITUDE FROM 181 boxes 90 to -90 TO 180 boxes 89.5 to -89.5 and rolls longitude to -179.5 to 179.5
+    
+    Assumes input grid is always 1by1
+    
+    INPUTS:
+    TheOutputGrid - string of 1by1 or 5by5
+    TheOldData[:,:,:] - time, lat, long numpy array of complete field in original grid resolution
+    TheNewData[:,:,:] - time, lat, long numpy array of complete field in new grid resolution
+    OUTPUTS:
+    TheNewData[:,:,:] - time, lat, long numpy array of complete field in new grid resolution
+    
+    I'm hoping that things set above are seen by the function rather than being passed explicitly
+    
+    '''
+    
+    if (TheOutputGrid == '1by1'):
+
+        # regrid to 0.5 by 0.5 degree gridboxes and then reaverage over 89.5 to -89.5 lats 
+        # shift lons back to -179.5 to 179.5 from 0 to 359
+        # regrid to 5by5
+	
+        # First sort out the latitudes
+        for ln in range(nlonsIn):
+            for tt in range(len(TheNewData[:,0,0])):
+                subarr = np.repeat(TheOldData[tt,:,ln],2) 
+        	# this creates 362 grid boxes where each is repeated: [0a, 0b, 1a, 1b ...180a, 180b]
+                subarr = subarr[1:361]
+                # This removes the superfluous 90-90.5 and -90 to -90.5 boxes
+                subarr = np.reshape(subarr,(180,2))
+                # This now reshapes to 180 rows and 2 columns so that we can average the gridboxes across the columns
+                TheNewData[tt,:,ln] = np.mean(subarr,axis = 1) # hopefully this should work!
+                #pdb.set_trace()
+        # Then sort out the longitudes
+        for tt in range(len(TheNewData[:,0,0])):
+            TheNewData[tt,:,:] = np.roll(TheNewData[tt,:,:],180,axis = 1)
+		
+    if (OutputGrid == '5by5'):
+
+        # flip lats to go south to north
+        # regrid to 5by5
+
+        # Regrid to 5by5 by simple averaging
+        # Data input here should already be 89.5 to -89.5 lat and -179.5 to 179.5 long!!!
+        StLt = 0
+        EdLt = 0
+        # Loop through the OutputGrid (5by5) lats and lons
+        for ltt in range(nlatsOut):
+            
+	    # create pointers to the five lats to average over
+            StLt = np.copy(EdLt)
+            EdLt = EdLt + 5
+
+            StLn = 0
+            EdLn = 0
+	
+            for lnn in range(nlonsOut):
+            
+	        # create pointers to the five lons to average over
+                StLn = np.copy(EdLn)
+                EdLn = EdLn + 5
+                #print(ltt,lnn,StLt,EdLt,StLn,EdLn)
+            	        
+		# Loop over each time point
+                for mm in range(len(TheNewData[:,0,0])):
+	        
+                    # Create a subarr first so that we can deal with missing data
+                    subarr = TheOldData[mm,StLt:EdLt,StLn:EdLn]    		    
+                    gots = np.where(subarr > mdi)
+                    if (len(gots[0]) > 0):
+		    
+		        # FILL THE LATITUDES BACKWARDS SO THAT THIS REVERSES THEM!!!
+                        TheNewData[mm,35-ltt,lnn] = np.mean(subarr[gots])    		
+			
+    #pdb.set_trace()			    
+		        
+    return TheNewData
+    
 #************************************************************
-# What are we working on?
-print('Working variable: ',OutputVar)
-print('Input Time and Grid: ',ReadInTime,ReadInGrid)
-print('Output Time and Grid: ',OutputTime,OutputGrid)
-print('Type of run: ',ThisProg, styr, edyr)
-print('Reanalysis: ',ThisRean)
+# BuildField
+def BuildField(TheOutputVar, TheInputTime, TheOutputTime, InFileStr, TheStYr, TheEdYr, TheNewData):
+    ''' function for building complete reanalyses files over the period specified 
+        this can be very computationally expensive so do it by year
+	This requires initial reanalysis data to be read in in chunks of 1 year
+	I may change this to month later and will slice out 1 month at a time anyway
+	For derived variables this will read in the source vars and compute
+	
+	NOTE: THIS AUTOMATICALLY REGRIDS LATITUDE TO BE 180 RATHER THAN 181 BOXES AND ROLLS LONGITUDE TO -179.5 to 179.5
+	
+        INPUTS:
+	TheOutputVar - string lower case character of q, rh, t, td, dpd, tw, e, msl, sp, ws
+	TheInputTime - string of 1hr or 6hr
+	TheOutputTime - string of monthly or pentad
+	#OutputGrid - string of 1by1 or 5by5 (WHICH SHOULD BE SAME AS INPUT GRID) - ASSUME THIS IS ALWAYS 1by1 FOR NOW
+	InFileStr - string of dir+file string to read in 
+	TheStYr = integer start year of data - assume Jan 1st (0101) start 
+	TheEdYr = integer end year of data - assume Dec 31st (1231) end	
+	TheNewData[:,:,:] - time, lat, long numpy array of complete field in new time resolution
+	OUTPUTS:
+	TheNewData[:,:,:] - time, lat, long numpy array of complete field in new time resolution
+	
+	'''
 
-# If output time is monthly then we will need these grids else they are done on the fly
-if OutputTime == 'monthly':
+    # The input grids are different to the output grids (181 lat boxes rather than 180) so we need a TmpNewData first
+    TmpNewData = np.empty((len(TheNewData[:,0,0]),nlatsIn,nlonsIn),dtype = float)
+    TmpNewData.fill(mdi)
 
-    # Set up the interim output arrays - ReadInGrid monthly - interim arrays will be saved
-    FullInterimArray = np.empty((nmons,nlatsIn,nlonsIn),dtype = float)
-    FullInterimArray.fill(mdi)
-
-    # Set up the desired output array - OutputGrid monthly interim arrays will be saved
-    FullOutputArray = np.empty((nmons,nlatsOut,nlonsOut),dtype = float)
-    FullOutputArray.fill(mdi)
-
-# Loop through the decs - both for Update and Build and Convert
-for d in range(len(StDec)):
-
-    # Set up dec for reading in either the Build files or the Update file
-    if ReadInGrid == 'monthly':
-        dec = str(StDec[d])+'01'+EdDec[d]+'12'
-    else: # these are for 6hr or 1hr
-        dec = str(StDec[d])+'0101'+EdDec[d]+'1231'
-        
-    # Number of years and months in dec
-    ndecyrs = (EdDec[d] - StDec[d]) + 1
-    ndecmons = ndecyrs*12
-
-    print('Working Decs: ',d,dec,ndecyrs)
-    #pdb.set_trace()
+    nyrs = (TheEdYr - TheStYr) + 1
 
     # Begin the time counter for this dec - may need to do hourly in 5 year or 1 year chunks
     # 0 to ~87600 + leap days for 1 hourly data (24*365*10)
@@ -392,447 +476,506 @@ for d in range(len(StDec)):
     HrStPoint = 0 # set as HrEdPoint which is actual ed point +1
     HrEdPoint = 0 # set as HrStPoint + MonthHours or Month(must be +1 to work in Python!!!)
     	    
-    # Loop through the years in the dec
-    for y in range(ndecyrs):
+    # Loop through the years 
+    for y in range(nyrs):
      
-        print('Working Year: ',StDec[d]+y)
 
     	# Get actual year we're working on
-        yr = y + StDec[d]
+        yr = y + StYr
+        print('Working Year: ',yr)
 
         # First work out the time pointers for the year we're working with
-        # ONLY USED IF WORKING ON 1 or 6 HOURLY
-        # Is it a leap year or not?
-        if (TestLeap.TestLeap(yr) == 0.0):
+        if (TheOutputTime == 'monthly'):	
             mnarr    = [31,29,31,30,31,30,31,31,30,31,30,31]
-        else:
-            mnarr    = [31,28,31,30,31,30,31,31,30,31,30,31]
+            nbits = 12
+        elif (TheOutputTime == 'pentad'):
+            mnarr    = list(np.repeat(5,73))
+            nbits = 73
+        # Is it a leap year?
+        if (TestLeap.TestLeap(yr) == 0.0):
+            if (TheOutputTime == 'monthly'):	
+                mnarr[1] = 29
+            elif (TheOutputTime == 'pentad'):
+                mnarr[11] = 6
 
-        print('TestLeap: ',mnarr[1], yr)
+        print('TestLeap (m, pt): ',mnarr[1],mnarr[11], yr)
     	
-        # Loop through each month
-        # This is a long way of doing this but it allows the code to work on 1 hourly,  6hourly and monthly input data
-        for m in range(12):
+        # Loop through each month or pentad depending on thing
+        for m in range(nbits):
 		
-    	    # string for file name
-            mm = '%02i' % (m+1)
+    	   ## string for file name
+           #mm = '%02i' % (m+1)
 
-	    # Month pointer
-            MonthPointer = ((yr - styr) * 12)+m
-            #print('Month Pointer: ',m)
+	   # Month pointer
+           MonthPointer = (y * nbits)+m
+           print('Month/Pentad Pointer: ',m)
 
-    	    # Set the time counter for this dec
-    	    # 0 to ~14600 + leap days
-            HrStPoint = np.copy(HrEdPoint)  # set as HrEdPoint which is actual end point +1
-            if (ReadInTime == '1hr'):
-                HrEdPoint = HrStPoint + (mnarr[m]*24) # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
-            elif (ReadInTime == '6hr'):
-                HrEdPoint = HrStPoint + (mnarr[m]*4) # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
-            else:
-                HrEdPoint = HrStPoint + 1 # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
-	    
-            print('Hr Pointies for this month: ',HrStPoint,HrEdPoint)
+    	   # Set the time counter for this dec in either 1hr or 6hrs
+    	   # 0 to ~14600 + leap days
+           HrStPoint = np.copy(HrEdPoint)  # set as HrEdPoint which is actual end point +1
+           if (ReadInTime == '1hr'):
+               HrEdPoint = HrStPoint + (mnarr[m]*24) # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
+           elif (ReadInTime == '6hr'):
+               HrEdPoint = HrStPoint + (mnarr[m]*4) # set as HrStPoint + MonthHours (must be +1 to work in Python!!!)
+	   
+           print('Hr Pointies for this month: ',HrStPoint,HrEdPoint)
 
-            #print('Reading in Month: ',mm)
+    	   # Open and read in the reanalysis files for the month
+	   # Sort out time pointers to pull out month
+	   # This assumes we're always reading in 1by1!!!!
+           SliceInfo = dict([('TimeSlice',[HrStPoint,HrEdPoint]),
+           		 ('LatSlice',[0,181]),
+           		 ('LonSlice',[0,360])]) 
+	   		 
+           # Are we working on a direct variable or do we need to read in lots of variables and convert (e.g., humidity)
+	   # For humidity variables
+           if (TheOutputVar in ['q','rh','e','tw','dpd']):
 
-    	    # Open and read in the ERA files for the month
-	    # Sort out time pointers to pull out month
-	    # This assumes we're always reading in 1by1!!!!
-            SliceInfo = dict([('TimeSlice',[HrStPoint,HrEdPoint]),
-                              ('LatSlice',[0,181]),
-                              ('LonSlice',[0,360])]) 
-			      
-            # Are we working on a direct variable or do we need to read in lots of variables and convert (e.g., humidity)
-	    # For humidity variables
-            if (OutputVar in ['q','rh','e','tw','dpd']):
+	       # DOES automatically unpack the scale and offset 
+	       # However, SP is Pa and T and Td are Kelvin
+	       # This kills memory so need to be tidy
+               ReadInfo = ['t2m']
+               FileName = InFileStr+'t2m_'+str(yr)+'0101'+str(yr)+'1231.nc'
+               T_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
 
-                # Read in the data from the dec
-                #print('Reading in T for dec: ',dec)
+	       # Unpack t
+               T_Data  = T_Data-273.15
 
-	        # DOES automatically unpack the scale and offset 
-	        # However, SP is Pa and T and Td are Kelvin
-	        # This kills memory so need to be tidy
-                ReadInfo = ['t2m']
-                FileName = workingdir+'/OTHERDATA/'+InputERAT+dec+'.nc'
-                T_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
+	       # DOES automatically unpack the scale and offset 
+	       # However, SP is Pa and T and Td are Kelvin
+	       # This kills memory so need to be tidy
+               ReadInfo = ['d2m']
+               FileName = InFileStr+'td2m_'+str(yr)+'0101'+str(yr)+'1231.nc'
+               Td_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
 
-	        # Unpack t
-                T_Data  = T_Data-273.15
+	       # Unpack td
+               Td_Data = Td_Data-273.15
 
-                #print('Reading in Td for dec: ',dec)
+	       # DOES automatically unpack the scale and offset 
+	       # However, SP is Pa and T and Td are Kelvin
+	       # This kills memory so need to be tidy
+               ReadInfo = ['sp']
+               FileName = InFileStr+'sp_'+str(yr)+'0101'+str(yr)+'1231.nc'
+               SP_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
 
-	        # DOES automatically unpack the scale and offset 
-	        # However, SP is Pa and T and Td are Kelvin
-	        # This kills memory so need to be tidy
-                ReadInfo = ['d2m']
-                FileName = workingdir+'/OTHERDATA/'+InputERATd+dec+'.nc'
-                Td_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
+	       # Unpack sp
+               SP_Data = SP_Data/100.
+           
+               # Convert to desired humidity variable
+               TmpData = GetHumidity(T_Data,Td_Data,SP_Data,TheOutputVar)
 
-	        # Unpack td
-                Td_Data = Td_Data-273.15
+               # Empty the SP_Data array
+               SP_Data = 0
+               T_Data = 0
+               Td_Data = 0
 
-                #print('Reading in SP for dec: ',dec)
+           else:
 
-	        # DOES automatically unpack the scale and offset 
-	        # However, SP is Pa and T and Td are Kelvin
-	        # This kills memory so need to be tidy
-                ReadInfo = ['sp']
-                FileName = workingdir+'/OTHERDATA/'+InputERAsp+dec+'.nc'
-                SP_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
+	       # DOES automatically unpack the scale and offset 
+	       # However, SP is Pa and T and Td are Kelvin
+	       # This kills memory so need to be tidy
+               ReadInfo = [NameDict[TheOutputVar]] # the variable name to read in
+               #pdb.set_trace()
+               FileName = InFileStr+str(yr)+'0101'+str(yr)+'1231.nc'
+               TmpData,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
+               #pdb.set_trace()
 
-	        # Unpack sp
-                SP_Data = SP_Data/100.
-            	
-            	# Convert to desired humidity variable
-                New_Data = GetHumidity(T_Data,Td_Data,SP_Data,OutputVar)
-
-            	# Empty the SP_Data array
-                SP_Data = 0
-                T_Data = 0
-                Td_Data = 0
-
-            else:
-
-        	# Read in the data from the dec
-                #print('Reading in OutputVar for dec: ',dec)
-
-	        # DOES automatically unpack the scale and offset 
-	        # However, SP is Pa and T and Td are Kelvin
-	        # This kills memory so need to be tidy
-                ReadInfo = [NameDict[OutputVar]] # the variable name to read in
-                #pdb.set_trace()
-                FileName = workingdir+'/OTHERDATA/'+InputERA+dec+'.nc'
-                New_Data,Latitudes,Longitudes = GetGrid4Slice(FileName,ReadInfo,SliceInfo,LatInfo,LonInfo)
-                #pdb.set_trace()
-
-	        # Is there an unpack thing like for T - -273.15?
-                if (OutputVar in ['t','td','sst']): # t
-                    if (OutputVar == 'sst'): # there are missing values over land.
-                        New_Data[np.where(New_Data < 270.03)] = mdi # ERA Mdi is actually -32767 but in ncview it is 270.024
-                    New_Data[np.where(New_Data > mdi)] = New_Data[np.where(New_Data > mdi)]-273.15
-                elif (OutputVar in ['slp','sp']): # pressure are Pa so need to be converted to hPa
-                    New_Data = New_Data/100.
-
-	    # If we're creating monthly means from 1hr or 6hr then average and place in the full array
-            if (ReadInTime != 'monthly') & (OutputTime == 'monthly'):
-                for ltt in range(nlatsIn):
-                    for lnn in range(nlonsIn):
-
-                        FullInterimArray[MonthPointer,ltt,lnn] = np.mean(New_Data[:,ltt,lnn])
-			
-            else:
-                
-                FullInterimArray[MonthPointer,:,:] = New_Data[:,:,:]	        		
-
-	    # Empty the data arrays
-            New_Data = 0 
-
-# Now we should have a complete monthly mean dataset in the native array
-# save as days since 19790101
-
-# Write out
-print('Writing out interim monthly array: ',OutputVar)
-
-GOT TO HERE
-# Write out 
-TimPoints,TimBounds = MakeDaysSince(styr,stmon,edyr,edmon)
-nTims = len(TimPoints)
-    		    
-# Sort out LatBounds and LonBounds
-LatBounds = np.empty((len(Latitudes),2),dtype='float')
-LonBounds = np.empty((len(Longitudes),2),dtype='float')
-
-LatBounds[:,0] = Latitudes - ((Latitudes[1]-Latitudes[0])/2.)
-LatBounds[:,1] = Latitudes + ((Latitudes[1]-Latitudes[0])/2.)
-
-LonBounds[:,0] = Longitudes - ((Longitudes[1]-Longitudes[0])/2.)
-LonBounds[:,1] = Longitudes + ((Longitudes[1]-Longitudes[0])/2.)    
-
-#pdb.set_trace()
-
-# No need to convert float data using given scale_factor and add_offset to integers - done within writing program (packV = (V-offset)/scale
-# Not sure what this does to float precision though...
-
-# Create a new netCDF file - have tried zlib=True,least_significant_digit=3 (and 1) - no difference
-OutFile = workingdir+'/OTHERDATA/'+NameDict[OutputVar]+'_'+OutputTime+'_'+ReadInGrid+'_ERA-Interim_data_'+str(styr)+str(edyr)+'.nc'
-ncfw = Dataset(OutFile,'w',format='NETCDF4_CLASSIC') # need to try NETCDF4 and also play with compression but test this first
-
-# Set up the dimension names and quantities
-ncfw.createDimension('time',nmons)
-ncfw.createDimension('latitude',nlatsIn)
-ncfw.createDimension('longitude',nlonsIn)
-
-# Go through each dimension and set up the variable and attributes for that dimension if needed
-MyVarT = ncfw.createVariable('time','f4',('time',))
-MyVarT.standard_name = 'time'
-MyVarT.long_name = 'time'
-MyVarT.units = 'days since 1979-1-1 00:00:00'
-MyVarT.start_year = str(styr)
-MyVarT.end_year = str(edyr)
-MyVarT[:] = TimPoints
-
-MyVarLt = ncfw.createVariable('latitude','f4',('latitude',))
-MyVarLt.standard_name = 'latitude'
-MyVarLt.long_name = 'gridbox centre latitude'
-MyVarLt.units = 'degrees_north'
-MyVarLt[:] = Latitudes
-
-MyVarLn = ncfw.createVariable('longitude','f4',('longitude',))
-MyVarLn.standard_name = 'longitude'
-MyVarLn.long_name = 'gridbox centre longitude'
-MyVarLn.units = 'degrees_east'
-MyVarLn[:] = Longitudes
-
-# Go through each variable and set up the variable attributes
-# I've added zlib=True so that the file is in compressed form
-# I've added least_significant_digit=4 because we do not need to store information beyone 4 significant figures.
-MyVarD = ncfw.createVariable(NameDict[OutputVar],'f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
-MyVarD.standard_name = StandardNameDict[OutputVar]
-MyVarD.units = UnitDict[OutputVar]
-MyVarD.valid_min = np.min(FullInterimArray)
-MyVarD.valid_max = np.max(FullInterimArray)
-MyVarD.missing_value = mdi
-# Provide the data to the variable - depending on howmany dimensions there are
-MyVarD[:,:,:] = FullInterimArray[:,:,:]  	
-#pdb.set_trace()    	
-ncfw.close()
-#pdb.set_trace()
-
-# Now if desired convert the data to 5by5 grids
-if (OutputGrid == '5by5'):
-
-    # flip lats to go south to north
-    # shift lons back to -180 to 180 from 0 to 359
-    # save as days since 19790101
-    # regrid to 5by5
-
-    # Regrid to 5by5 by simple averaging
-    # ERAI is 181 lats 90.5 to -90.5 (GB centres 90 to -90) therefore we need to regrid to 0.5by0.5 degrees first and then average over 5by5 box
-    # ERAI is 360 longs -0.5 to 359.5 (GB centres 0 to 359) therefore we need to regrid to 0.5by0.5 degrees first and then average over 5by5 box
-    hlt = 0
-    hln = 0
-    # Loop through the OutputGrid (5by5) lats and lons
-    for ltt in range(nlatsOut):
-        for lnn in range(nlonsOut):
-            #print(ltt,lnn,hlt,hln)
-            # Loop over each month - slow!
-            for mm in range(nmons):
-	        # create a temporary array of 12x12 0.5by0.5 boxes to be filled with 6by6 lats and lons
-		# this is really confusing - the first 12 will cover 90.5 to 84.5 N and -0.5 W to 5.5 E
-		# we then take an average only over 90.0-85.0 N and 0-5E.
-                subhi = np.empty((12,12))
-                subhi.fill(mdi) 
-                for i in range(6):
-                    for j in range(6):
-                        icol = i*2
-                        jrow = j*2
-                        if (hln == 360): 
-		            # Make sure it wraps around so reset 360 to be 0
-                            hln = 0
-                        subhi[jrow:jrow+2,icol:icol+2] = FullInterimArray[mm,hlt,hln] # +2 because python references arrays with 0-N rather 0-(N-1)
-                        hlt = hlt+1
-                    hlt = hlt-6
-                    hln = hln+1
-                hln = hln-6
-                subsubhi = np.copy(subhi[1:11,1:11])
-                gots = np.where(subsubhi > mdi)
-                if (len(gots[0]) > 0):
-                    FullOutputArray[mm,ltt,lnn] = np.mean(subsubhi[gots])
-#                if (FullOutputArray[mm,ltt,lnn] < -10.):
-#                    print('Got Low')
-#                    pdb.set_trace()
-            hln = hln+5
-        hln = 0
-        hlt = hlt+5
-    #pdb.set_trace()
+	       # Is there an unpack thing like for T - -273.15?
+               if (TheOutputVar in ['t','td','sst']): # t
+                   if (TheOutputVar == 'sst'): # there are missing values over land.
+                       TmpData[np.where(TmpData < 270.03)] = mdi # ERA Mdi is actually -32767 but in ncview it is 270.024
+                   TmpData[np.where(TmpData > mdi)] = TmpData[np.where(TmpData > mdi)]-273.15
+               elif (TheOutputVar in ['slp','sp']): # pressure are Pa so need to be converted to hPa
+                   TmpData = TmpData/100.
     
-    # now flip and shift so its -90 to 90, -180 to 180
-    for mm in range(nmons):
-        FullOutputArray[mm,:,:] = np.flipud(FullOutputArray[mm,:,:]) # reverse latitudes
-	# going from 2.5 to 357.5 to -177.5 to 177.5 means rolling forward such that the current 0 element lies at 36
-        FullOutputArray[mm,:,:] = np.roll(FullOutputArray[mm,:,:],np.int(nlonsOut/2),axis=1)
+	   # Create monthly or pentad means
+           for ltt in range(nlatsIn):
+               for lnn in range(nlonsIn):
 
-    # Recreate Latitudes and Longitudes lists
-    Latitudes = np.arange(-87.5,92.5,5.)
-    Longitudes = np.arange(-177.5,182.5,5.)    
+                   TmpNewData[MonthPointer,ltt,lnn] = np.mean(TmpData[:,ltt,lnn])
+	   	   
+	   # Empty the data arrays
+           TmpData = 0 
+	   
+    # Now regrid to 180 latitude boxes 89.5 to -89.5 and longitude from -179.5 to 179.5	
+    TheNewData = RegridField('1by1',TmpNewData,TheNewData)  
 
-    # Now we should have a complete monthly mean dataset in the 5by5 array
-    # Write out
-    print('Writing out final monthly array: ',OutputVar)
+    return TheNewData
+        
+#************************************************************
+# CreateAnoms
+def CreateAnoms(TheOutputGrid,TheOutputTime,TheClimSt,TheClimEd,TheStYr,TheEdYr,TheInData):
+    '''
+    This function takes any grid and any var, computes climatologies/stdevs over given period and then anomalies
+    It also outputs land only and ocean only anomalies dependning on the grid
+    if (OutputGrid == '5by5'):
+    LandMask = workingdir+'/OTHERDATA/HadCRUT.4.3.0.0.land_fraction.nc' # 0 = 100% sea, 1 = 100% land - no islands!, latitude, longitude, land_area_fraction, -87.5 to 87.5, -177.5 to 177.5
+    elif (OutputGrid == '1by1'):
+    LandMask = workingdir+'/OTHERDATA/lsmask.nc' # 1 = sea, 0 = land - no islands! lat, lon, mask 89.5 to -89.5Lat, 0.5 to 359.5 long 
+    
+    INPUTS:
+    TheOutputGrid - string of 1by1 or 5by5 to determine the land mask to use 
+    TheOutputTime - string of monthly or pentad
+    TheClimSt - interger start year of climatology Always Jan start
+    TheClimEd - integer end  year of climatology Always Dec end
+    TheStYr - integer start year of data to find climatology
+    TheEdYr - integer end year of data to find climatology
+    TheInData[:,:,:] - time, lat, lon array of actual values
+    
+    OUTPUTS:
+    AllAnomsArr[:,:,:] - time, lat, lon array of anomalies
+    LandAnomsArr[:,:,:] - time, lat, lon array of land anomalies
+    OceanAnomsArr[:,:,:] - time, lat, lon array of ocean anomalies
+    ClimsArr[:,:,:] - time, lat, lon array of climatologies
+    StDevsArr[:,:,:] - time, lat, lon array of stdeviations
+    
+    '''
 
-    # Write out
-    # Times already sorted from above 
+    # Set up for time
+    if (TheOutputTime == 'monthly'):
+        nclims = 12
+    elif (TheOutputTime == 'pentad'):
+        nclims = 73	
+    nyrs = (TheEdYr - TheStYr) + 1	
+    
+    
+    # Get land/sea mask and format accordingly
+    if (TheOutputGrid == '1by1'):
+        MaskData,Lats,Longs = GetGrid4(LandMask,['mask'],['lat'],['lon']) 
+	# Check shape and force to be 2d
+        if (len(np.shape(MaskData)) == 3):
+            MaskData = np.reshape(MaskData,(180,360))
+	# roll the longitudes
+        MaskData = np.roll(MaskData[:,:],180,axis = 1)
+	# swap the land/sea so that land = 1
+        land = np.where(MaskData == 0)
+        MaskData[np.where(MaskData == 1)] = 0
+        MaskData[land] = 1
+    elif (TheOutputGrid == '5by5'):
+        MaskData,Lats,Longs = GetGrid4(LandMask,['land_area_fraction'],LatInfo,LonInfo) 
+        if (len(np.shape(MaskData)) == 3):
+            MaskData = np.reshape(MaskData,(36,72))
+    
+    # first create empty arrays
+    AllAnomsArr = np.empty_like(TheInData)
+    AllAnomsArr.fill(mdi)
+    LandAnomsArr = np.copy(AllAnomsArr)
+    OceanAnomsArr = np.copy(AllAnomsArr)
+    ClimsArr = np.copy(AllAnomsArr[0:nclims,:,:])
+    StDevsArr = np.copy(AllAnomsArr[0:nclims,:,:])
+        
+    # loop through gridboxes
+    for lt in range(nlatsOut):
+        for ln in range(nlonsOut):
+	
+	    # pull out gridbox and reform to years by nclims (months or pentads)
+            SingleSeries = np.reshape(TheInData[:,lt,ln],(nyrs,nclims)) # nyrs rows, nclims columns
+            
+	    # create an empty array to fill with anomalies
+            NewSingleSeries = np.empty_like(SingleSeries)
+            NewSingleSeries.fill(mdi)
+	    
+	    # loop through clims 1 to 12 or 73
+            for m in range(nclims):
+	    
+	        # create, save and subtract climatological mean 
+		# THERE ARE NO MISSING DATA IN ERA INTERIM but sst is missing over land
+		# test first time value only
+                if (SingleSeries[0,m] > mdi):
+                    ClimsArr[m,lt,ln] = np.mean(SingleSeries[(TheClimSt-TheStYr):((TheClimEd-TheStYr)+1),m])
+                    StDevsArr[m,lt,ln] = np.std(SingleSeries[(TheClimSt-TheStYr):((TheClimEd-TheStYr)+1),m])
+                    NewSingleSeries[:,m] = SingleSeries[:,m] - ClimsArr[m,lt,ln]
+	    
+	    # fill new arrays
+            AllAnomsArr[:,lt,ln] = np.reshape(NewSingleSeries,nyrs*nclims)
+	    
+	    # is there any land?
+            if (MaskData[lt,ln] > 0):
+                LandAnomsArr[:,lt,ln] = np.reshape(NewSingleSeries,nyrs*nclims)
+		
+	    # is there any sea?
+            if (MaskData[lt,ln] < 1):
+                OceanAnomsArr[:,lt,ln] = np.reshape(NewSingleSeries,nyrs*nclims)
+	    
+    return AllAnomsArr, LandAnomsArr, OceanAnomsArr, ClimsArr, StDevsArr
+    
+#************************************************************
+# WriteNetCDF
+def WriteNetCDF(Filename,TheOutputTime, TheOutputGrid, TheOutputVar, TheFullArray, TheFullArrayAnoms, TheLandArrayAnoms, TheOceanArrayAnoms, TheClimsArray, TheStDevsArray,
+            TheStYr, TheEdYr, TheClimStart, TheClimEnd, TheName, TheStandardName, TheLongName, TheUnit):
+    '''
+    This function writes out a NetCDF 4 file
+    
+    NOTE: 
+    All 1by1 outputs will have lats 89.5 to -89.5 and lons -179.5 to 179.5
+    All 5by5 outputs will have lats -87.5 to 87.5 and lons -177.5 to 177.5
+    
+    INPUTS:
+    FileOut - string file name
+    TheOutputTime - string monthly or pentad
+    TheOutputGrid - string 1by1 or 5by5
+    TheOutputVar - string lower case variable name
+    TheFullArray[:,:,:] - time, lat, lon array of actual values
+    TheFullArrayAnoms[:,:,:] - time, lat, lon array of anomalies
+    TheLandArrayAnoms[:,:,:] - time, lat, lon array of land anomalies
+    TheOceanArrayAnoms[:,:,:] - time, lat, lon array of ocean anomalies 
+    TheClimsArray[:,:,:] - time(12 or 73), lat, lon array of climatology 
+    TheStDevsArray[:,:,:] - time(12 or 73, lat, lon array of st devs
+    TheStYr - integer start year assumes Jan start 
+    TheEdYr - integer end year assumes Dec start 
+    TheClimStart - integer start of clim Jan start 
+    TheClimEnd - integer end of clim Dec start
+    TheName - string short name of var q2m
+    TheStandardName - string standard name of variable
+    TheUnit - string unit of variable
+    OUTPUTS:
+    None
+    
+    '''
+    
+    # Sort out times in days since 1979-01-01    
+    # Sort out climatology time
+    if (TheOutputTime == 'monthly'):
+        nClims = 12
+        TimPoints = MakeDaysSince(TheStYr,1,TheEdYr,12,'month') # use 'day','month','year'
+    elif (TheOutputTime == 'pentad'):
+        nClims = 73
+        TimPoints = MakeDaysSince(TheStYr,1,TheEdYr,73,'pentad') # use 'day','month','year'
+    nTims = len(TimPoints)
     		    
-    # Sort out LatBounds and LonBounds
-    LatBounds = np.empty((len(Latitudes),2),dtype='float')
-    LonBounds = np.empty((len(Longitudes),2),dtype='float')
+    # Sort out Lats, Lons and LatBounds and LonBounds
+    if (TheOutputGrid == '1by1'):
+        LatList = np.flip(np.arange(180)-89.5)
+        LonList = np.arange(360)-179.5
 
-    LatBounds[:,0] = Latitudes - ((Latitudes[1]-Latitudes[0])/2.)
-    LatBounds[:,1] = Latitudes + ((Latitudes[1]-Latitudes[0])/2.)
+        LatBounds = np.empty((len(LatList),2),dtype='float')
+        LonBounds = np.empty((len(LonList),2),dtype='float')
 
-    LonBounds[:,0] = Longitudes - ((Longitudes[1]-Longitudes[0])/2.)
-    LonBounds[:,1] = Longitudes + ((Longitudes[1]-Longitudes[0])/2.)    
+        LatBounds[:,0] = LatList + ((LatList[0]-LatList[1])/2.)
+        LatBounds[:,1] = LatList - ((LatList[0]-Latitudes[1])/2.)
 
-    #pdb.set_trace()
+        LonBounds[:,0] = LonList - ((LonList[1]-LonList[0])/2.)
+        LonBounds[:,1] = LonList + ((LonList[1]-LonList[0])/2.)    
+
+    elif (TheOutputGrid == '5by5'):
+        LatList = (np.arange(36)*5)-87.5
+        LonList = (np.arange(72)*5)-177.5
+
+    
+        LatBounds = np.empty((len(LatList),2),dtype='float')
+        LonBounds = np.empty((len(LonList),2),dtype='float')
+
+        LatBounds[:,0] = LatList - ((LatList[1]-LatList[0])/2.)
+        LatBounds[:,1] = LatList + ((LatList[1]-Latitudes[0])/2.)
+
+        LonBounds[:,0] = LonList - ((LonList[1]-LonList[0])/2.)
+        LonBounds[:,1] = LonList + ((LonList[1]-LonList[0])/2.)    
 
     # No need to convert float data using given scale_factor and add_offset to integers - done within writing program (packV = (V-offset)/scale
     # Not sure what this does to float precision though...
 
     # Create a new netCDF file - have tried zlib=True,least_significant_digit=3 (and 1) - no difference
-    OutFile = workingdir+'/OTHERDATA/'+NameDict[OutputVar]+'_'+OutputTime+'_'+OutputGrid+'_ERA-Interim_data_'+str(styr)+str(edyr)+'.nc'
-    ncfw=Dataset(OutFile,'w',format='NETCDF4_CLASSIC') # need to try NETCDF4 and also play with compression but test this first
+    ncfw = Dataset(Filename,'w',format='NETCDF4_CLASSIC') # need to try NETCDF4 and also play with compression but test this first
 
     # Set up the dimension names and quantities
-    ncfw.createDimension('time',nmons)
+    ncfw.createDimension('time',nTims)
     ncfw.createDimension('latitude',nlatsOut)
     ncfw.createDimension('longitude',nlonsOut)
+    
+    # If there are climatologies to be written then also set up clim dimension
+    if (len(np.shape(TheClimsArray)) > 1):
+        
+        if (TheOutputTime == 'monthly'):
+            ncfw.createDimension('month_time',nClims)
+        elif (TheOutputTime == 'pentad'):
+            ncfw.createDimension('pentad_time',nClims)
 
     # Go through each dimension and set up the variable and attributes for that dimension if needed
     MyVarT = ncfw.createVariable('time','f4',('time',))
     MyVarT.standard_name = 'time'
     MyVarT.long_name = 'time'
     MyVarT.units = 'days since 1979-1-1 00:00:00'
-    MyVarT.start_year = str(styr)
-    MyVarT.end_year = str(edyr)
+    MyVarT.start_year = str(TheStYr)
+    MyVarT.end_year = str(TheEdYr)
     MyVarT[:] = TimPoints
 
     MyVarLt = ncfw.createVariable('latitude','f4',('latitude',))
     MyVarLt.standard_name = 'latitude'
     MyVarLt.long_name = 'gridbox centre latitude'
     MyVarLt.units = 'degrees_north'
-    MyVarLt[:] = Latitudes
+    MyVarLt[:] = LatList
 
     MyVarLn = ncfw.createVariable('longitude','f4',('longitude',))
     MyVarLn.standard_name = 'longitude'
     MyVarLn.long_name = 'gridbox centre longitude'
     MyVarLn.units = 'degrees_east'
-    MyVarLn[:] = Longitudes
+    MyVarLn[:] = LonList
+
+    # If there are climatologies to be written then also set up clim dimension
+    if (len(np.shape(TheClimsArray)) > 1):
+        
+        if (TheOutputTime == 'monthly'):
+            MyVarM = ncfw.createVariable('month_time','i4',('month_time',))
+            MyVarM.long_name = 'months of the year'
+            MyVarM.units = 'months'
+            MyVarM[:] = np.arange(nClims)
+        elif (TheOutputTime == 'pentad'):
+            MyVarM = ncfw.createVariable('pentad_time','i4',('pentad_time',))
+            MyVarM.long_name = 'pentads of the year'
+            MyVarM.units = 'pentads'
+            MyVarM[:] = np.arange(nClims)
 
     # Go through each variable and set up the variable attributes
     # I've added zlib=True so that the file is in compressed form
     # I've added least_significant_digit=4 because we do not need to store information beyone 4 significant figures.
-    MyVarD = ncfw.createVariable('actuals','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
-    MyVarD.standard_name = StandardNameDict[OutputVar]
-    MyVarD.units = UnitDict[OutputVar]
-    MyVarD.valid_min = np.min(FullOutputArray)
-    MyVarD.valid_max = np.max(FullOutputArray)
+    MyVarD = ncfw.createVariable(TheName,'f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+    MyVarD.standard_name = TheStandardName
+    MyVarD.long_name = TheLongName
+    MyVarD.units = TheUnit
+    MyVarD.valid_min = np.min(TheFullArray)
+    MyVarD.valid_max = np.max(TheFullArray)
     MyVarD.missing_value = mdi
     # Provide the data to the variable - depending on howmany dimensions there are
-    MyVarD[:,:,:] = FullOutputArray[:,:,:]  	
-    	
+    MyVarD[:,:,:] = TheFullArray[:,:,:]  	
+
+    # If there are climatologies etc to be written then also set them up
+    if (len(np.shape(TheClimsArray)) > 1):
+    
+        MyVarA = ncfw.createVariable(TheName+'_anoms','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+        MyVarA.standard_name = TheStandardName+'_anomalies'
+        MyVarA.long_name = TheLongName+' anomalies from 1981-2010'
+        MyVarA.units = TheUnit
+        MyVarA.valid_min = np.min(TheFullArrayAnoms)
+        MyVarA.valid_max = np.max(TheFullArrayAnoms)
+        MyVarA.missing_value = mdi
+        # Provide the data to the variable - depending on howmany dimensions there are
+        MyVarA[:,:,:] = TheFullArrayAnoms[:,:,:]  	
+    
+        MyVarAL = ncfw.createVariable(TheName+'_anoms_land','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+        MyVarAL.standard_name = TheStandardName+'_anomalies'
+        MyVarAL.long_name = TheLongName+' anomalies from 1981-2010'
+        MyVarAL.units = TheUnit
+        MyVarAL.valid_min = np.min(TheLandArrayAnoms)
+        MyVarAL.valid_max = np.max(TheLandArrayAnoms)
+        MyVarAL.missing_value = mdi
+        # Provide the data to the variable - depending on howmany dimensions there are
+        MyVarAL[:,:,:] = TheLandArrayAnoms[:,:,:]  	
+
+        MyVarAO = ncfw.createVariable(TheName+'_anoms_ocean','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+        MyVarAO.standard_name = TheStandardName+'_anomalies'
+        MyVarAO.long_name = TheLongName+' anomalies from 1981-2010'
+        MyVarAO.units = TheUnit
+        MyVarAO.valid_min = np.min(TheOceanArrayAnoms)
+        MyVarAO.valid_max = np.max(TheOceanArrayAnoms)
+        MyVarAO.missing_value = mdi
+        # Provide the data to the variable - depending on howmany dimensions there are
+        MyVarAO[:,:,:] = TheOceanArrayAnoms[:,:,:]  	
+
+        if (TheOutputTime == 'monthly'):
+            MyVarC = ncfw.createVariable(TheName+'_clims','f4',('month_time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+        elif (TheOutputTime == 'pentad'):
+            MyVarC = ncfw.createVariable(TheName+'_clims','f4',('pentad_time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+        MyVarC.standard_name = TheStandardName+'_climatologies'
+        MyVarC.long_name = TheLongName+' climatology over 1981-2010'
+        MyVarC.units = TheUnit
+        MyVarC.valid_min = np.min(TheClimsArray)
+        MyVarC.valid_max = np.max(TheClimsArray)
+        MyVarC.missing_value = mdi
+        # Provide the data to the variable - depending on howmany dimensions there are
+        MyVarC[:,:,:] = TheClimsArray[:,:,:]  	
+
+        if (TheOutputTime == 'monthly'):
+            MyVarS = ncfw.createVariable(TheName+'_stdevs','f4',('month_time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+        elif (TheOutputTime == 'pentad'):
+            MyVarS = ncfw.createVariable(TheName+'_stdevs','f4',('pentad_time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
+        MyVarS.standard_name = TheStandardName+'_climatological_standard_deviations'
+        MyVarS.long_name = TheLongName+' climatological standard deviation over 1981-2010'
+        MyVarS.units = TheUnit
+        MyVarS.valid_min = np.min(TheStDevsArray)
+        MyVarS.valid_max = np.max(TheStDevsArray)
+        MyVarS.missing_value = mdi
+        # Provide the data to the variable - depending on howmany dimensions there are
+        MyVarS[:,:,:] = TheStDevsArray[:,:,:]  	
+
     ncfw.close()
 
-
-# Now if desired calculate anomalies and land/sea masked versions
-if (CreateAnoms == 1):
-
-    # Calculate anomalies over climatology period
-    # at the same time mask out land and sea in respective fields
-    # first create empty arrays
-    FullOutputArrayAnoms = np.empty_like(FullOutputArray)
-    FullOutputArrayAnoms.fill(mdi)
-    FullOutputArrayAnomsLand = np.empty_like(FullOutputArray)
-    FullOutputArrayAnomsLand.fill(mdi)
-    FullOutputArrayAnomsSea = np.empty_like(FullOutputArray)
-    FullOutputArrayAnomsSea.fill(mdi)
+    return
     
-    # now read in the land sea mask
-    MaskData,Lats,Longs = GetGrid4(LandMask,['land_area_fraction'],LatInfo,LonInfo)
-    
-    # loop through gridboxes
-    for lt in range(nlatsOut):
-        for ln in range(nlonsOut):
+#************************************************************
+# MAIN
+#************************************************************
+# What are we working on?
+print('Working variable: ',OutputVar)
+print('Input Time and Grid: ',ReadInTime,ReadInGrid)
+print('Output Time and Grid: ',OutputTime,OutputGrid)
+print('Type of run: ',ThisProg, styr, edyr, MakeAnoms)
+print('Reanalysis: ',ThisRean)
+
+# Set up the desired output array - OutputGrid monthly interim arrays will be saved
+if (OutputTime == 'monthly'):
+    FullArray = np.empty((nmons,nlatsOut,nlonsOut),dtype = float)
+elif (OutputTime == 'pentad'):
+    FullArray = np.empty((npts,nlatsOut,nlonsOut),dtype = float)
+FullArray.fill(mdi)
+
+# For ThisProg = Convert or Update read in monthly or pentad 1by1 (to present or previous year)
+if (ThisProg != 'Build'):
+
+    ReadInfo = [OutputVar+'2m']
+    FileName = workingdir+'/OTHERDATA/'+OldERAStr
+    TheData,Latitudes,Longitudes = GetGrid4(FileName,ReadInfo,LatInfo,LonInfo)
+
+    # For Update we also need to read in most recent year (or months) of data and convert to desired variable (BuildField)
+    if (ThisProg == 'Update'):
+
+        print('Creating Update')
+
+        # Build the most recent year
+        if (OutputTime == 'monthly'):
+            RecentField = FullArray[0:nmons-12,:,:]
+        elif (OutputTime == 'pentad'):
+            RecentField = FullArray[0:npts-73,:,:]
+        RecentField = BuildField(OutputVar, ReadInTime, OutputTime, workingdir+'/OTHERDATA/'+InputERA, edyr, edyr, RecentField)
 	
-	    # pull out gridbox and reform to years by months
-            SingleSeries = np.reshape(FullOutputArray[:,lt,ln],(nyrs,12)) # nyrs rows, 12 columns
-            # create an empty array to fill with anomalies
-            NewSingleSeries = np.empty_like(SingleSeries)
-            NewSingleSeries.fill(mdi)
-	    
-	    # loop through months 1 to 12
-            for m in range(12):
-	    
-	        # subtract climatological mean 
-		# THERE ARE NO MISSING DATA IN ERA INTERIM but sst is missing over land
-		# test first time value only
-                if (SingleSeries[0,m] > mdi):
-                    NewSingleSeries[:,m] = SingleSeries[:,m] - np.mean(SingleSeries[(ClimStart-styr):((ClimEnd-styr)+1),m])
-	    
-	    # fill new arrays
-            FullOutputArrayAnoms[:,lt,ln] = np.reshape(NewSingleSeries,nmons)
-	    
-	    # is there any land?
-            if (MaskData[0,lt,ln] > 0):
-                FullOutputArrayAnomsLand[:,lt,ln] = np.reshape(NewSingleSeries,nmons)
+	# Fill the full array with data
+        if (OutputTime == 'monthly'):
+            FullArray[0:nmons-12,:,:] = TheData
+            FullArray[nmons-12:nmons,:,:] = RecentField
+        elif (OutputTime == 'pentad'):
+            FullArray[0:npts-73,:,:] = TheData
+            FullArray[npts-73:nmons,:,:] = RecentField
 		
-	    # is there any sea?
-            if (MaskData[0,lt,ln] < 1):
-                FullOutputArrayAnomsSea[:,lt,ln] = np.reshape(NewSingleSeries,nmons)
-	    
-    # Now we should have a complete monthly mean dataset in the 5by5 array as anomalies and land/sea masked versions
-    # Write out - already sorted times and lats and lons
-    print('Writing out final monthly anomaly array: ',OutputVar)
+    elif (ThisProg == 'Regrid'):
 
-    # Create a new netCDF file - have tried zlib=True,least_significant_digit=3 (and 1) - no difference
-    OutFile = workingdir+'/OTHERDATA/'+NameDict[OutputVar]+'_'+OutputTime+'_'+OutputGrid+'_ERA-Interim_data_'+str(styr)+str(edyr)+'_'+AnomStr+'.nc'
-    ncfw=Dataset(OutFile,'w',format='NETCDF4_CLASSIC') # need to try NETCDF4 and also play with compression but test this first
+        print('Creating Regrid')
 
-    # Set up the dimension names and quantities
-    ncfw.createDimension('time',nmons)
-    ncfw.createDimension('latitude',nlatsOut)
-    ncfw.createDimension('longitude',nlonsOut)
+        # Regrid the field to desired resolution
+        FullArray = RegridField(OutputGrid,TheData,FullArray)
+	
+# For ThisProg = Build then loop through the decs for Build only
+elif (ThisProg == 'Build'):
 
-    # Go through each dimension and set up the variable and attributes for that dimension if needed
-    MyVarT = ncfw.createVariable('time','f4',('time',))
-    MyVarT.standard_name = 'time'
-    MyVarT.long_name = 'time'
-    MyVarT.units = 'days since 1979-1-1 00:00:00'
-    MyVarT.start_year = str(styr)
-    MyVarT.end_year = str(edyr)
-    MyVarT[:] = TimPoints
+    print('Creating Build')
 
-    MyVarLt = ncfw.createVariable('latitude','f4',('latitude',))
-    MyVarLt.standard_name = 'latitude'
-    MyVarLt.long_name = 'gridbox centre latitude'
-    MyVarLt.units = 'degrees_north'
-    MyVarLt[:] = Latitudes
+    FullArray = BuildField(OutputVar, ReadInTime, OutputTime, workingdir+'/OTHERDATA/'+InputERA, styr, edyr, FullArray)
 
-    MyVarLn = ncfw.createVariable('longitude','f4',('longitude',))
-    MyVarLn.standard_name = 'longitude'
-    MyVarLn.long_name = 'gridbox centre longitude'
-    MyVarLn.units = 'degrees_east'
-    MyVarLn[:] = Longitudes
+# Do we need to create anomalies?
+# Just in case we don't, create blank arrays for write out
+FullArrayAnoms = 0 
+LandArrayAnoms = 0 
+OceanArrayAnoms = 0 
+ClimsArray = 0
+StDevArray = 0
+if (MakeAnoms == 1):
 
-    # Go through each variable and set up the variable attributes
-    # I've added zlib=True so that the file is in compressed form
-    # I've added least_significant_digit=4 because we do not need to store information beyone 4 significant figures.
-    MyVarD = ncfw.createVariable('anomalies','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
-    MyVarD.standard_name = StandardNameDict[OutputVar]
-    MyVarD.units = UnitDict[OutputVar]
-    MyVarD.valid_min = np.min(FullOutputArrayAnoms)
-    MyVarD.valid_max = np.max(FullOutputArrayAnoms)
-    MyVarD.missing_value = mdi
-    # Provide the data to the variable - depending on howmany dimensions there are
-    MyVarD[:,:,:] = FullOutputArrayAnoms[:,:,:]  	
-
-    MyVarDL = ncfw.createVariable('anomalies_land','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
-    MyVarDL.standard_name = StandardNameDict[OutputVar]
-    MyVarDL.units = UnitDict[OutputVar]
-    MyVarDL.valid_min = np.min(FullOutputArrayAnomsLand)
-    MyVarDL.valid_max = np.max(FullOutputArrayAnomsLand)
-    MyVarDL.missing_value = mdi
-    # Provide the data to the variable - depending on howmany dimensions there are
-    MyVarDL[:,:,:] = FullOutputArrayAnomsLand[:,:,:]  	
-
-    MyVarDS = ncfw.createVariable('anomalies_sea','f4',('time','latitude','longitude',),fill_value = mdi,zlib=True,least_significant_digit=4)
-    MyVarDS.standard_name = StandardNameDict[OutputVar]
-    MyVarDS.units = UnitDict[OutputVar]
-    MyVarDS.valid_min = np.min(FullOutputArrayAnomsSea)
-    MyVarDS.valid_max = np.max(FullOutputArrayAnomsSea)
-    MyVarDS.missing_value = mdi
-    # Provide the data to the variable - depending on howmany dimensions there are
-    MyVarDS[:,:,:] = FullOutputArrayAnomsSea[:,:,:]  	
-    	
-    ncfw.close()
+    print('Creating anomalies')
+    
+    FullArrayAnoms, LandArrayAnoms, OceanArrayAnoms, ClimsArray, StDevArray = CreateAnoms(OutputGrid,OutputTime,ClimStart,ClimEnd,styr,edyr,FullArray)
+        
+# Write out
+print('Writing out interim monthly array: ',OutputVar)
+# Now write out netcdf of field    
+WriteNetCDF(workingdir+'/OTHERDATA/'+NewERAStr,OutputTime, OutputGrid, OutputVar, FullArray, FullArrayAnoms, LandArrayAnoms, OceanArrayAnoms, ClimsArray, StDevArray,
+            styr, edyr, ClimStart, ClimEnd, NameDict[OutputVar], StandardNameDict[OutputVar], LongNameDict[OutputVar], UnitDict[OutputVar]) 
 
 print('And we are done!')
