@@ -145,7 +145,7 @@ stmon      = 1
 edmon      = 12
 
 # Set up output variables - for q, e, RH, dpd, Tw we will need to read in multiple input files
-OutputVar = 'q' # this can be 't','td','q','rh','e','dpd','tw','ws','slp','sp','uv','sst'
+OutputVar = 'dpd' # this can be 't','td','q','rh','e','dpd','tw','ws','slp','sp','uv','sst'
 
 # Is this a new run or an update?
 ThisProg = 'Regrid' 
@@ -199,7 +199,7 @@ if (OutputVar in ['t','td']): # these are the simple ones that do not require co
     if (ThisProg == 'Update'):
         OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
     else:
-        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr)+'.nc'
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+AnomsStr+ThisRean+'_data_1979'+str(edyr)+'.nc'
     NewERAStr   = OutputVar+'2m_'+OutputGrid+'_'+OutputTime+'_'+AnomsStr+ThisRean+'_data_1979'+updateyyyy+'.nc'
 
 elif (OutputVar in ['ws','uv']):
@@ -207,7 +207,7 @@ elif (OutputVar in ['ws','uv']):
     if (ThisProg == 'Update'):
         OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
     else:
-        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr)+'.nc'
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+AnomsStr+ThisRean+'_data_1979'+str(edyr)+'.nc'
     NewERAStr   = OutputVar+'10m_'+OutputGrid+'_'+OutputTime+'_'+AnomsStr+ThisRean+'_data_1979'+updateyyyy+'.nc'
 
 elif (OutputVar in ['slp','sp','sst']):
@@ -215,7 +215,7 @@ elif (OutputVar in ['slp','sp','sst']):
     if (ThisProg == 'Update'):
         OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
     else:
-        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr)+'.nc'
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+AnomsStr+ThisRean+'_data_1979'+str(edyr)+'.nc'
     NewERAStr   = OutputVar+'_'+OutputGrid+'_'+OutputTime+'_'+AnomsStr+ThisRean+'_data_1979'+updateyyyy+'.nc'
 
 elif (OutputVar in ['tw','q','rh','e','dpd']): # these require T, Td and SLP
@@ -223,7 +223,7 @@ elif (OutputVar in ['tw','q','rh','e','dpd']): # these require T, Td and SLP
     if (ThisProg == 'Update'):
         OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr-1)+'.nc'
     else:
-        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+ThisRean+'_data_1979'+str(edyr)+'.nc'
+        OldERAStr   = OutputVar+'2m_'+ReadInGrid+'_'+ReadInTime+'_'+AnomsStr+ThisRean+'_data_1979'+str(edyr)+'.nc'
     NewERAStr   = OutputVar+'2m_'+OutputGrid+'_'+OutputTime+'_'+AnomsStr+ThisRean+'_data_1979'+updateyyyy+'.nc'
 	
     # Might have some other options
