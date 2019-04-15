@@ -163,7 +163,7 @@ mclimst =     1981	# could be 1976 or 1981
 mclimed =     2010	# could be 2005 or 2010
 
 # *** CHOOSE WHETHER TO SUB-SELECT A DOMAIN IF NOT HADISDH ***
-domain =     'land'	# 'land','marine','blend'
+domain =     'marine'	# 'land','marine','blend'
 
 # *** CHOOSE WHETHER TO WORK WITH ANOMALIES OR ACTUALS - COULD ADD RENORMALISATION IF DESIRED ***
 isanom =     True	# 'false' for actual values, 'true' for anomalies
@@ -708,11 +708,12 @@ nhem_mask_3d = np.repeat(nhem_mask[np.newaxis,:,:],nmons, axis = 0)
 shem_mask_3d = np.repeat(shem_mask[np.newaxis,:,:],nmons, axis = 0)
 trop_mask_3d = np.repeat(trop_mask[np.newaxis,:,:],nmons, axis = 0)
 
-CoverTS = np.empty(nmons,dtype = float)
-CoverTS.fill(mdi)
-glob_avg_ts,CoverTS = AreaMean(TheData,lats,global_mask_3d,CoverTS)
+#CoverTS = np.empty(nmons,dtype = float)
+#CoverTS.fill(mdi)
+#glob_avg_ts,CoverTS = AreaMean(TheData,lats,global_mask_3d,CoverTS)
+glob_avg_ts = AreaMean(TheData,lats,global_mask_3d)
 print(len(glob_avg_ts),np.max(glob_avg_ts),np.min(glob_avg_ts))
-pdb.set_trace()
+#pdb.set_trace()
 
 nhem_avg_ts = AreaMean(TheData,lats,nhem_mask_3d)
 print(len(nhem_avg_ts),np.max(nhem_avg_ts),np.min(nhem_avg_ts))
