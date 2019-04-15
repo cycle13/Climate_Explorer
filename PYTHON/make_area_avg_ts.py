@@ -142,7 +142,7 @@ nowmon =     'APR'
 nowyear =    '2019'
 
 # *** CHOOSE PARAMETER ***
-param =      'q'	#'dpd','td','t','tw','e','q','rh','w','evap'
+param =      't'	#'dpd','td','t','tw','e','q','rh','w','evap'
 
 # *** CHOOSE TYPE OF DATA ***
 homogtype =  'ERA-Interim'	#'PHA','ID','DPD', 'RAW', 'OTHER', 'BLEND','BLENDship','MARINE','MARINEship','ERA-Interim', 'ERA5'
@@ -155,7 +155,8 @@ version =    '4.1.0.2018f' # 3.0.0.3016p 1.0.0.2016p
 workingdir = 'UPDATE'+str(edyr)
 
 # *** CHOOSE WHETHER TO MASK WITH HadISDH IF NOT HadISDH ***
-mask =       False	# default = 'false', if 'true' then mask to HadISDH equivalent
+# IF mask=True then you will need version, thenmon, thenyear to be correct
+mask = True     	# default = 'false', if 'true' then mask to HadISDH equivalent
 # MASKFILE (HadISDH set up values)
 mstyr =       1973	# 1850, 1973, 1950, 1880
 medyr =       2018	# 2013, 2011
@@ -163,7 +164,7 @@ mclimst =     1981	# could be 1976 or 1981
 mclimed =     2010	# could be 2005 or 2010
 
 # *** CHOOSE WHETHER TO SUB-SELECT A DOMAIN IF NOT HADISDH ***
-domain =     'marine'	# 'land','marine','blend'
+domain =     'land'	# 'land','marine','blend'
 
 # *** CHOOSE WHETHER TO WORK WITH ANOMALIES OR ACTUALS - COULD ADD RENORMALISATION IF DESIRED ***
 isanom =     True	# 'false' for actual values, 'true' for anomalies
@@ -646,16 +647,16 @@ if (mask == True):
            		 ('LonSlice',[0,nlons])]) 
 	
     if (isanom == True):
-        ReadInfo = [varname+'_anoms','time']
+        ReadInfo = [param+'_anoms']
     else:
-        ReadInfo = [varname+'_abs','time']
+        ReadInfo = [param+'_abs']
 
     print('Reading in the mask data for :',homogtype)
-    TmpVals,Latitudes,Longitudes = GetGrid4Slice(infile,ReadInfo,SliceInfo,LatInfo,LonInfo)
+    TmpVals,Latitudes,Longitudes = GetGrid4Slice(maskfile,ReadInfo,SliceInfo,LatInfo,LonInfo)
 
     # Seperate out data and times
-    MSKTheData = TmpVals[0]
-    MSKTimes = TmpVals[1]
+    MSKTheData = TmpVals
+#    MSKTimes = TmpVals[1]
     TmpVals = []
   
     # Check the mdis = IDL output netCDF differs from Python output
@@ -664,7 +665,8 @@ if (mask == True):
         MSKTheData[bads] = mdi
   
     # mask out points in candidate that do not have data in the mask
-    bads = np.where(MSKTheData<= mdi)
+    bads = np.where(MSKTheData <= mdi)
+#    pdb.set_trace()
     if (len(bads[0]) > 0):
         TheData[bads] = mdi
     
