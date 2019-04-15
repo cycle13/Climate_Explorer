@@ -3,7 +3,7 @@
 # 
 # Author: Kate Willett
 # Created: 18 Jul 2018
-# Last update: 19 Jul 2018
+# Last update: 15 Apr 2019
 # Location: /data/local/hadkw/HADCRUH2/UPDATE2017/PROGS/PYTHON/	
 # GitHub: https://github.com/Kate-Willett/HadISDH_Build					
 # -----------------------
@@ -13,7 +13,10 @@
 # NOTE THAT FOR ANY 1BY1 OUTPUT IT REGRIDS TO BE 89.5 to -89.5 rather than 90 - -90 (180 boxes rather than 181!!!)
 # AND ROLLS LONGITUDE TO -179.5 to 179.5
 #
-# AT THE MOMENT THIS ASSUMES COMPLETE FIELDS SO WON'T WORK FOR SST!!!
+# AT THE MOMENT THIS ASSUMES COMPLETE FIELDS SO WON'T WORK FOR SST!!! 
+#
+# ANOTHER ISSUE IS LAND / SEA MASKING - TOO MUCH LAND COVER, TOO MUCH SEA COVER - SO THERE WILL BE CONTAMINATION!
+# I COMPUTE ANOMALIES AT 1by1 RES BEFORE REGRIDDING TO 5by5 TO MINIMISE THIS>
 #
 #
 # This code reads in the ERA-Interim months of 1by1 6 hourly or monthly variables
@@ -189,9 +192,9 @@ updateyy  = str(edyr)[2:4]
 updateyyyy  = str(edyr)
 workingdir  = '/data/users/hadkw/WORKING_HADISDH/UPDATE'+updateyyyy
 
-if (OutputGrid == '5by5'):
+if (ReadInGrid == '5by5'):
     LandMask = workingdir+'/OTHERDATA/HadCRUT.4.3.0.0.land_fraction.nc' # 0 = 100% sea, 1 = 100% land - no islands!, latitude, longitude, land_area_fraction, -87.5 to 87.5, -177.5 to 177.5
-elif (OutputGrid == '1by1'):
+elif (ReadInGrid == '1by1'):
     LandMask = workingdir+'/OTHERDATA/lsmask.nc' # 1 = sea, 0 = land - no islands! lat, lon, mask 89.5 to -89.5Lat, 0.5 to 359.5 long 
 
 if (OutputVar in ['t','td']): # these are the simple ones that do not require conversion
@@ -354,7 +357,7 @@ def GetHumidity(TheTDat,TheTdDat,TheSPDat,TheVar):
 
 #************************************************************
 # RegridField
-def RegridField(TheOutputGrid,TheOldData,TheNewData):
+def RegridField(TheOutputGrid,TheOldData):
     '''
     This function does a simple regridding of data by averaging over the larger gridboxes
     NO COSINE WEIGHTING FOR LATITUDE!!!!
@@ -368,7 +371,6 @@ def RegridField(TheOutputGrid,TheOldData,TheNewData):
     INPUTS:
     TheOutputGrid - string of 1by1 or 5by5
     TheOldData[:,:,:] - time, lat, long numpy array of complete field in original grid resolution
-    TheNewData[:,:,:] - time, lat, long numpy array of complete field in new grid resolution
     OUTPUTS:
     TheNewData[:,:,:] - time, lat, long numpy array of complete field in new grid resolution
     
@@ -376,9 +378,14 @@ def RegridField(TheOutputGrid,TheOldData,TheNewData):
     
     '''
     
+    # Set up the desired output array
+    TheNewData = np.empty((len(TheOldData[:,0,0]),nlatsOut,nlonsOut),dtype = float)
+    TheNewData.fill(mdi)
+    
     if (TheOutputGrid == '1by1'):
 
-        # regrid to 0.5 by 0.5 degree gridboxes and then reaverage over 89.5 to -89.5 lats 
+        # Then we know we're reading in original ERA-Interim or ERA5 data which has 181 lats
+	# regrid to 0.5 by 0.5 degree gridboxes and then reaverage over 89.5 to -89.5 lats 
         # shift lons back to -179.5 to 179.5 from 0 to 359
         # regrid to 5by5
 	
@@ -397,9 +404,11 @@ def RegridField(TheOutputGrid,TheOldData,TheNewData):
         for tt in range(len(TheNewData[:,0,0])):
             TheNewData[tt,:,:] = np.roll(TheNewData[tt,:,:],180,axis = 1)
 		
-    if (OutputGrid == '5by5'):
+    if (TheOutputGrid == '5by5'):
 
-        # flip lats to go south to north
+        # Then we know we're reading in my converted ERA-Interim / ERA5 data which has 180 lats and already has lons rolled 180 degrees.
+	
+	# flip lats to go south to north
         # regrid to 5by5
 
         # Regrid to 5by5 by simple averaging
@@ -440,7 +449,7 @@ def RegridField(TheOutputGrid,TheOldData,TheNewData):
     
 #************************************************************
 # BuildField
-def BuildField(TheOutputVar, TheInputTime, TheOutputTime, InFileStr, TheStYr, TheEdYr, TheNewData):
+def BuildField(TheOutputVar, TheInputTime, TheOutputTime, InFileStr, TheStYr, TheEdYr):
     ''' function for building complete reanalyses files over the period specified 
         this can be very computationally expensive so do it by year
 	This requires initial reanalysis data to be read in in chunks of 1 year
@@ -457,11 +466,16 @@ def BuildField(TheOutputVar, TheInputTime, TheOutputTime, InFileStr, TheStYr, Th
 	InFileStr - string of dir+file string to read in 
 	TheStYr = integer start year of data - assume Jan 1st (0101) start 
 	TheEdYr = integer end year of data - assume Dec 31st (1231) end	
-	TheNewData[:,:,:] - time, lat, long numpy array of complete field in new time resolution
 	OUTPUTS:
 	TheNewData[:,:,:] - time, lat, long numpy array of complete field in new time resolution
 	
 	'''
+    # Set up the desired output array 
+    if (TheOutputTime == 'monthly'):
+        TheNewData = np.empty((nmons,nlatsOut,nlonsOut),dtype = float)
+    elif (TheOutputTime == 'pentad'):
+        TheNewData = np.empty((npts,nlatsOut,nlonsOut),dtype = float)
+    TheNewData.fill(mdi)
 
     # The input grids are different to the output grids (181 lat boxes rather than 180) so we need a TmpNewData first
     TmpNewData = np.empty((len(TheNewData[:,0,0]),nlatsIn,nlonsIn),dtype = float)
@@ -598,23 +612,23 @@ def BuildField(TheOutputVar, TheInputTime, TheOutputTime, InFileStr, TheStYr, Th
            TmpData = 0 
 	   
     # Now regrid to 180 latitude boxes 89.5 to -89.5 and longitude from -179.5 to 179.5	
-    TheNewData = RegridField('1by1',TmpNewData,TheNewData)  
+    TheNewData = RegridField('1by1',TmpNewData)  
 
     return TheNewData
         
 #************************************************************
 # CreateAnoms
-def CreateAnoms(TheOutputGrid,TheOutputTime,TheClimSt,TheClimEd,TheStYr,TheEdYr,TheInData):
+def CreateAnoms(TheInputGrid,TheOutputTime,TheClimSt,TheClimEd,TheStYr,TheEdYr,TheInData):
     '''
     This function takes any grid and any var, computes climatologies/stdevs over given period and then anomalies
     It also outputs land only and ocean only anomalies dependning on the grid
-    if (OutputGrid == '5by5'):
+    if (TheInputGrid == '5by5'):
     LandMask = workingdir+'/OTHERDATA/HadCRUT.4.3.0.0.land_fraction.nc' # 0 = 100% sea, 1 = 100% land - no islands!, latitude, longitude, land_area_fraction, -87.5 to 87.5, -177.5 to 177.5
-    elif (OutputGrid == '1by1'):
+    elif (TheInputGrid == '1by1'):
     LandMask = workingdir+'/OTHERDATA/lsmask.nc' # 1 = sea, 0 = land - no islands! lat, lon, mask 89.5 to -89.5Lat, 0.5 to 359.5 long 
     
     INPUTS:
-    TheOutputGrid - string of 1by1 or 5by5 to determine the land mask to use 
+    TheInputGrid - string of 1by1 or 5by5 to determine the land mask to use 
     TheOutputTime - string of monthly or pentad
     TheClimSt - interger start year of climatology Always Jan start
     TheClimEd - integer end  year of climatology Always Dec end
@@ -637,10 +651,9 @@ def CreateAnoms(TheOutputGrid,TheOutputTime,TheClimSt,TheClimEd,TheStYr,TheEdYr,
     elif (TheOutputTime == 'pentad'):
         nclims = 73	
     nyrs = (TheEdYr - TheStYr) + 1	
-    
-    
+        
     # Get land/sea mask and format accordingly
-    if (TheOutputGrid == '1by1'):
+    if (TheInputGrid == '1by1'):
         MaskData,Lats,Longs = GetGrid4(LandMask,['mask'],['lat'],['lon']) 
 	# Check shape and force to be 2d
         if (len(np.shape(MaskData)) == 3):
@@ -651,7 +664,7 @@ def CreateAnoms(TheOutputGrid,TheOutputTime,TheClimSt,TheClimEd,TheStYr,TheEdYr,
         land = np.where(MaskData == 0)
         MaskData[np.where(MaskData == 1)] = 0
         MaskData[land] = 1
-    elif (TheOutputGrid == '5by5'):
+    elif (TheInputGrid == '5by5'):
         MaskData,Lats,Longs = GetGrid4(LandMask,['land_area_fraction'],LatInfo,LonInfo) 
         if (len(np.shape(MaskData)) == 3):
             MaskData = np.reshape(MaskData,(36,72))
@@ -665,8 +678,8 @@ def CreateAnoms(TheOutputGrid,TheOutputTime,TheClimSt,TheClimEd,TheStYr,TheEdYr,
     StDevsArr = np.copy(AllAnomsArr[0:nclims,:,:])
         
     # loop through gridboxes
-    for lt in range(nlatsOut):
-        for ln in range(nlonsOut):
+    for lt in range(len(TheInData[0,:,0])):
+        for ln in range(len(TheInData[0,0,:])):
 	
 	    # pull out gridbox and reform to years by nclims (months or pentads)
             SingleSeries = np.reshape(TheInData[:,lt,ln],(nyrs,nclims)) # nyrs rows, nclims columns
@@ -911,13 +924,6 @@ print('Output Time and Grid: ',OutputTime,OutputGrid)
 print('Type of run: ',ThisProg, styr, edyr, MakeAnoms)
 print('Reanalysis: ',ThisRean)
 
-# Set up the desired output array - OutputGrid monthly interim arrays will be saved
-if (OutputTime == 'monthly'):
-    FullArray = np.empty((nmons,nlatsOut,nlonsOut),dtype = float)
-elif (OutputTime == 'pentad'):
-    FullArray = np.empty((npts,nlatsOut,nlonsOut),dtype = float)
-FullArray.fill(mdi)
-
 # For ThisProg = Convert or Update read in monthly or pentad 1by1 (to present or previous year)
 if (ThisProg != 'Build'):
 
@@ -929,6 +935,13 @@ if (ThisProg != 'Build'):
     if (ThisProg == 'Update'):
 
         print('Creating Update')
+
+        # Set up the desired output array 
+        if (OutputTime == 'monthly'):
+            FullArray = np.empty((nmons,nlatsOut,nlonsOut),dtype = float)
+        elif (OutputTime == 'pentad'):
+            FullArray = np.empty((npts,nlatsOut,nlonsOut),dtype = float)
+        FullArray.fill(mdi)
 
         # Build the most recent year
         if (OutputTime == 'monthly'):
@@ -944,33 +957,85 @@ if (ThisProg != 'Build'):
         elif (OutputTime == 'pentad'):
             FullArray[0:npts-73,:,:] = TheData
             FullArray[npts-73:nmons,:,:] = RecentField
+
+        # Do we need to create anomalies?
+        # Just in case we don't, create blank arrays for write out
+        FullArrayAnoms = 0 
+        LandArrayAnoms = 0 
+        OceanArrayAnoms = 0 
+        ClimsArray = 0
+        StDevArray = 0
+        if (MakeAnoms == 1):
+
+            print('Creating anomalies')
+    
+            FullArrayAnoms, LandArrayAnoms, OceanArrayAnoms, ClimsArray, StDevArray = CreateAnoms(ReadInGrid,OutputTime,ClimStart,ClimEnd,styr,edyr,FullArray)
+
 		
     elif (ThisProg == 'Regrid'):
 
         print('Creating Regrid')
 
-        # Regrid the field to desired resolution
-        FullArray = RegridField(OutputGrid,TheData,FullArray)
+        # Do we need to create anomalies?
+        # Just in case we don't, create blank arrays for write out
+        FullArrayAnoms = 0 
+        LandArrayAnoms = 0 
+        OceanArrayAnoms = 0 
+        ClimsArray = 0
+        StDevArray = 0
+        if (MakeAnoms == 1):
+
+            print('Creating anomalies')
+    
+            TheDataAnoms, LandDataAnoms, OceanDataAnoms, ClimsDataArray, StDevDataArray = CreateAnoms(ReadInGrid,OutputTime,ClimStart,ClimEnd,styr,edyr,TheData)
+            #pdb.set_trace()
+
+        # Regrid the fields to desired resolution
+        FullArray = RegridField(OutputGrid,TheData)
+        if (MakeAnoms == 1):
+            FullArrayAnoms = RegridField(OutputGrid,TheDataAnoms)
+            LandArrayAnoms = RegridField(OutputGrid,LandDataAnoms)
+            OceanArrayAnoms = RegridField(OutputGrid,OceanDataAnoms)
+            ClimsArray = RegridField(OutputGrid,ClimsDataArray)
+            StDevArray = RegridField(OutputGrid,StDevDataArray)
+
 	
 # For ThisProg = Build then loop through the decs for Build only
 elif (ThisProg == 'Build'):
 
     print('Creating Build')
 
-    FullArray = BuildField(OutputVar, ReadInTime, OutputTime, workingdir+'/OTHERDATA/'+InputERA, styr, edyr, FullArray)
+    FullArray = BuildField(OutputVar, ReadInTime, OutputTime, workingdir+'/OTHERDATA/'+InputERA, styr, edyr)
 
-# Do we need to create anomalies?
-# Just in case we don't, create blank arrays for write out
-FullArrayAnoms = 0 
-LandArrayAnoms = 0 
-OceanArrayAnoms = 0 
-ClimsArray = 0
-StDevArray = 0
-if (MakeAnoms == 1):
+    # Do we need to create anomalies?
+    # Just in case we don't, create blank arrays for write out
+    FullArrayAnoms = 0 
+    LandArrayAnoms = 0 
+    OceanArrayAnoms = 0 
+    ClimsArray = 0
+    StDevArray = 0
+    if (MakeAnoms == 1):
 
-    print('Creating anomalies')
+        print('Creating anomalies')
     
-    FullArrayAnoms, LandArrayAnoms, OceanArrayAnoms, ClimsArray, StDevArray = CreateAnoms(OutputGrid,OutputTime,ClimStart,ClimEnd,styr,edyr,FullArray)
+        FullArrayAnoms, LandArrayAnoms, OceanArrayAnoms, ClimsArray, StDevArray = CreateAnoms(ReadInGrid,OutputTime,ClimStart,ClimEnd,styr,edyr,FullArray)
+
+
+# I've moved the anomaly bit to before any regridding because its better to do this (and the land / sea masking 
+# at the highest resolution stage
+
+## Do we need to create anomalies?
+## Just in case we don't, create blank arrays for write out
+#FullArrayAnoms = 0 
+#LandArrayAnoms = 0 
+#OceanArrayAnoms = 0 
+#ClimsArray = 0
+#StDevArray = 0
+#if (MakeAnoms == 1):
+#
+#    print('Creating anomalies')
+#    
+#    FullArrayAnoms, LandArrayAnoms, OceanArrayAnoms, ClimsArray, StDevArray = CreateAnoms(OutputGrid,OutputTime,ClimStart,ClimEnd,styr,edyr,FullArray)
         
 # Write out
 print('Writing out interim monthly array: ',OutputVar)
