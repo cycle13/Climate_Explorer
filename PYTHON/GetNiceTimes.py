@@ -162,7 +162,7 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon,TheInterval,Return_Boundarie
                 DayMid = DayMid - MonthDays[TheMonth]
                 TheMonth = TheMonth + 1
 		
-            print('Check pentad: ',pp, ThePT, TheMonth, DayMid, TheYear)
+            #print('Check pentad: ',pp, ThePT, TheMonth, DayMid, TheYear)
             
             DaysArray[pp] = (datetime(TheYear,TheMonth+1,DayMid,0,0,0) - StartDate).days + 0.5
             

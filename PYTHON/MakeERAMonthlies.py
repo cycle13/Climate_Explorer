@@ -1,3 +1,5 @@
+# REDUNDANT CODE - USE ExtractMergeRegridERA...
+
 #!/usr/local/sci/bin/python
 # PYTHON2.7
 # 

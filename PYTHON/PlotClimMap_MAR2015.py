@@ -138,8 +138,10 @@ from ReadNetCDF import GetGrid
 # Generic things:******************************************
 
 # What variable?
-MyVar = 'q' # q, rh, e, t, td, tw, dpd
-MyVarBig = 'q' # q, RH, e, T, Td, Tw, DPD
+MyVar = 'td' # q, rh, e, t, td, tw, dpd
+MyVarBig = 'Td' # q, RH, e, T, Td, Tw, DPD
+# letter to annotate figure with
+Letty=['d)']
 
 # What Dataset
 MyBundle = 'marine' # 'marine','land','blend','ERA-Interim' 
@@ -206,7 +208,6 @@ MonthlyData = []
 ClimData = []
 LatList = []
 LonList = []
-Letty=['a)']
 
 
 #**********************************************************
@@ -249,22 +250,22 @@ if (MyBundle == 'land'):
 if (MyBundle == 'marine'):
 
 # Bias corrected version SHIP	
-#    if (MyVar == 'dpd'):
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
-#    elif (MyVar == 'td'):
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
-#    else:
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
-#    OUTPLOT='ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_'+nowmon+nowyear
-
-# bias corrected version ALL
     if (MyVar == 'dpd'):
-        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
     elif (MyVar == 'td'):
-        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
     else:
-        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
-    OUTPLOT='ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_'+nowmon+nowyear
+        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+    OUTPLOT='ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_'+nowmon+nowyear
+
+## bias corrected version ALL
+#    if (MyVar == 'dpd'):
+#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+#    elif (MyVar == 'td'):
+#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+#    else:
+#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+#    OUTPLOT='ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_'+nowmon+nowyear
 
 
 ## QC'd, no bias corrected version SHIP

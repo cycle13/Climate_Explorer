@@ -1,3 +1,5 @@
+# REDUNDANT CODE - USE ExtractMergeRegridERA...
+
 #!/usr/local/sci/bin/python
 # PYTHON2.7
 # 
@@ -129,7 +131,7 @@ from ReadNetCDF import GetGrid4
 # Set up initial run choices
 # Start and end years
 styr       = 1979
-edyr       = 2017
+edyr       = 2018
 edOLD      = (edyr-styr)*12
 stmon      = 1
 edmon      = 12
@@ -137,11 +139,12 @@ edmon      = 12
 # Set up file locations
 updateyy  = str(edyr)[2:4]
 updateyyyy  = str(edyr)
-workingdir  = '/data/local/hadkw/HADCRUH2/UPDATE'+updateyyyy
+workingdir  = '/data/users/hadkw/WORKING_HADISDH/UPDATE'+updateyyyy
 
 OldERAStr   = '2m_monthly_1by1_ERA-Interim_data_1979'+str(edyr-1)+'.nc'
 NewERAStr   = '2m_monthly_1by1_ERA-Interim_data_1979'+updateyyyy+'.nc'
-UpdateERAStr = 'ERAINTERIM_6hr_1by1_'
+#UpdateERAStr = 'ERAINTERIM_6hr_1by1_'
+UpdateERAStr = 'ERA-Interim_1by1_6hr_'
 
 # Set up variables
 mdi = -1e30
@@ -183,17 +186,17 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon):
     TheMonth=TheStMon
     for mm in range(len(DaysArray)):
         if (TheMonth < 12):
-	    DaysArray[mm]=(datetime(TheYear,TheMonth+1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
-	    BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
-	    BoundsArray[mm,1]=(datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
+            DaysArray[mm]=(datetime(TheYear,TheMonth+1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
+            BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+            BoundsArray[mm,1]=(datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
         else:
-	    DaysArray[mm]=(datetime(TheYear+1,1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
-	    BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
-	    BoundsArray[mm,1]=(datetime(TheYear+1,1,1,0,0,0)-StartDate).days
-	TheMonth=TheMonth+1
-	if (TheMonth == 13):
-	    TheMonth=1
-	    TheYear=TheYear+1
+            DaysArray[mm]=(datetime(TheYear+1,1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
+            BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+            BoundsArray[mm,1]=(datetime(TheYear+1,1,1,0,0,0)-StartDate).days
+        TheMonth=TheMonth+1
+        if (TheMonth == 13):
+            TheMonth=1
+            TheYear=TheYear+1
 	    
     return DaysArray,BoundsArray
 
@@ -212,11 +215,27 @@ else:
     mnarr    = [31,28,31,30,31,30,31,31,30,31,30,31]
     
 print('TestLeap: ',mnarr[1])
+StMPointer = 0
+EdMPointer = 0
 
 # Read in the New Files for each month
 ReadInfo = ['sp','t2m','d2m']
 LatInfo = ['latitude'] 
 LonInfo = ['longitude'] 
+
+
+# Try to read in whole year and then work but may need to just slice out month
+# DOES automatically unpack the scale and offset 
+# However, SP is Pa and T and Td are Kelvin
+# This kills memory so need to be tidy
+FileName = workingdir+'/OTHERDATA/'+UpdateERAStr+'sp_'+updateyyyy+'0101'+updateyyyy+'1231.nc'
+TmpDataP,Lats,Lons = GetGrid4(FileName,[ReadInfo[0]],LatInfo,LonInfo)
+
+FileName = workingdir+'/OTHERDATA/'+UpdateERAStr+'t2m_'+updateyyyy+'0101'+updateyyyy+'1231.nc'
+TmpDataT,Lats,Lons = GetGrid4(FileName,[ReadInfo[1]],LatInfo,LonInfo)
+
+FileName = workingdir+'/OTHERDATA/'+UpdateERAStr+'td2m_'+updateyyyy+'0101'+updateyyyy+'1231.nc'
+TmpDataTd,Lats,Lons = GetGrid4(FileName,[ReadInfo[2]],LatInfo,LonInfo)
 
 for m in range(12):
     # string for file name
@@ -228,19 +247,29 @@ for m in range(12):
     
     print('Reading in Month: ',mm)
 
-    # DOES automatically unpack the scale and offset 
-    # However, SP is Pa and T and Td are Kelvin
-    # This kills memory so need to be tidy
-    FileName = workingdir+'/OTHERDATA/'+UpdateERAStr+mm+updateyyyy+'.nc'
+#    # DOES automatically unpack the scale and offset 
+#    # However, SP is Pa and T and Td are Kelvin
+#    # This kills memory so need to be tidy
+#    FileName = workingdir+'/OTHERDATA/'+UpdateERAStr+updateyyyy+'0101'+updateyyyy+'1231.nc'#
+#
+#    TmpData,Lats,Lons = GetGrid4(FileName,ReadInfo,LatInfo,LonInfo)
 
-    TmpData,Lats,Lons = GetGrid4(FileName,ReadInfo,LatInfo,LonInfo)
+    # Get the pointers in 6hourlies for this month
+    StMPointer = np.copy(EdMPointer)
+    EdMPointer = EdMPointer + mnarr[m]*4
+    print('Month pointers: ',StMPointer, EdMPointer)  
+ 
+#    # Unpack into month of t, td, and sp
+#    T_Data  = np.copy(TmpData[1][StMPointer:EdMPointer,:,:]-273.15)
+#    Td_Data = np.copy(TmpData[2][StMPointer:EdMPointer,:,:]-273.15)
+#    SP_Data = np.copy(TmpData[0][StMPointer:EdMPointer,:,:]/100)
+#    # Empty the TmpData array
+#    TmpData = 0
 
     # Unpack into month of t, td, and sp
-    T_Data  = np.copy(TmpData[1]-273.15)
-    Td_Data = np.copy(TmpData[2]-273.15)
-    SP_Data = np.copy(TmpData[0]/100)
-    # Empty the TmpData array
-    TmpData = 0
+    T_Data  = np.copy(TmpDataT[StMPointer:EdMPointer,:,:]-273.15)
+    Td_Data = np.copy(TmpDataTd[StMPointer:EdMPointer,:,:]-273.15)
+    SP_Data = np.copy(TmpDataP[StMPointer:EdMPointer,:,:]/100)
 
     # Convert to desired humidity variable
     # Start with vapour pressure - automatically does ice bulb!!!

@@ -177,11 +177,11 @@ import pdb	# for stopping and restarting with editability (stop is pdb.set_trace
 # Generic things:******************************************
 
 # Do you want boundary boxes or pluses?
-TrendSig = '+' # 'BB' for boundary boxes, '+' for plus sign
+TrendSig = 'BB' # 'BB' for boundary boxes, '+' for plus sign
 
 # Do you want the latitudinal distribution plotting?
 # NOTE: This will affect the filename
-LatDist = False # True for having the latitudinal distribution, False for not
+LatDist = True # True for having the latitudinal distribution, False for not
 
 # Missing data
 mdi=-1e30 # may set up as masked arrays later
@@ -237,9 +237,9 @@ Letty=['a)','b)']
 # Run choice bundle for input/output files, units, names, letters, read in varnames, colourmap
 
 # CHOOSE/ADD A DICTIONARY BUNDLE!!!
-MyBundle = 'HadISDH.landq.ID'
+#MyBundle = 'HadISDH.landq.ID'
 #MyBundle = 'HadISDH.landRH.ID'
-#MyBundle = 'HadISDH.landT.ID'
+MyBundle = 'HadISDH.landT.ID'
 #MyBundle = 'HadISDH.landTw.ID'
 #MyBundle = 'HadISDH.lande.ID'
 #MyBundle = 'HadISDH.landTd.DPD'
