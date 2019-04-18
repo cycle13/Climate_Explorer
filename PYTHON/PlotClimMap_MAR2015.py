@@ -138,13 +138,16 @@ from ReadNetCDF import GetGrid
 # Generic things:******************************************
 
 # What variable?
-MyVar = 'td' # q, rh, e, t, td, tw, dpd
-MyVarBig = 'Td' # q, RH, e, T, Td, Tw, DPD
+MyVar = 'q' # q, rh, e, t, td, tw, dpd
+MyVarBig = 'q' # q, RH, e, T, Td, Tw, DPD
 # letter to annotate figure with
 Letty=['a)']
 
 # What Dataset
 MyBundle = 'ERA-Interim' # 'marine','land','blend','ERA-Interim' 
+
+# Do you want to make up the best colour ranges or use set ones?
+StandardRange = 1 # 1 for use standard set up or 0 for figure it out in the code
 
 # What period do you want?
 MyPeriod = 'ANN' # 'ANN','JAN','FEB','MAR','APR etc or 'MAM','JJA','SON','DJF'
@@ -355,7 +358,7 @@ if (MyBundle == 'ERA-Interim'):
 #************************************************************************
 # PlotClimMap
 def PlotClimMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,ThePeriod,
-                    TheUnitee,TheLetter,ColourMapChoice,IsLand):
+                    TheUnitee,TheLetter,ColourMapChoice,IsLand, StandardRange):
     ''' Create a masked array of clims
         Plot clims on map
         Save as eps and png '''
@@ -431,12 +434,32 @@ def PlotClimMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,ThePeriod,
     #cmaplist.remove(cmaplist[(cmap.N/2)-10:(cmap.N/2)+10]) # remove the very pale colours in the middle
     cmap=cmap.from_list('this_cmap',cmaplist,cmap.N)
     
+    print('COLOUR RANGE: ',StandardRange, TheUnitee,ColourMapChoice[0])
+    if (StandardRange == 0):
+        # work out best max and min values for colourbar and try to make them 'nice
+        # must be an odd number of steps
+        # for less than 0.1 must be 14 or fewer steps
+        vmax=np.int(np.ceil(np.max(MSKTheCandData)))    
+        vmin=np.int(np.floor(np.min(MSKTheCandData))) 
     
-    # work out best max and min values for colourbar and try to make them 'nice
-    # must be an odd number of steps
-    # for less than 0.1 must be 14 or fewer steps
-    vmax=np.int(np.ceil(np.max(MSKTheCandData)))    
-    vmin=np.int(np.floor(np.min(MSKTheCandData))) 
+    else:
+        # Use the standard range for vmin and vmax
+        if (TheUnitee == 'g kg$^{-1}$'):
+            vmin = 1.
+            vmax = 20.
+        elif (TheUnitee == '%rh'):
+            vmin = 69.
+            vmax = 90.
+        elif (TheUnitee == '$^{o}$ C'):
+            if (ColourMapChoice[0] == 'BrBG'):	
+                vmin = -5.
+                vmax = 25
+            else:
+                vmin = -2.
+                vmax = 30.
+    
+    print('COLOUR RANGE: ',vmin,vmax)
+    
     nsteps = 9
     
     bounds=np.linspace(vmin,vmax,nsteps)
@@ -520,7 +543,7 @@ for ltt in range(nlats):
 	    
 
 # pass to plotter
-PlotClimMap(OUTPLOT,PctLand,LatList,LonList,CandData,MyPeriod,Unit,Letty,ColourMapChoice,IsLand)
+PlotClimMap(OUTPLOT,PctLand,LatList,LonList,CandData,MyPeriod,Unit,Letty,ColourMapChoice,IsLand, StandardRange)
 		
 #    stop()
 
