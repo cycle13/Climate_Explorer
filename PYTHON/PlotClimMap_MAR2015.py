@@ -141,10 +141,10 @@ from ReadNetCDF import GetGrid
 MyVar = 'td' # q, rh, e, t, td, tw, dpd
 MyVarBig = 'Td' # q, RH, e, T, Td, Tw, DPD
 # letter to annotate figure with
-Letty=['d)']
+Letty=['a)']
 
 # What Dataset
-MyBundle = 'marine' # 'marine','land','blend','ERA-Interim' 
+MyBundle = 'ERA-Interim' # 'marine','land','blend','ERA-Interim' 
 
 # What period do you want?
 MyPeriod = 'ANN' # 'ANN','JAN','FEB','MAR','APR etc or 'MAM','JJA','SON','DJF'
@@ -214,13 +214,13 @@ LonList = []
 # Run choice bundle for input/output files, units, names, letters, read in varnames, colourmap
 if (MyBundle == 'land'):
     if (MyVar == 'dpd'):
-        candidate='HadISDH.land'+MyVarBig+'.'+version+'_FLATgridPHA5by5_anoms8110_'+thenmon+thenyear+'_cf'
+        MyFile = INDIR+'HadISDH.land'+MyVarBig+'.'+version+'_FLATgridPHA5by5_anoms8110_'+thenmon+thenyear+'_cf.nc'
     elif (MyVar == 'td'):
-        candidate='HadISDH.land'+MyVarBig+'.'+version+'_FLATgridPHADPD5by5_anoms8110_'+thenmon+thenyear+'_cf'
+        MyFile = INDIR+'HadISDH.land'+MyVarBig+'.'+version+'_FLATgridPHADPD5by5_anoms8110_'+thenmon+thenyear+'_cf.nc'
     else:
-        candidate='HadISDH.land'+MyVarBig+'.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_cf'
+        MyFile = INDIR+'HadISDH.land'+MyVarBig+'.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_cf.nc'
 
-    OUTPLOT='ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.land'+MyVarBig+'.'+version+'_'+nowmon+nowyear
+    OUTPLOT = OUTDIR+'ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.land'+MyVarBig+'.'+version+'_'+nowmon+nowyear
 
     if (MyVar == 'q'):
         Unit='g kg$^{-1}$'  #'degrees C'
@@ -251,31 +251,31 @@ if (MyBundle == 'marine'):
 
 # Bias corrected version SHIP	
     if (MyVar == 'dpd'):
-        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
     elif (MyVar == 'td'):
-        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
     else:
-        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
-    OUTPLOT='ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_'+nowmon+nowyear
+        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
+    OUTPLOT = OUTDIR+'ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_BClocalSHIP5by5both_'+nowmon+nowyear
 
 ## bias corrected version ALL
 #    if (MyVar == 'dpd'):
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+#        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
 #    elif (MyVar == 'td'):
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+#        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
 #    else:
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf'
-#    OUTPLOT='ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_'+nowmon+nowyear
+#        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
+#    OUTPLOT = OUTDIR+'ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_BClocal5by5both_'+nowmon+nowyear
 
 
 ## QC'd, no bias corrected version SHIP
 #    if (MyVar == 'dpd'):
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_NBCSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+#        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_NBCSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
 #    elif (MyVar == 'td'):
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_NBCSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
+#        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_NBCSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
 #    else:
-#        candidate='HadISDH.marine'+MyVarBig+'.'+version+'_NBCSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf'
-#    OUTPLOT='ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_NBCSHIP5by5both_'+nowmon+nowyear
+#        MyFile = INDIR+'HadISDH.marine'+MyVarBig+'.'+version+'_NBCSHIP5by5both_anoms8110_'+thenmon+thenyear+'_cf.nc'
+#    OUTPLOT = OUTDIR+'ClimMap_'+MyPeriod+'_'+climchoice+'_HadISDH.marine'+MyVarBig+'.'+version+'_NBCSHIP5by5both_'+nowmon+nowyear
 
     if (MyVar == 'q'):
         Unit='g kg$^{-1}$'  #'degrees C'
@@ -318,6 +318,36 @@ if (MyBundle == 'BLEND_HadISDH.landq'):
     ReadInfo=list(['q_MPtrend','q_MP5th','q_MP95th'])
     ColourMapChoice=('BrBG','noflip')
     IsLand = None # True for land, False for marine, None for blend
+
+if (MyBundle == 'ERA-Interim'):
+    MyFile = INDIRO+MyVar+'2m_5by5_monthly_anoms1981-2010_ERA-Interim_data_19792018.nc'
+
+    OUTPLOT = OUTDIR+'ClimMap_'+MyPeriod+'_'+climchoice+'_ERA-Interim_'+MyVarBig+'_'+nowmon+nowyear
+
+    if (MyVar == 'q'):
+        Unit='g kg$^{-1}$'  #'degrees C'
+    elif (MyVar == 'e'):
+        Unit='hPa'  #'degrees C'
+    elif (MyVar == 'rh'):
+        Unit='%rh'  #'degrees C'
+    else:
+        Unit='$^{o}$ C'  #'degrees C'
+
+    #Namey='HadISDH.landq.'+version+' decadal trends '+trendchoice
+    nlats=36	       #set once file read in
+    nlons=72	       #set once file read in
+#    LatInfo=list(['latitude',nlats,-87.5])
+#    LonInfo=list(['longitude',nlons,-177.5])
+    LatInfo=list(['latitude'])
+    LonInfo=list(['longitude'])
+    ReadInfo=list([MyVar+'2m_clims'])
+    if (MyVar == 't'):
+        ColourMapChoice=('coolwarm','noflip')
+    elif (MyVar == 'dpd'):
+        ColourMapChoice=('BrBG','flip')
+    else:    
+        ColourMapChoice=('BrBG','noflip')   
+    IsLand = True # True for land, False for marine, None for blend
 
 
 #************************************************************************
@@ -450,7 +480,6 @@ def PlotClimMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,ThePeriod,
 # MAIN PROGRAM
 #************************************************************************
 # read in climatology fields
-MyFile=INDIR+candidate+'.nc'
 AllCandData,LatList,LonList=GetGrid4(MyFile,ReadInfo,LatInfo,LonInfo)
 PctLand,LLatList,LLonList=GetGrid(INDIRO+incover+'.nc',['land_area_fraction'],['latitude'],['longitude'])
 
@@ -491,8 +520,7 @@ for ltt in range(nlats):
 	    
 
 # pass to plotter
-MyFile=OUTDIR+OUTPLOT
-PlotClimMap(MyFile,PctLand,LatList,LonList,CandData,MyPeriod,Unit,Letty,ColourMapChoice,IsLand)
+PlotClimMap(OUTPLOT,PctLand,LatList,LonList,CandData,MyPeriod,Unit,Letty,ColourMapChoice,IsLand)
 		
 #    stop()
 
