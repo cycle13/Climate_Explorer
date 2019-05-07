@@ -1,18 +1,79 @@
 #!/usr/local/sci/bin/python
-
-#***************************************
-# 1 April 2014 KMW - v1
-# Plots TIME SERIES with uncertainties for each region other than globe
+# PYTHON3
+# 
+# Author: Kate Willett
+# Created: 22 April 2014
+# Last update: 5 May 2019
+# Location: /data/users/hadkw/WORKING_HADISDH/UPDATE2018/PROGS/PYTHON/	# this will probably change
+# GitHub: https://github.com/Kate-Willett/Climate_Explorer/tree/master/PYTHON/
+# -----------------------
+# CODE PURPOSE AND OUTPUT
+# -----------------------
+# Plots regional average timeseries for all variables with uncertainty estimates
+# 
+# -----------------------
+# LIST OF MODULES
+# -----------------------
+# Inbuilt:
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import numpy.ma as ma
+# import sys, os
+# import scipy.stats
+# import struct
+# import cartopy.crs as ccrs
+# import cartopy.feature as cpf
+# import datetime as dt
+# from matplotlib.dates import date2num,num2date
+# from scipy.io import netcdf
+# import matplotlib.colors as mc
+# import matplotlib.cm as mpl_cm
+# import pdb
+#
+# Other:
+# from RandomsRanges import LetterRange
+# from LinearTrends import MedianPairwise
+# 
+# -----------------------
+# DATA
+# -----------------------
+# directory for timeseries with uncertainties - these will have been created by PROGS/HADISDH_BUILD/hadisdh_error_calculations.py:
+# /data/users/hadkw/WORKING_HADISDH/UPDATE2018/STATISTICS/TIMESERIES/:
+# 	HadISDH.<domain><var>.<version>_<region>_ts_<timeres>_anoms8110_<mon><year>.dat
+# 
+# -----------------------
+# HOW TO RUN THE CODE
+# -----------------------
+# Set up the editables as desired: land or marine, region, version, thenmon, thenyear, nowmon, nowyear, start year, end year
+# >module load scitools/default-current
+# >python PlotGlobRegionTimeSeries_MAR2018.py
+# 
+# -----------------------
+# OUTPUT
+# -----------------------
+# directory for output images:
+# /data/users/hadkw/WORKING_HADISDH/UPDATE2018/IMAGES/TIMESERIES/
+# 		Plot<domain><region>TimeSeries.<version>_<timeres>_anoms8110_<nowmon><nowyear>.png/eps
+#
+# -----------------------
+# VERSION/RELEASE NOTES
+# -----------------------
+#
+# Version 1 (5 May 2019)
+# ---------
+#  
+# Enhancements
+#  
+# Changes
+#  
+# Bug fixes
+#
+#  
+# -----------------------
+# OTHER INFORMATION
+# -----------------------
 #
 #************************************************************************
-#                                 START
-#************************************************************************
-# USE python2.7
-# python2.7 PlotRegionsTimeSeries_MAY2014.py
-#
-# REQUIRES
-# RandomsRanges.py
-# LinearTrends.py
 #************************************************************************
 # Set up python imports
 import matplotlib.pyplot as plt
@@ -22,7 +83,7 @@ import scipy.stats
 import struct
 import os.path
 import math
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
 import datetime as dt
 from matplotlib.dates import date2num,num2date
 #from netCDF4 import Dataset
@@ -32,6 +93,7 @@ from RandomsRanges import LetterRange
 from LinearTrends import MedianPairwise
 
 # Set up initial run choices
+RegChoice = 'Trop' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
 timetype='annual'	#'monthly', 'annual'
 nparams=7
 param=list(['t','tw','td','q','e','rh','dpd'])	# tw, q, e, rh, t, td, dpd
@@ -40,13 +102,15 @@ param3=list(['T','T$_{w}$','T$_{d}$','q','e','RH','DPD'])	# Tw, q, e, RH, T, Td,
 unitees=list(['$^{o}$C','$^{o}$C','$^{o}$C','g kg$^{-1}$','hPa','%rh','$^{o}$C'])
 homogtype=list(['IDPHA','IDPHA','PHADPD','IDPHA','IDPHA','IDPHA','PHA'])	# 'IDPHA','PHA','PHADPD'
 
-nowmon='MAR'
-nowyear='2018'
-thenmon='MAR'
-thenyear='2018'
-version='4.0.0.2017f'
+Domain = 'marine' # land or marine
+nowmon='MAY'
+nowyear='2019'
+thenmon='FEB'
+thenyear='2019'
+#version='4.1.0.2018f'
+version='1.0.0.2018f'
 styr=1973
-edyr=2017
+edyr=2018
 nyrs=(edyr-styr)+1
 nmons=(nyrs)*12
 climst=1981
@@ -56,12 +120,15 @@ edcl=climed-styr
 
 # Set up directories and files
 
-PLOTDIR='/data/local/hadkw/HADCRUH2/UPDATE'+str(edyr)+'/IMAGES/TIMESERIES/'
-DATADIR='/data/local/hadkw/HADCRUH2/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
+PLOTDIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/IMAGES/TIMESERIES/'
+DATADIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
 
 IfType='.dat'	#'.nc'
-RegChoice = 'Trop' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
-INHFILEST='HadISDH.land'
+if (Domain == 'land'):
+    INHFILEST='HadISDH.land'
+elif (Domain == 'marine'):
+    INHFILEST='HadISDH.marine'
+
 #INHFILEED='5by5_'+thenmon+thenyear+'_areaTS_19732013'
 if (RegChoice == 'Glob'):
     if timetype == 'monthly':
@@ -83,7 +150,7 @@ elif (RegChoice == 'Trop'):
         INHFILEED='.'+version+'_tropics_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
     else:
         INHFILEED='.'+version+'_tropics_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
-OUTPLOT='Plot'+RegChoice+'TimeSeries.'+version+'_'+timetype+'_anoms8110_'+nowmon+nowyear
+OUTPLOT='Plot'+Domain+RegChoice+'TimeSeries.'+version+'_'+timetype+'_anoms8110_'+nowmon+nowyear
 
 # Set up variables
 mdi=-1e30
@@ -154,10 +221,10 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
         mon=1
         for m in range(TheMCount):
             TheMonths.append(dt.date(yr,mon,1))
-	    mon=mon+1
-	    if mon == 13:
-	        mon=1
-	        yr=yr+1   
+            mon=mon+1
+            if mon == 13:
+                mon=1
+                yr=yr+1   
         TheMonths=np.array(TheMonths)	    
     else:
         TheMonths=[]
@@ -165,7 +232,7 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
         mon=1
         for y in range(TheYCount):
             TheMonths.append(dt.date(yr,mon,1))
-	    yr=yr+1   
+            yr=yr+1   
         TheMonths=np.array(TheMonths)	    
     
     xtitlee='Years'
@@ -180,9 +247,9 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
     totalxspace=0.85	# start 0.12 end 0.98
     for n in range(nplots):
         xpos.append(0.10)
-	ypos.append(0.98-((n+1)*(totalyspace/nplots)))
-	xfat.append(totalxspace)
-	ytall.append(totalyspace/nplots)
+        ypos.append(0.98-((n+1)*(totalyspace/nplots)))
+        xfat.append(totalxspace)
+        ytall.append(totalyspace/nplots)
     
     f,axarr=plt.subplots(nplots,figsize=(7,12),sharex=False)	#6,18
     
@@ -193,51 +260,51 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
         print(TheHuncsSp[pp,0:10])
         print(TheHuncsSt[pp,0:10])
 	#axarr[pp].set_size(14)
-	axarr[pp].set_position([xpos[pp],ypos[pp],xfat[pp],ytall[pp]])
+        axarr[pp].set_position([xpos[pp],ypos[pp],xfat[pp],ytall[pp]])
         if TheTimeType == 'monthly':
-	    axarr[pp].set_xlim([TheMonths[0],TheMonths[TheMCount-1]])
-	else:
-	    axarr[pp].set_xlim([TheMonths[0],TheMonths[TheYCount-1]])
-	if pp < nplots-1:
-	    axarr[pp].set_xticklabels([])    
-	miny=min(np.reshape(TheHvars[pp,:],(TheYCount-1)))-max(np.reshape(TheHuncsC[pp,:],(TheYCount-1)))  
-	maxy=max(np.reshape(TheHvars[pp,:],(TheYCount-1)))+max(np.reshape(TheHuncsC[pp,:],(TheYCount-1)))  
-	axarr[pp].set_ylim([(math.floor(10.*miny))/10.,(math.ceil(10.*maxy))/10.])
-	if len(TheHuncsC[pp,:]) > 0:
-	    axarr[pp].fill_between(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:]+TheHuncsC[pp,:],TheHvars[pp,:]-TheHuncsC[pp,:],
-	                   facecolor='Gold',edgecolor='none')
-	    axarr[pp].fill_between(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:]+TheHuncsSp[pp,:],TheHvars[pp,:]-TheHuncsSp[pp,:],
-	                   facecolor='OrangeRed',edgecolor='none')
-	    axarr[pp].fill_between(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:]+TheHuncsSt[pp,:],TheHvars[pp,:]-TheHuncsSt[pp,:],
-	                   facecolor='DeepSkyBlue',edgecolor='none')
+            axarr[pp].set_xlim([TheMonths[0],TheMonths[TheMCount-1]])
+        else:
+            axarr[pp].set_xlim([TheMonths[0],TheMonths[TheYCount-1]])
+        if pp < nplots-1:
+            axarr[pp].set_xticklabels([])    
+        miny=min(np.reshape(TheHvars[pp,:],(TheYCount-1)))-max(np.reshape(TheHuncsC[pp,:],(TheYCount-1)))  
+        maxy=max(np.reshape(TheHvars[pp,:],(TheYCount-1)))+max(np.reshape(TheHuncsC[pp,:],(TheYCount-1)))  
+        axarr[pp].set_ylim([(math.floor(10.*miny))/10.,(math.ceil(10.*maxy))/10.])
+        if len(TheHuncsC[pp,:]) > 0:
+            axarr[pp].fill_between(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:]+TheHuncsC[pp,:],TheHvars[pp,:]-TheHuncsC[pp,:],
+                           facecolor='Gold',edgecolor='none')
+            axarr[pp].fill_between(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:]+TheHuncsSp[pp,:],TheHvars[pp,:]-TheHuncsSp[pp,:],
+                           facecolor='OrangeRed',edgecolor='none')
+            axarr[pp].fill_between(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:]+TheHuncsSt[pp,:],TheHvars[pp,:]-TheHuncsSt[pp,:],
+                           facecolor='DeepSkyBlue',edgecolor='none')
 			   
-	if timetype == 'monthly':
-	    axarr[pp].plot(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:],
-	        c='black',linewidth=0.25)
-	else:
-	    axarr[pp].plot(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:],
-	        c='black',linewidth=0.5)
+        if timetype == 'monthly':
+            axarr[pp].plot(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:],
+                c='black',linewidth=0.25)
+        else:
+            axarr[pp].plot(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:],
+                c='black',linewidth=0.5)
 	
-	axarr[pp].annotate(Letteree[pp]+') '+TheParams[pp],xy=(0.03,0.86),
-	          xycoords='axes fraction',size=12)
+        axarr[pp].annotate(Letteree[pp]+') '+TheParams[pp],xy=(0.03,0.86),
+                  xycoords='axes fraction',size=12)
 
 # get linear trend and annotate (does this work with masked arrays?)
         lintrend=[0.,0.,0.] # median, 5th adn 95th percentile rate of change per time step
         lintrend=MedianPairwise(TheHvars[pp,:],TheMDI,lintrend)
         if timetype == 'monthly':
-	    linstr="%5.2f (%5.2f to %5.2f) %s decade$^{-1}$ " % (lintrend[0]*120,lintrend[1]*120,lintrend[2]*120,TheUnitees[pp])
+            linstr="%5.2f (%5.2f to %5.2f) %s decade$^{-1}$ " % (lintrend[0]*120,lintrend[1]*120,lintrend[2]*120,TheUnitees[pp])
         else:
-	    linstr="%5.2f (%5.2f to %5.2f) %s decade$^{-1}$ " % (lintrend[0]*10,lintrend[1]*10,lintrend[2]*10,TheUnitees[pp])
+            linstr="%5.2f (%5.2f to %5.2f) %s decade$^{-1}$ " % (lintrend[0]*10,lintrend[1]*10,lintrend[2]*10,TheUnitees[pp])
 
-	axarr[pp].annotate(linstr,xy=(0.5,0.08),xycoords='axes fraction',size=12,ha='center')
+        axarr[pp].annotate(linstr,xy=(0.5,0.08),xycoords='axes fraction',size=12,ha='center')
 	 
         axarr[pp].set_ylabel(TheUnitees[pp],fontsize=12)
         if TheTimeType == 'monthly':
-	    axarr[pp].hlines(0,TheMonths[0],TheMonths[TheMCount-1],
-	        color='black',linewidth=0.5)
+            axarr[pp].hlines(0,TheMonths[0],TheMonths[TheMCount-1],
+                color='black',linewidth=0.5)
         else:
-	    axarr[pp].hlines(0,TheMonths[0],TheMonths[TheYCount-1],
-	        color='black',linewidth=0.5)
+            axarr[pp].hlines(0,TheMonths[0],TheMonths[TheYCount-1],
+                color='black',linewidth=0.5)
 	
     axarr[0].annotate(RegString,xy=(0.5,0.84),
              xycoords='axes fraction',size=16,ha='center')
@@ -297,22 +364,22 @@ for nv in range(nparams):
         elif param[nv]=='e':
             var=f.variables['glob_e_anoms']
         elif param[nv]=='rh':
-	    var=f.variables['glob_RH_anoms']
+            var=f.variables['glob_RH_anoms']
         elif param[nv]=='t':
-	    var=f.variables['glob_T_anoms']
+            var=f.variables['glob_T_anoms']
         elif param[nv]=='tw':
-	    var=f.variables['glob_Tw_anoms']
+            var=f.variables['glob_Tw_anoms']
         elif param[nv]=='td':
-	    var=f.variables['glob_Td_anoms']
+            var=f.variables['glob_Td_anoms']
         elif param[nv]=='dpd':
-	    var=f.variables['glob_DPD_anoms']	    
+            var=f.variables['glob_DPD_anoms']	    
         f.close()
-	tmpvar=np.array(var.data)
+        tmpvar=np.array(var.data)
     else:	# its a text file
         MyDatFile=DATADIR+INHFILEST+param2[nv]+FILIN
         MyTypes=("|S10","float","float","float","float","float")
         MyDelimiters=[10,11,11,11,11,11]
-	MySkips=0
+        MySkips=0
         RawData=ReadData(MyDatFile,MyTypes,MyDelimiters,MySkips)
         tmpvar=np.array(RawData['f1'])
         tmpvarUcov=np.array(RawData['f3'])
@@ -322,18 +389,18 @@ for nv in range(nparams):
     
     # rezero HadISDH to non 1981-2010 anomalies if not 1981-2010 - ASSUME NO MISSING DATA!!!
     if (climst != 1981) | (climed != 2010):
-	print('Renorming...')
+        print('Renorming...')
         if timetype == 'monthly':
             tmpvar=np.reshape(tmpvar,(nyrs,12))
             for mm in range(12):
                 subarr=tmpvar[:,mm]
-	        climarr=subarr[stcl:edcl]
-	        subarr[:]=subarr[:]-np.mean(climarr)
-	        tmpvar[:,mm]=subarr[:]
+                climarr=subarr[stcl:edcl]
+                subarr[:]=subarr[:]-np.mean(climarr)
+                tmpvar[:,mm]=subarr[:]
             varH[nv,:]=np.reshape(tmpvar,(1,nmons))
         else:
             climarr=tmpvar[stcl:edcl]
-	    tmpvar[:]=tmpvar[:]-np.mean(climarr)
+            tmpvar[:]=tmpvar[:]-np.mean(climarr)
             varH[nv,nr,:]=np.reshape(tmpvar,(1,nyrs))
        
     # Still need to populate main array   
@@ -384,7 +451,7 @@ print('Plotting...')
 MyFile=PLOTDIR+OUTPLOT
 PlotNiceTimeSeries(MyFile,varH,uncsHcov,uncsHsamp,uncsHstat,
                        unitees,nmons,nyrs,timetype,styr,edyr,mdi,
-		       param3,RegChoice)
+        	       param3,RegChoice)
 		
 #    stop()
 
