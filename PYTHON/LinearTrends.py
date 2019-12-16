@@ -196,12 +196,27 @@ def OLS_AR1Corr(TheData,TheMDI): # ,Lowee=Lowee,Highee=Highee):
     #pdb.set_trace()
     
     # Now get the original 1 sigma standard error which uses n-2 degrees of freedom and then calculate the corrected one
-
-    # We need the AR(1) valuee and shoudl probably test to make sure the data are autocorrelated - this test cannot deal with missing data though
     # First we need to use masked arrays to make sure we account for missing data
     TheDataMSK = np.ma.masked_equal(TheData,TheMDI) # better hope that this captures them all and nothing silly with floats
+
+# We need the AR(1) correlation of the regression residuals, not the actual datapoints
+#    # We need the AR(1) valuee and shoudl probably test to make sure the data are autocorrelated
+#    # Using the np.ma.corrcoef works even if all data are present
+#    Lag1AR = np.ma.corrcoef(TheDataMSK[0:-1],TheDataMSK[1:])[0][1]
+#    print('Autocorrelation at lag 1: ',Lag1AR) 
+#    #pdb.set_trace()
+    
+    # Now get the time series of regression residuals for each data point
+    # First create a masked array of missing data
+    TheResids = np.ma.masked_equal(np.repeat(TheMDI,len(TheDataMSK)),TheMDI)
+    # Get a pointer array to the non-missing data
+    MaskofPoints = np.where(np.ma.getmask(TheDataMSK) == False)
+    # Subtract the predicted values for each time point from the actual values
+    TheResids[MaskofPoints] = TheDataMSK[MaskofPoints] - olsres.predict() # if there are missing values then these won't be predicted so we need to fill back in
+
+    # We need the AR(1) values of the regression residuals and shoudl probably test to make sure the data are autocorrelated
     # Using the np.ma.corrcoef works even if all data are present
-    Lag1AR = np.ma.corrcoef(TheDataMSK[0:-1],TheDataMSK[1:])[0][1]
+    Lag1AR = np.ma.corrcoef(TheResids[0:-1],TheResids[1:])[0][1]
     print('Autocorrelation at lag 1: ',Lag1AR) 
     #pdb.set_trace()
 
@@ -213,14 +228,6 @@ def OLS_AR1Corr(TheData,TheMDI): # ,Lowee=Lowee,Highee=Highee):
     print('Original no. time points: ',nORIG)
     print('Effective no. time points: ',nEFF)
     #pdb.set_trace()
-    
-    # Now get the time series of regression residuals for each data point
-    # First create a masked array of missing data
-    TheResids = np.ma.masked_equal(np.repeat(TheMDI,len(TheDataMSK)),TheMDI)
-    # Get a pointer array to the non-missing data
-    MaskofPoints = np.where(np.ma.getmask(TheDataMSK) == False)
-    # Subtract the predicted values for each time point from the actual values
-    TheResids[MaskofPoints] = TheDataMSK[MaskofPoints] - olsres.predict() # if there are missing values then these won't be predicted so we need to fill back in
     
     # Now get the variance of the regression residuals s_e^2
     s_eSQ = (1 / (nEFF - 2)) * np.ma.sum(TheResids**2)
