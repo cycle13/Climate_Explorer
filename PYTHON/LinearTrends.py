@@ -252,7 +252,15 @@ def OLS_AR1Corr(TheData,TheMDI,ThePvalue): # ,Lowee=Lowee,Highee=Highee):
     if ((ThePvalue < 0.) | (ThePvalue > 1.)):
         raise Exception("invalid p-value - should be between 0 and 1")    
 
-    # Set up empty list for returning the output values of the slope per unit time, lower (10th pct) CI, upper (90th pct) CI]
+    # Set up empty list for returning the output values
+    #    - slope per unit time,
+    #    - lower (10th pct) CI,
+    #    - upper (90th pct) CI]
+    #    - 1 sigma SE
+    #    - The +/- confidence interval for the given p value
+    #    - AR(1) correlation in the residuals
+    #    - the effective degrees of freedom
+    #    - 
     TheSlope=np.array([0.,0.,0.,0.,0.,0.,0.])		# median, 5th adn 95th percentile rate of change per time step
 
     # Convert the data to a pandas dataframe?
@@ -261,9 +269,10 @@ def OLS_AR1Corr(TheData,TheMDI,ThePvalue): # ,Lowee=Lowee,Highee=Highee):
     gots = np.where(TheDataNANs == TheMDI)
 
     # ADD A CATCH FOR No. Data points < 3 as in KAPLAN
-    if (len(gots[0] == len(TheData))):
+    if (len(gots[0]) == len(TheData)):
         TheSlope[0:7] = TheMDI
-        print('Fewer than 3 valid data points')
+#        print('Fewer than 3 valid data points')
+#        pdb.set_trace()
         return TheSlope
     # Tested
     
@@ -280,19 +289,12 @@ def OLS_AR1Corr(TheData,TheMDI,ThePvalue): # ,Lowee=Lowee,Highee=Highee):
     # olsmod.predict() prints the predicted values using the model fit, including intercept
     # olsmod.bse prints the standard errors (1 sigma using n-2 degrees of freedom) 0 = intercept, 1 = variable
     TheSlope[0] = olsres.params[1]
-    print('Decadal Trend: ',np.round(TheSlope[0]*120,4))
+#    print('Decadal Trend: ',np.round(TheSlope[0]*120,4))
     #pdb.set_trace()
     
     # Now get the original 1 sigma standard error which uses n-2 degrees of freedom and then calculate the corrected one
     # First we need to use masked arrays to make sure we account for missing data
     TheDataMSK = np.ma.masked_equal(TheData,TheMDI) # better hope that this captures them all and nothing silly with floats
-
-# We need the AR(1) correlation of the regression residuals, not the actual datapoints
-#    # We need the AR(1) valuee and shoudl probably test to make sure the data are autocorrelated
-#    # Using the np.ma.corrcoef works even if all data are present
-#    Lag1AR = np.ma.corrcoef(TheDataMSK[0:-1],TheDataMSK[1:])[0][1]
-#    print('Autocorrelation at lag 1: ',Lag1AR) 
-#    #pdb.set_trace()
     
     # Now get the time series of regression residuals for each data point
     # First create a masked array of missing data
@@ -312,16 +314,17 @@ def OLS_AR1Corr(TheData,TheMDI,ThePvalue): # ,Lowee=Lowee,Highee=Highee):
 
     # We need the AR(1) values of the regression residuals and shoudl probably test to make sure the data are autocorrelated
     # Using the np.ma.corrcoef works even if all data are present
+    # This ignores missing data points so isn't ideal - better to take the longest continuous period of data?
     Lag1AR = np.ma.corrcoef(TheResids[0:-1],TheResids[1:])[0][1]
     TheSlope[5] = Lag1AR
-    print('Autocorrelation at lag 1: ',np.round(Lag1AR,4)) 
+#    print('Autocorrelation at lag 1: ',np.round(Lag1AR,4)) 
     #pdb.set_trace()
 
     # ADD A CATCH FOR NEGATIVE AR(1) - as in Kaplan
     if (Lag1AR < 0.):
         TheSlope[0:5] = TheMDI
         TheSlope[6] = TheMDI
-        print('Negative AR(1)')
+#        print('Negative AR(1)')
         return TheSlope
     # Tested
     
@@ -331,14 +334,14 @@ def OLS_AR1Corr(TheData,TheMDI,ThePvalue): # ,Lowee=Lowee,Highee=Highee):
     # Now get the effective number of samples dependent on the degree of autocorrelation at lag 1
     nEFF = nORIG * ((1 - Lag1AR) / (1 + Lag1AR))
     TheSlope[6] = nEFF
-    print('Original no. time points: ',nORIG)
-    print('Effective no. time points: ',np.round(nEFF,4))
+#    print('Original no. time points: ',nORIG)
+#    print('Effective no. time points: ',np.round(nEFF,4))
     #pdb.set_trace()
 
     # ADD A CATCH FOR nEFF < 3 as in KAPLAN
     if (nEFF < 3):
         TheSlope[1:6] = TheMDI
-        print('Fewer than 3 effective degrees of freedom: ',nEFF)
+#        print('Fewer than 3 effective degrees of freedom: ',nEFF)
         return TheSlope
     # Tested
     
@@ -357,8 +360,8 @@ def OLS_AR1Corr(TheData,TheMDI,ThePvalue): # ,Lowee=Lowee,Highee=Highee):
     s_1sigORIG = (s_eSQORIG / np.sum((MaskofPoints - np.mean(MaskofPoints))**2))**0.5
     TheSlope[3] = s_1sig
 
-    print('Decade Original 1 sigma standard error: ',np.round(s_1sigORIG*120,4))
-    print('Decade Effective 1 sigma standard error: ',np.round(s_1sig*120,4))
+#    print('Decade Original 1 sigma standard error: ',np.round(s_1sigORIG*120,4))
+#    print('Decade Effective 1 sigma standard error: ',np.round(s_1sig*120,4))
     #pdb.set_trace()
     
     # Now find the 90th percentile confidence intervals by integrating the area under the assumed curve
@@ -368,11 +371,11 @@ def OLS_AR1Corr(TheData,TheMDI,ThePvalue): # ,Lowee=Lowee,Highee=Highee):
     # When later the slope may be multiplied to get decadal trend the standard errors should be multiplied likewise
     ConfInt = CI_tINV(s_1sig, ThePvalue, nEFF)
     TheSlope[4] = ConfInt
-    print('Confidence interval for the p-value ', ThePvalue,' :',np.round(ConfInt*120,4))
+#    print('Confidence interval for the p-value ', ThePvalue,' :',np.round(ConfInt*120,4))
     TheSlope[1] = TheSlope[0] - ConfInt
     TheSlope[2] = TheSlope[0] + ConfInt
 
-    print('Decade AR(1) corrected 90th pct standard error confidence intervals: ',np.round(TheSlope[1]*120,4),np.round(TheSlope[2]*120,4))
+#    print('Decade AR(1) corrected 90th pct standard error confidence intervals: ',np.round(TheSlope[1]*120,4),np.round(TheSlope[2]*120,4))
     #pdb.set_trace()
     
     return  TheSlope # ReadData
