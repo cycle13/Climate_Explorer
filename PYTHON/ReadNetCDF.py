@@ -173,8 +173,8 @@ def GetGrid(FileName,
     
     # If LatInfo is only 1 element long then read in the variable, else calculate using given nlats, start_lat
     if (len(LatInfo) == 1):
-        var=ncf.variables[LatInfo[0]]
-        TheLatList=np.array(var.data)
+        var = ncf.variables[LatInfo[0]]
+        TheLatList=np.array(np.copy(var.data))
     else:	
         if (LatInfo[1] < 0):
             TheLatList=np.arange(LatInfo[1], LatInfo[1]+180.,(180./LatInfo[0]))
@@ -183,8 +183,8 @@ def GetGrid(FileName,
 
     # If LonInfo is only 1 element long then read in the variable, else calculate using given nlons, start_lon
     if (len(LonInfo) == 1):
-        var=ncf.variables[LonInfo[0]]
-        TheLonList=np.array(var.data)
+        var = ncf.variables[LonInfo[0]]
+        TheLonList=np.array(np.copy(var.data))
     else:
         if (LonInfo[1] < 10):
             TheLonList=np.arange(LonInfo[1], LonInfo[1]+360.,(360./LonInfo[0]))
@@ -193,20 +193,21 @@ def GetGrid(FileName,
 
     # If ReadInfo is only 1 element long then read into a numpy array, else make a list of arrays and then read in all
     if (len(ReadInfo) == 1):
-        var=ncf.variables[ReadInfo[0]]
-        TheData=np.array(var.data) # times, lats, lons
+        var = ncf.variables[ReadInfo[0]]
+        TheData=np.array(np.copy(var.data)) # times, lats, lons
 	#pdb.set_trace()
     else:
         # Initialise TheData as a list
         TheData=[]
         for loo in range(len(ReadInfo)):
-            var=ncf.variables[ReadInfo[loo]]
+            var = ncf.variables[ReadInfo[loo]]
             #pdb.set_trace()
-            TmpData=np.array(var.data) # times, lats, lons
-            TheData.append(TmpData)	
+            #TmpData = np.array(var.data) # times, lats, lons
+            TheData.append(np.copy(np.array(var.data)))	
 
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)
+    var = '' # data must be copied and then original object released before being able to close the netCDF file!!!
     ncf.close()
     
     return TheData,TheLatList,TheLonList # GetGrid
@@ -295,6 +296,7 @@ def GetGrid4(FileName,
 
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)
+    var = '' # pointer to netCDF data must be released to close file
     ncf.close()
     
     return TheData,TheLatList,TheLonList # GetGrid4
@@ -399,6 +401,7 @@ def GetGrid4Slice(FileName,
 
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)
+    var = ''
     ncf.close()
 
     # Sort out the lons and lats to slice if necessary
