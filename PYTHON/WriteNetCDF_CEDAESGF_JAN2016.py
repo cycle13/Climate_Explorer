@@ -1,9 +1,9 @@
 #!/usr/local/sci/bin/python
-# PYTHON2.7
+# PYTHON3
 # 
 # Author: Kate Willett
 # Created: 8 January 2016
-# Last update: 8 January 2016
+# Last update: 6 April 2020
 # Location: /data/local/hadkw/HADCRUH2/UPDATE2014/PROGS/PYTHON/	
 # GitHub: https://github.com/Kate-Willett/Climate_Explorer/PYTHON/
 # -----------------------
@@ -95,6 +95,18 @@
 # VERSION/RELEASE NOTES
 # -----------------------
 # 
+# Version 2 6th Mar 2020
+# ---------
+#  
+# Enhancements
+# Can now work with marine data - not completed yet
+#  
+# Changes
+# Now python 3
+# Now doesn't apply scale and offset and so saves as float32 with MDI=-1e30
+#  
+# Bug fixes
+#  
 # Version 1 8th Jan 2016
 # ---------
 #  
@@ -175,18 +187,18 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon):
     TheMonth=TheStMon
     for mm in range(len(DaysArray)):
         if (TheMonth < 12):
-	    DaysArray[mm]=(datetime(TheYear,TheMonth+1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
-	    BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
-	    BoundsArray[mm,1]=(datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
+            DaysArray[mm]=(datetime(TheYear,TheMonth+1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days
+            BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+            BoundsArray[mm,1]=(datetime(TheYear,TheMonth+1,1,0,0,0)-StartDate).days
         else:
-	    DaysArray[mm]=(datetime(TheYear+1,1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
-	    BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
-	    BoundsArray[mm,1]=(datetime(TheYear+1,1,1,0,0,0)-StartDate).days
-	TheMonth=TheMonth+1
-	if (TheMonth == 13):
-	    TheMonth=1
-	    TheYear=TheYear+1
-	    
+            DaysArray[mm]=(datetime(TheYear+1,1,1,0,0,0)-datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days	
+            BoundsArray[mm,0]=(datetime(TheYear,TheMonth,1,0,0,0)-StartDate).days+1
+            BoundsArray[mm,1]=(datetime(TheYear+1,1,1,0,0,0)-StartDate).days
+        TheMonth=TheMonth+1
+        if (TheMonth == 13):
+            TheMonth=1
+            TheYear=TheYear+1
+            
     return DaysArray,BoundsArray
 
 #************************************************************************
@@ -206,8 +218,8 @@ def WriteNCCF(FileName,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
     # Sort out clim bounds - paired strings
     ClimBounds = np.empty((12,2),dtype='|S10')
     for mm in range(12):
-	ClimBounds[mm,0] = str(ClimPoints[0])+'-'+str(mm+1)+'-'+str(1)
-	ClimBounds[mm,1] = str(ClimPoints[1])+'-'+str(mm+1)+'-'+str(MonthDays[mm])
+        ClimBounds[mm,0] = str(ClimPoints[0])+'-'+str(mm+1)+'-'+str(1)
+        ClimBounds[mm,1] = str(ClimPoints[1])+'-'+str(mm+1)+'-'+str(MonthDays[mm])
 		
     # Sort out LatBounds and LonBounds
     LatBounds = np.empty((len(Latitudes),2),dtype='float')
@@ -221,11 +233,11 @@ def WriteNCCF(FileName,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
 	
     #pdb.set_trace()
     
-    # No need to convert float data using given scale_factor and add_offset to integers - done within writing program (packV = (V-offset)/scale
-    # Not sure what this does to float precision though...
-    # Change mdi into an integer -999 because these are stored as integers
-    for vv in range(len(DataObject)):
-        DataObject[vv][np.where(DataObject[vv] == OLDMDI)] = MDI
+#    # No need to convert float data using given scale_factor and add_offset to integers - done within writing program (packV = (V-offset)/scale
+#    # Not sure what this does to float precision though...
+#    # Change mdi into an integer -999 because these are stored as integers
+#    for vv in range(len(DataObject)):
+#        DataObject[vv][np.where(DataObject[vv] == OLDMDI)] = MDI
 
     # Create a new netCDF file - have tried zlib=True,least_significant_digit=3 (and 1) - no difference
     ncfw=Dataset(FileName,'w',format='NETCDF4_CLASSIC') # need to try NETCDF4 and also play with compression but test this first
@@ -296,72 +308,72 @@ def WriteNCCF(FileName,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
 	
 	# NOt 100% sure this works in a loop with overwriting
 	# initiate variable with name, type and dimensions
-	MyVar = ncfw.createVariable(DimObject[vv+2]['var_name'],DimObject[vv+2]['var_type'],DimObject[vv+2]['var_dims'])
+        MyVar = ncfw.createVariable(DimObject[vv+2]['var_name'],DimObject[vv+2]['var_type'],DimObject[vv+2]['var_dims'])
         
 	# Apply any other attributes
         if ('standard_name' in DimObject[vv+2]):
-	    MyVar.standard_name = DimObject[vv+2]['standard_name']
+            MyVar.standard_name = DimObject[vv+2]['standard_name']
 	    
         if ('long_name' in DimObject[vv+2]):
-	    MyVar.long_name = DimObject[vv+2]['long_name']
+            MyVar.long_name = DimObject[vv+2]['long_name']
 	    
         if ('units' in DimObject[vv+2]):
-	    MyVar.units = DimObject[vv+2]['units']
+            MyVar.units = DimObject[vv+2]['units']
 		   	 
         if ('axis' in DimObject[vv+2]):
-	    MyVar.axis = DimObject[vv+2]['axis']
+            MyVar.axis = DimObject[vv+2]['axis']
 
         if ('calendar' in DimObject[vv+2]):
-	    MyVar.calendar = DimObject[vv+2]['calendar']
+            MyVar.calendar = DimObject[vv+2]['calendar']
 
         if ('start_year' in DimObject[vv+2]):
-	    MyVar.start_year = DimObject[vv+2]['start_year']
+            MyVar.start_year = DimObject[vv+2]['start_year']
 
         if ('end_year' in DimObject[vv+2]):
-	    MyVar.end_year = DimObject[vv+2]['end_year']
+            MyVar.end_year = DimObject[vv+2]['end_year']
 
         if ('start_month' in DimObject[vv+2]):
-	    MyVar.start_month = DimObject[vv+2]['start_month']
+            MyVar.start_month = DimObject[vv+2]['start_month']
 
         if ('end_month' in DimObject[vv+2]):
-	    MyVar.end_month = DimObject[vv+2]['end_month']
+            MyVar.end_month = DimObject[vv+2]['end_month']
 
         if ('bounds' in DimObject[vv+2]):
-	    MyVar.bounds = DimObject[vv+2]['bounds']
+            MyVar.bounds = DimObject[vv+2]['bounds']
 
         if ('climatology' in DimObject[vv+2]):
-	    MyVar.climatology = DimObject[vv+2]['climatology']
+            MyVar.climatology = DimObject[vv+2]['climatology']
 
         if ('point_spacing' in DimObject[vv+2]):
-	    MyVar.point_spacing = DimObject[vv+2]['point_spacing']
+            MyVar.point_spacing = DimObject[vv+2]['point_spacing']
 	
 	# Provide the data to the variable
         if (DimObject[vv+2]['var_name'] == 'time'):
-	    MyVar[:] = TimPoints
+            MyVar[:] = TimPoints
 
         if (DimObject[vv+2]['var_name'] == 'bounds_time'):
-	    MyVar[:,:] = TimBounds
+            MyVar[:,:] = TimBounds
 
         if (DimObject[vv+2]['var_name'] == 'month'):
-	    for mm in range(12):
-	        MyVar[mm,:] = stringtoarr(MonthName[mm],10)
+            for mm in range(12):
+                MyVar[mm,:] = stringtoarr(MonthName[mm],10)
 
         if (DimObject[vv+2]['var_name'] == 'climbounds'):
-	    for mm in range(12):
-	        MyVar[mm,0,:] = stringtoarr(ClimBounds[mm,0],10)
-	        MyVar[mm,1,:] = stringtoarr(ClimBounds[mm,1],10)
+            for mm in range(12):
+                MyVar[mm,0,:] = stringtoarr(ClimBounds[mm,0],10)
+                MyVar[mm,1,:] = stringtoarr(ClimBounds[mm,1],10)
 
         if (DimObject[vv+2]['var_name'] == 'latitude'):
-	    MyVar[:] = Latitudes
+            MyVar[:] = Latitudes
 
         if (DimObject[vv+2]['var_name'] == 'bounds_lat'):
-	    MyVar[:,:] = LatBounds
+            MyVar[:,:] = LatBounds
 
         if (DimObject[vv+2]['var_name'] == 'longitude'):
-	    MyVar[:] = Longitudes
+            MyVar[:] = Longitudes
 
         if (DimObject[vv+2]['var_name'] == 'bounds_lon'):
-	    MyVar[:,:] = LonBounds
+            MyVar[:,:] = LonBounds
 
     # Go through each variable and set up the variable attributes
     for vv in range(len(AttrObject)): # ignore first two elements of the list but count all other dictionaries
@@ -370,60 +382,60 @@ def WriteNCCF(FileName,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
 
         # NOt 100% sure this works in a loop with overwriting
 	# initiate variable with name, type and dimensions
-	MyVar = ncfw.createVariable(AttrObject[vv]['var_name'],AttrObject[vv]['var_type'],AttrObject[vv]['var_dims'],fill_value = AttrObject[vv]['_FillValue'])
+        MyVar = ncfw.createVariable(AttrObject[vv]['var_name'],AttrObject[vv]['var_type'],AttrObject[vv]['var_dims'],zlib=True,fill_value = AttrObject[vv]['_FillValue'])
         
 	# Apply any other attributes
         if ('standard_name' in AttrObject[vv]):
-	    MyVar.standard_name = AttrObject[vv]['standard_name']
+            MyVar.standard_name = AttrObject[vv]['standard_name']
 	    
         if ('long_name' in AttrObject[vv]):
-	    MyVar.long_name = AttrObject[vv]['long_name']
+            MyVar.long_name = AttrObject[vv]['long_name']
 	    
         if ('cell_methods' in AttrObject[vv]):
-	    MyVar.cell_methods = AttrObject[vv]['cell_methods']
+            MyVar.cell_methods = AttrObject[vv]['cell_methods']
 	    
         if ('comment' in AttrObject[vv]):
-	    MyVar.comment = AttrObject[vv]['comment']
+            MyVar.comment = AttrObject[vv]['comment']
 	    
         if ('units' in AttrObject[vv]):
-	    MyVar.units = AttrObject[vv]['units']
+            MyVar.units = AttrObject[vv]['units']
 		   	 
         if ('axis' in AttrObject[vv]):
-	    MyVar.axis = AttrObject[vv]['axis']
+            MyVar.axis = AttrObject[vv]['axis']
 
-        if ('add_offset' in AttrObject[vv]):
-	    MyVar.add_offset = AttrObject[vv]['add_offset']
+#        if ('add_offset' in AttrObject[vv]):
+#            MyVar.add_offset = AttrObject[vv]['add_offset']
+#
+#        if ('scale_factor' in AttrObject[vv]):
+#            MyVar.scale_factor = AttrObject[vv]['scale_factor']
 
-        if ('scale_factor' in AttrObject[vv]):
-	    MyVar.scale_factor = AttrObject[vv]['scale_factor']
-
-        if ('valid_min' in AttrObject[vv]):
-	    MyVar.valid_min = AttrObject[vv]['valid_min']
-
-        if ('valid_max' in AttrObject[vv]):
-	    MyVar.valid_max = AttrObject[vv]['valid_max']
+#        if ('valid_min' in AttrObject[vv]):
+#            MyVar.valid_min = AttrObject[vv]['valid_min']#
+#
+#        if ('valid_max' in AttrObject[vv]):
+#            MyVar.valid_max = AttrObject[vv]['valid_max']
 
         if ('missing_value' in AttrObject[vv]):
-	    MyVar.missing_value = AttrObject[vv]['missing_value']
+            MyVar.missing_value = AttrObject[vv]['missing_value']
 
 #        if ('_FillValue' in AttrObject[vv]):
 #	    MyVar._FillValue = AttrObject[vv]['_FillValue']
 
         if ('reference_period' in AttrObject[vv]):
-	    MyVar.reference_period = AttrObject[vv]['reference_period']
+            MyVar.reference_period = AttrObject[vv]['reference_period']
 
         if ('ancillary_variables' in AttrObject[vv]):
-	    MyVar.ancillary_variables = AttrObject[vv]['ancillary_variables']
+            MyVar.ancillary_variables = AttrObject[vv]['ancillary_variables']
 	
 	# Provide the data to the variable - depending on howmany dimensions there are
         if (len(AttrObject[vv]['var_dims']) == 1):
-	    MyVar[:] = DataObject[vv]
+            MyVar[:] = DataObject[vv]
 	    
         if (len(AttrObject[vv]['var_dims']) == 2):
-	    MyVar[:,:] = DataObject[vv]
+            MyVar[:,:] = DataObject[vv]
 	    
         if (len(AttrObject[vv]['var_dims']) == 3):
-	    MyVar[:,:,:] = DataObject[vv]
+            MyVar[:,:,:] = DataObject[vv]
 	    
 	    
     ncfw.close()
