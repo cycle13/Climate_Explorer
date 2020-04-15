@@ -93,7 +93,7 @@ from RandomsRanges import LetterRange
 from LinearTrends import MedianPairwise
 
 # Set up initial run choices
-RegChoice = 'Trop' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
+RegChoice = 'Shem' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
 timetype='annual'	#'monthly', 'annual'
 nparams=7
 param=list(['t','tw','td','q','e','rh','dpd'])	# tw, q, e, rh, t, td, dpd
@@ -102,15 +102,15 @@ param3=list(['T','T$_{w}$','T$_{d}$','q','e','RH','DPD'])	# Tw, q, e, RH, T, Td,
 unitees=list(['$^{o}$C','$^{o}$C','$^{o}$C','g kg$^{-1}$','hPa','%rh','$^{o}$C'])
 homogtype=list(['IDPHA','IDPHA','PHADPD','IDPHA','IDPHA','IDPHA','PHA'])	# 'IDPHA','PHA','PHADPD'
 
-Domain = 'marine' # land or marine
-nowmon='MAY'
-nowyear='2019'
-thenmon='FEB'
-thenyear='2019'
-#version='4.1.0.2018f'
-version='1.0.0.2018f'
+Domain = 'land' # land or marine, marineSHIP
+nowmon='JAN'
+nowyear='2020'
+thenmon='JAN'
+thenyear='2020'
+version='4.2.0.2019f'
+#version='1.0.0.2019f'
 styr=1973
-edyr=2018
+edyr=2019
 nyrs=(edyr-styr)+1
 nmons=(nyrs)*12
 climst=1981
@@ -126,8 +126,12 @@ DATADIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/STATISTICS/TIMESE
 IfType='.dat'	#'.nc'
 if (Domain == 'land'):
     INHFILEST='HadISDH.land'
-elif (Domain == 'marine'):
+elif (Domain == 'marine') | (Domain == 'marineSHIP'):
     INHFILEST='HadISDH.marine'
+    
+    if (Domain == 'marineSHIP'):
+
+        version = version+'SHIP'    
 
 #INHFILEED='5by5_'+thenmon+thenyear+'_areaTS_19732013'
 if (RegChoice == 'Glob'):

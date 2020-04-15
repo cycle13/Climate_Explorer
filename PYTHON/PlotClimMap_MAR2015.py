@@ -138,13 +138,13 @@ from ReadNetCDF import GetGrid
 # Generic things:******************************************
 
 # What variable?
-MyVar = 'q' # q, rh, e, t, td, tw, dpd
-MyVarBig = 'q' # q, RH, e, T, Td, Tw, DPD
+MyVar = 'td' # q, rh, e, t, td, tw, dpd
+MyVarBig = 'Td' # q, RH, e, T, Td, Tw, DPD
 # letter to annotate figure with
-Letty=['a)']
+Letty=['d)']
 
 # What Dataset
-MyBundle = 'ERA-Interim' # 'marine','land','blend','ERA-Interim' 
+MyBundle = 'marine' # 'marine','land','blend','ERA-Interim' 
 
 # Do you want to make up the best colour ranges or use set ones?
 StandardRange = 1 # 1 for use standard set up or 0 for figure it out in the code

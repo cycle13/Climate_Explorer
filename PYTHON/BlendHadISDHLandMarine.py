@@ -59,7 +59,7 @@
 # -----------------------
 # HOW TO RUN THE CODE
 # -----------------------
-# modul load scitools/experimental-current
+# modul load scitools/default-current
 # python BlendHadISDHLandMarine.py 
 # 
 # -----------------------
@@ -114,7 +114,7 @@ from GetNiceTimes import MakeDaysSince
 
 # Set up variables
 StYr = 1973 
-EdYr = 2018
+EdYr = 2019
 StMn = 1 
 EdMn = 12
 platform = 'ship' # 'all'
@@ -124,17 +124,17 @@ if (platform == 'ship'):
 else:
     PT = ''
     
-NowMon = 'FEB'
-NowYear = '2019'
-LandMonYear = 'JAN2019'
-MarineMonYear = 'FEB2019'
+NowMon = 'JAN'
+NowYear = '2020'
+LandMonYear = 'JAN2020'
+MarineMonYear = 'JAN2020'
 ClimStart = 1981
 ClimEnd = 2010
 RefPeriod = str(ClimStart)+' to '+str(ClimEnd)
 ClimPeriod = str(ClimStart)[2:4]+str(ClimEnd)[2:4]
-LandVersion = '4.1.0.2018f'
-MarineVersion = '1.0.0.2018f'
-BlendVersion = '1.0.0.2018f'
+LandVersion = '4.2.0.2019f'
+MarineVersion = '1.0.0.2019f'
+BlendVersion = '1.0.0.2019f'
 
 ################################################################################################################
 # SUBROUTINES #
@@ -183,8 +183,8 @@ def BlendIt(TheLand, TheOcean, PctLandArr, TheMDI, IsUnc):
     # Its just a mean of normal value - weights should sum to 1 so no need to /N as N = 1!!!
         BlendedHadISDH[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))] = (PctLandArr[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))]*TheLand[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))]) + ((1 - PctLandArr[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))])*TheOcean[np.where((TheLand > TheMDI) & (TheOcean > TheMDI))])
 
-    ## Test it
-    pdb.set_trace()
+#    ## Test it
+#    pdb.set_trace()
 
 #    print('Test the Blending of BlendedHadISDH from TheLand, TheOcean and PctLandArr')
     return BlendedHadISDH
@@ -425,7 +425,7 @@ def main():
     MDI = -1e30
     
     # Input and Output directory:
-    WorkingDir = '/data/local/hadkw/HADCRUH2/UPDATE'+str(EdYr)
+    WorkingDir = '/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(EdYr)
     DataDir = '/STATISTICS/GRIDS/'
     OtherDataDir = '/OTHERDATA/'
     
@@ -537,44 +537,46 @@ def main():
         # LonList: an NLons np array of lons centres (87.5N to 87.5S)
         
         # Fill in lists
-	# NOTE: ALL MARINE ARRAYS NEED TO HAVE THEIR LATITUDES FLIPPED!!!
-        LatList = LatList[::-1]
+
+# NOT SURE THIS FLIPPING IS THE CASE ANYMORE
+#	# NOTE: ALL MARINE ARRAYS NEED TO HAVE THEIR LATITUDES FLIPPED!!!
+#        LatList = LatList[::-1]
 #        pdb.set_trace()
-        TmpDataList[0] = TmpDataList[0][:,::-1,:]
+#        TmpDataList[0] = TmpDataList[0][:,::-1,:]
         MarineList.append(np.copy(TmpDataList[0])) # _n_grids 	
-        TmpDataList[1] = TmpDataList[1][:,::-1,:]
+#        TmpDataList[1] = TmpDataList[1][:,::-1,:]
         MarineList.append(np.copy(TmpDataList[1])) # _n_obs
-        TmpDataList[7] = TmpDataList[7][::-1,:]
+#        TmpDataList[7] = TmpDataList[7][::-1,:]
         MarineList.append(np.copy(TmpDataList[7])) # _mean_pseudo_stations
-        TmpDataList[6] = TmpDataList[6][:,::-1,:]
+#        TmpDataList[6] = TmpDataList[6][:,::-1,:]
         MarineList.append(np.copy(TmpDataList[6])) # _actual_pseudo_stations
-        TmpDataList[2] = TmpDataList[2][:,::-1,:]
+#        TmpDataList[2] = TmpDataList[2][:,::-1,:]
         MarineList.append(np.copy(TmpDataList[2])) # _clim_n_grids
-        TmpDataList[3] = TmpDataList[3][:,::-1,:]
+#        TmpDataList[3] = TmpDataList[3][:,::-1,:]
         MarineList.append(np.copy(TmpDataList[3])) # _clim_n_obs
-        TmpDataList[4] = TmpDataList[4][:,::-1,:]
+#        TmpDataList[4] = TmpDataList[4][:,::-1,:]
         MarineList.append(np.copy(TmpDataList[4])) # _climstd_n_grids
-        TmpDataList[5] = TmpDataList[5][:,::-1,:]
+#        TmpDataList[5] = TmpDataList[5][:,::-1,:]
         MarineList.append(np.copy(TmpDataList[5])) # _climstd_n_obs
-        TmpDataList[11] = TmpDataList[11][:,::-1,:]
+#        TmpDataList[11] = TmpDataList[11][:,::-1,:]
         MarineList.append(np.copy(TmpDataList[11])) # _climstd
-        TmpDataList[8] = TmpDataList[8][:,::-1,:]
+#        TmpDataList[8] = TmpDataList[8][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[8])) # _anoms	
-        TmpDataList[9] = TmpDataList[9][:,::-1,:]
+#        TmpDataList[9] = TmpDataList[9][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[9])) # _abs	
-        TmpDataList[10] = TmpDataList[10][:,::-1,:]
+#        TmpDataList[10] = TmpDataList[10][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[10])) # _clims	
-        TmpDataList[12] = TmpDataList[12][:,::-1,:]
+#        TmpDataList[12] = TmpDataList[12][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[12])) # _obserr	
-        TmpDataList[13] = TmpDataList[13][:,::-1,:]
+#        TmpDataList[13] = TmpDataList[13][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[13])) # _abs_obserr	
-        TmpDataList[14] = TmpDataList[14][:,::-1,:]
+#        TmpDataList[14] = TmpDataList[14][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[14])) # _samplingerr	
-        TmpDataList[15] = TmpDataList[15][:,::-1,:]
+#        TmpDataList[15] = TmpDataList[15][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[15])) # _abs_samplingerr	
-        TmpDataList[16] = TmpDataList[16][:,::-1,:]
+#        TmpDataList[16] = TmpDataList[16][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[16])) # _combinederr	
-        TmpDataList[17] = TmpDataList[17][:,::-1,:]
+#        TmpDataList[17] = TmpDataList[17][:,::-1,:]
         MarineDataList.append(np.copy(TmpDataList[17])) # _abs_combinederr	
 	
 	# Now loop through the Blended quantities and blend

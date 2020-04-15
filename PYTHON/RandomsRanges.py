@@ -9,7 +9,7 @@
 #************************************************************************
 #                                 START
 #************************************************************************
-# USE python2.7
+# USE python3
 #************************************************************************
 # Set up python imports
 import numpy as np
@@ -38,12 +38,12 @@ def LetterRange(start,stop):
 #	print('Integers: ',newstart,newstop)
     else:
         newstart=ord(start)
-	newstop=ord(stop)
+        newstop=ord(stop)
 #	print('Characters: ',newstart,newstop)
        
     Alphabetti=[]
     
-    for char in xrange(newstart,newstop):
+    for char in range(newstart,newstop):
 #        print(chr(char))
         Alphabetti.append(chr(char))
         

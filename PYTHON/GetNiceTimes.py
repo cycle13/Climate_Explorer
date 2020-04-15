@@ -117,9 +117,16 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon,TheInterval,Return_Boundarie
     ''' OPTIONALLY = an integer np array (ntims, 2) of start and end boundaries of time interval '''
     
     # set up arrays for month/pentad mid points and month bounds
-    DaysArray = np.empty(((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1))
+    nTims = ((TheEdYr-TheStYr) + 1) * ((TheEdMon - TheStMon) + 1)
+    
+    if (TheInterval == 'day'): # use dt.date to get actual number of days accounting for leap years
+        
+        nTims = dt.date(TheEdYr+1,1,1).toordinal() - dt.date(TheStYr,1,1).toordinal()
+    
+    DaysArray = np.empty(nTims)
+    
     if Return_Boundaries:
-        BoundsArray = np.empty((((TheEdYr-TheStYr)+1)*((TheEdMon-TheStMon)+1),2))
+        BoundsArray = np.empty((nTims,2))
     
     # make a date object for each time point and subtract start date
     StartDate = datetime(TheStYr,TheStMon,1,0,0,0)	# 1st of month
@@ -127,7 +134,7 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon,TheInterval,Return_Boundarie
     TheMonth = TheStMon
     
     if (TheInterval == 'month'):
-        for mm in range(len(DaysArray)):
+        for mm in range(nTims):
             if (TheMonth < 12):
                 DaysArray[mm] = (datetime(TheYear,TheMonth+1,1,0,0,0) - datetime(TheYear,TheMonth,1,0,0,0)).days/2. + (datetime(TheYear,TheMonth,1,0,0,0) - StartDate).days
                 if (Return_Boundaries):
@@ -143,11 +150,11 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon,TheInterval,Return_Boundarie
                 TheMonth = 1
                 TheYear = TheYear + 1
 
-    if (TheInterval == 'pentad'):
+    elif (TheInterval == 'pentad'):
         ThePT = 0
         TheMonth = 0
         DayMid = -2
-        for pp in range(len(DaysArray)):
+        for pp in range(nTims):
 	    
 	    # Have we just gone over a year boundary - in which case reset
             if (ThePT > 72):
@@ -171,7 +178,15 @@ def MakeDaysSince(TheStYr,TheStMon,TheEdYr,TheEdMon,TheInterval,Return_Boundarie
                 BoundsArray[mm,1] = DaysArray[pp]+2.5
 
             ThePT = ThePT + 1
-	    
+
+    elif (TheInterval == 'day'):
+        
+        DaysArray[:] = np.arange(nTims) # simple!
+	
+        if (Return_Boundaries):
+            BoundsArray[:,0] = np.arange(nTims)
+            BoundsArray[:,1] = np.arange(nTims)+1
+
     if Return_Boundaries:
         return DaysArray, BoundsArray
     else:
