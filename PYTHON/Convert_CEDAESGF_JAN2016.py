@@ -160,7 +160,7 @@ from WriteNetCDF_CEDAESGF_JAN2016 import WriteNCCF
 # Set up hardwired variables
 
 #************************************************************************
-MyChoice='dpd' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
+MyChoice='td' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
 
 Domain = 'land'
 #Domain = 'marine'
@@ -396,6 +396,7 @@ DimObjectList=[['time','month','characters','latitude','longitude','bound_pairs'
     		     ('standard_name','latitude'),
     		     ('long_name','gridbox centre latitude'),
     		     ('units','degrees_north'),
+    		     ('axis','Y'),
     		     ('point_spacing','even'),
     		     ('bounds','bounds_lat')]),
     	       dict([('var_type','f4'),
@@ -409,6 +410,7 @@ DimObjectList=[['time','month','characters','latitude','longitude','bound_pairs'
     		     ('standard_name','longitude'),
     		     ('long_name','gridbox centre longitude'),
     		     ('units','degrees_east'),
+    		     ('axis','X'),
     		     ('point_spacing','even'),
     		     ('bounds','bounds_lon')]),
     	       dict([('var_type','f4'),
