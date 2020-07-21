@@ -3,7 +3,7 @@
 # 
 # Author: Kate Willett
 # Created: 22 April 2015
-# Last update: 2 Apr 2019
+# Last update: 21 Jul 2020
 # Location: /data/local/hadkw/HADCRUH2/UPDATE2014/PROGS/PYTHON/	# this will probably change
 # GitHub: https://github.com/Kate-Willett/Climate_Explorer/tree/master/PYTHON/
 # -----------------------
@@ -107,6 +107,18 @@
 # VERSION/RELEASE NOTES
 # -----------------------
 #
+# Version 6 (21 Jul 2020)
+# ---------
+#  
+# Enhancements
+# Now doesn't use Bundles so should be easier to use - need to set up typee to determine land, marine, blend
+# It means it doesn't work with other datasets so will need tweaking a little for non-HadISDH
+#  
+# Changes
+#  
+# Bug fixes
+#
+#
 # Version 5 (25 Jan 2020)
 # ---------
 #  
@@ -198,9 +210,6 @@ TrendSig = 'BB' # 'BB' for boundary boxes, '+' for plus sign
 # NOTE: This will affect the filename
 LatDist = True # True for having the latitudinal distribution, False for not
 
-# Do you want to make up the best colour ranges or use set ones?
-StandardRange = 1 # 1 for use standard set up or 0 for figure it out in the code
-
 # Missing data
 mdi=-1e30 # may set up as masked arrays later
 
@@ -209,8 +218,9 @@ thenmon='JAN'
 thenyear='2020'
 
 # Working version
-version = '4.2.0.2019f'
-#version = '1.0.0.2019f'
+lversion = '4.2.0.2019f' # land
+mversion = '1.0.0.2019f' # marine
+bversion = '1.0.0.2019f' # blend
 
 # Working Directory
 WorkingDir = 'UPDATE2019'
@@ -221,21 +231,71 @@ nowyear='2020'
 
 # Trend selection
 sttrend = '1973'
-edtrend = '2019'
+edtrend = '1999'
 trendchoice = sttrend+edtrend
 
+# Variable
+#Var = 'q'
+#Var = 'rh'
+#Var = 'e'
+#Var = 't'
+#Var = 'td'
+#Var = 'tw'
+Var = 'dpd'
+
+VarDict = dict([('q',['q','g kg$^{-1}$','Specific Humidity',('BrBG','noflip'),dict([('MinVal',-0.3),('MaxVal',0.3),('StepVal',9.),('LetterVal',['a)','b)'])])]),
+                ('rh',['RH','%rh','Relative Humidity',('BrBG','noflip'),dict([('MinVal',-3.),('MaxVal',3.),('StepVal',9.),('LetterVal',['a)','b)'])])]),
+		('e',['e','hPa','Vapour Pressure',('BrBG','noflip'),dict([('MinVal',-0.5),('MaxVal',0.5),('StepVal',9.),('LetterVal',['a)','b)'])])]),
+		('t',['T','$^{o}$C','Air Temperature',('coolwarm','noflip'),dict([('MinVal',-0.8),('MaxVal',0.8),('StepVal',9.),('LetterVal',['a)','b)'])])]),
+		('tw',['Tw','$^{o}$C','Wetbulb Temperature',('BrBG','noflip'),dict([('MinVal',-0.6),('MaxVal',0.6),('StepVal',9.),('LetterVal',['a)','b)'])])]),
+		('td',['Td','$^{o}$C','Dew Point Temperature',('BrBG','noflip'),dict([('MinVal',-0.8),('MaxVal',0.8),('StepVal',9.),('LetterVal',['a)','b)'])])]),
+		('dpd',['DPD','$^{o}$C','Dew Point Depression',('BrBG','flip'),dict([('MinVal',-0.5),('MaxVal',0.5),('StepVal',9.),('LetterVal',['a)','b)'])])])])
+
+if (Var == 'dpd'):
+    DatTyp = 'PHA'
+elif (Var == 'td'):
+    DatTyp = 'PHADPD'
+else:
+    DatTyp = 'IDPHA'
+
+# Do you want to make up the best colour ranges or use set ones?
+#ColourRange = dict([('MinVal',0.),('MaxVal',0.),('StepVal',0.),('LetterVal',['a)','b)'])]) # the blank version so that the code finds its own
+ColourRange = VarDict[Var][4]
+
+# Type
+#typee = 'LAND' # 'LAND','RAW','OTHER'
+typee = 'MARINESHIP' # 'MARINE','MARINESHIP'
+#typee = 'BLENDSHIP' # 'BLEND','BLENDSHIP'
+
+# Domain
+if (typee == 'MARINE') | (typee == 'MARINESHIP'):
+    domain = 'marine'
+    IsLand = False # True for land, False for marine, None for blend
+    version = mversion
+    if (typee == 'MARINESHIP'):
+        ExpBit = 'BClocalSHIP5by5both'
+    else:
+        ExpBit = 'BClocal5by5both'
+elif (typee == 'BLEND') | (typee == 'BLENDSHIP'):
+    domain = 'blend'
+    IsLand = None # True for land, False for marine, None for blend
+    version = bversion
+    if (typee == 'BLENDSHIP'):
+        ExpBit = 'FLATgrid'+DatTyp+'BClocalSHIPboth5by5'
+    else:
+        ExpBit = 'FLATgrid'+DatTyp+'BClocalSHIPboth5by5'
+else:
+    domain = 'land'
+    IsLand = True # True for land, False for marine, None for blend
+    version = lversion
+    ExpBit = 'FLATgrid'+DatTyp+'5by5'
+    
+# TrendType
+TrendType = 'OLS' # 'OLS' or 'MP'
+
 # Set up directories and files - now for /data/users/hadkw/WORKING_HADISDH/
-###INDIRC='/data/local/hadkw/HADCRUH2/MARINE/DATA/'
-##INDIRC='/data/local/hadkw/HADCRUH2/'+WorkingDir+'/STATISTICS/TRENDS/'
-###INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2016/OTHERDATA/'	# may be needed for non-HadISDH variables
-##INDIRO='/data/local/hadkw/HADCRUH2/'+WorkingDir+'/OTHERDATA/'
-###OUTDIR='/data/local/hadkw/HADCRUH2/MARINE/IMAGES/'
-##OUTDIR='/data/local/hadkw/HADCRUH2/'+WorkingDir+'/IMAGES/OTHER/'
-#INDIRC='/data/users/hadkw/WORKING_HADISDH/MARINE/DATA/'
 INDIRC='/data/users/hadkw/WORKING_HADISDH/'+WorkingDir+'/STATISTICS/TRENDS/'
-#INDIRC='/data/users/hadkw/WORKING_HADISDH/UPDATE2016/OTHERDATA/'	# may be needed for non-HadISDH variables
 INDIRO='/data/users/hadkw/WORKING_HADISDH/'+WorkingDir+'/OTHERDATA/'
-#OUTDIR='/data/users/hadkw/WORKING_HADISDH/MARINE/IMAGES/'
 OUTDIR='/data/users/hadkw/WORKING_HADISDH/'+WorkingDir+'/IMAGES/OTHER/'
 
 # Land cover file:
@@ -248,204 +308,30 @@ CompTrends=[]
 RatTrends=[]
 LatList=[]
 LonList=[]
-Letty=['a)','b)']
-#Letty=['c)','d)']
-#Letty=['e)','f)']
-#Letty=['g)','h)']
-#Letty=['b)','b)']
+
+candidate = 'HadISDH.'+domain+VarDict[Var][0]+'.'+version+'_'+ExpBit+'_anoms8110_'+thenmon+thenyear+'_'+TrendType+'trends_'+trendchoice
+OUTPLOT = 'TrendMap'+TrendType+'_HadISDH.'+domain+VarDict[Var][0]+'.'+version+'_'+ExpBit+'_'+trendchoice
+Namey = 'HadISDH.'+domain+VarDict[Var][0]+'.'+version+' '+TrendType+' decadal trends '+trendchoice
+
+Unit = VarDict[Var][1]
+nlats = 36	       #set once file read in
+nlons = 72	       #set once file read in
+LatInfo = list(['latitude',nlats,-87.5])
+LonInfo = list(['longitude',nlons,-177.5])
+ReadInfo = list([VarDict[Var][0]+'_trend',VarDict[Var][0]+'_lowCI',VarDict[Var][0]+'_upperCI'])
+ColourMapChoice = VarDict[Var][3]
 
 
 #**********************************************************
 # Run choice bundle for input/output files, units, names, letters, read in varnames, colourmap
 
 # CHOOSE/ADD A DICTIONARY BUNDLE!!!
-#MyBundle = 'HadISDH.landq.ID'
-#MyBundle = 'HadISDH.landRH.ID'
-#MyBundle = 'HadISDH.landT.ID'
-#MyBundle = 'HadISDH.landTw.ID'
-#MyBundle = 'HadISDH.lande.ID'
-#MyBundle = 'HadISDH.landTd.DPD'
-MyBundle = 'HadISDH.landDPD.PHA'
+MyBundle = ' '
 
-#MyBundle = 'HadISDH.landq.RAW'
-#MyBundle = 'HadISDH.landRH.RAW'
-#MyBundle = 'HadISDH.landT.RAW'
-#MyBundle = 'HadISDH.landTw.RAW'
-#MyBundle = 'HadISDH.lande.RAW'
-#MyBundle = 'HadISDH.landTd.RAW'
-#MyBundle = 'HadISDH.landDPD.RAW'
 #MyBundle = 'Berkeley'
 #MyBundle = 'GISS'
 #MyBundle = 'CRUTEM'
 #MyBundle = 'GHCNM'
-#MyBundle = 'HadISDH.marineT'
-#MyBundle = 'HadISDH.marineTd'
-#MyBundle = 'HadISDH.marineTw'
-#MyBundle = 'HadISDH.marineDPD'
-#MyBundle = 'HadISDH.marineRH'
-#MyBundle = 'HadISDH.marinee'
-#MyBundle = 'HadISDH.marineq'
-#MyBundle = 'BLEND_HadISDH.landq'
-#MyBundle = 'BLEND_HadISDH.landRH'
-#MyBundle = 'BLEND_HadISDH.landT'
-
-if (MyBundle == 'HadISDH.landq.ID'):
-#    candidate='HadISDH.landq.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_OLStrends_'+trendchoice
-    candidate='HadISDH.landq.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-#    OUTPLOT='TrendMapOLS_HadISDH.landq.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.landq.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.landq.'+version+' decadal trends '+trendchoice
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['q_trend','q_lowCI','q_upperCI'])
-#    ReadInfo=list(['q_trend','q_lowCI','q_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'BLEND_HadISDH.landq'):
-    candidate='BLEND_HadISDH.landq.'+version+'.marineq.QC0.0.0_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_BLEND_HadISDH.landq.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='g kg$^{-1}$'  #'degrees C'
-    Namey='BLEND_HadISDH.landq.'+version+' decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['q_trend','q_lowCI','q_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = None # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.landRH.ID'):
-    candidate='HadISDH.landRH.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.landRH.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='%rh'  
-    Namey='HadISDH.landRH.'+version+' decadal trends '+trendchoice
-    nlats=36	     #set once file read in
-    nlons=72	     #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['RH_trend','RH_lowCI','RH_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'BLEND_HadISDH.landRH'):
-    candidate='BLEND_HadISDH.landRH.'+verseion+'.marineRH.QC0.0.0_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_BLEND_HadISDH.landRH.'+version+'_'+nowmon+nowyear
-    Unit='%rh'  
-    Namey='BLEND_HadISDH.landRH.'+version+' decadal trends'
-    nlats=36	     #set once file read in
-    nlons=72	     #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['RH_trend','RH_lowCI','RH_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = None # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.landT.ID'):
-    candidate='HadISDH.landT.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.landT.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='HadISDH.landT.'+version+' decadal trends '+trendchoice
-    nlats=36	      #set once file read in
-    nlons=72	      #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
-    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'BLEND_HadISDH.landT'):
-    candidate='BLEND_HadISDH.landT.'+version+'.marineT.QC0.0.0_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_BLEND_HadISDH.landT.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='BLEND_HadISDH.landT.'+version+' decadal trends'
-    nlats=36	      #set once file read in
-    nlons=72	      #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
-    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
-    IsLand = None # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.landTw.ID'):
-    candidate='HadISDH.landTw.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.landTw.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='HadISDH.landTw.'+version+' decadal trends'
-    nlats=36	     #set once file read in
-    nlons=72	     #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['Tw_trend','Tw_lowCI','Tw_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.lande.ID'):
-    candidate='HadISDH.lande.'+version+'_FLATgridIDPHA5by5_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.lande.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='hPa'  #'degrees C'
-    Namey='HadISDH.lande.'+version+' decadal trends'
-    nlats=36	      #set once file read in
-    nlons=72	      #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['e_trend','e_lowCI','e_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.landTd.DPD'):
-    candidate='HadISDH.landTd.'+version+'_FLATgridPHADPD5by5_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.landTd.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='HadISDH.landTd.'+version+' decadal trends'
-    nlats=36	     #set once file read in
-    nlons=72	     #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['Td_trend','Td_lowCI','Td_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.landDPD.PHA'):
-    candidate='HadISDH.landDPD.'+version+'_FLATgridPHA5by5_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.landDPD.'+version+'_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='HadISDH.landDPD.'+version+' decadal trends'
-    nlats=36	     #set once file read in
-    nlons=72	     #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['DPD_trend','DPD_lowCI','DPD_upperCI'])
-    ColourMapChoice=('BrBG','flip')
-    IsLand = True # True for land, False for marine, None for blend
-
-#MyBundle = 'HadISDH.landq.RAW'
-
-#MyBundle = 'HadISDH.landRH.RAW'
-
-if (MyBundle == 'HadISDH.landT.RAW'):
-    candidate='HadISDH.landT.'+version+'_FLATgridRAW5by5_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.landT.'+version+'_RAW_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='HadISDH.landT.'+version+' RAW decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
-    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
-    IsLand = True # True for land, False for marine, None for blend
-
-#MyBundle = 'HadISDH.landTw.RAW'
-
-#MyBundle = 'HadISDH.lande.RAW'
-
-#MyBundle = 'HadISDH.landTd.RAW'
-
-#MyBundle = 'HadISDH.landDPD.RAW'
 
 if (MyBundle == 'Berkeley'):
     candidate='BERKELEY_T_5by519762005clim_anoms_19732015_MPtrends_19732016'
@@ -499,104 +385,6 @@ if (MyBundle == 'GHCNM'):
     ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
     IsLand = True # True for land, False for marine, None for blend
 
-if (MyBundle == 'HadISDH.marineT'):
-#    candidate='HadISDH.marineT.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-#    OUTPLOT='TrendMap_HadISDH.marineT_'+nowmon+nowyear+'_'+trendchoice
-    candidate='HadISDH.marineT.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.marineT_ALL_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.marineT decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
-    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
-    IsLand = False # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.marineTd'):
-#    candidate='HadISDH.marineTd.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-#    OUTPLOT='TrendMap_HadISDH.marineTd_'+nowmon+nowyear+'_'+trendchoice
-    candidate='HadISDH.marineTd.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.marineTd_ALL_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.marineTd decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['Td_trend','Td_lowCI','Td_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = False # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.marineTw'):
-    candidate='HadISDH.marineTw.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.marineTw_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.marineTw decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['Tw_trend','Tw_lowCI','Tw_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = False # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.marineDPD'):
-    candidate='HadISDH.marineDPD.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.marineDPD_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.marineDPD decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['DPD_trend','DPD_lowCI','DPD_upperCI'])
-    ColourMapChoice=('BrBG','flip')
-    IsLand = False # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.marineRH'):
-#    candidate='HadISDH.marineRH.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-#    OUTPLOT='TrendMap_HadISDH.marineRH_'+nowmon+nowyear+'_'+trendchoice
-    candidate='HadISDH.marineRH.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.marineRH_ALL_'+nowmon+nowyear+'_'+trendchoice
-    Unit='%rh'  #'g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.marineRH decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['RH_trend','RH_lowCI','RH_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = False # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.marineq'):
-#    candidate='HadISDH.marineq.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-#    OUTPLOT='TrendMap_HadISDH.marineq_'+nowmon+nowyear+'_'+trendchoice
-    candidate='HadISDH.marineq.'+version+'_BClocal5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.marineq_ALL_'+nowmon+nowyear+'_'+trendchoice
-    Unit='g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.marineq decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['q_trend','q_lowCI','q_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = False # True for land, False for marine, None for blend
-
-if (MyBundle == 'HadISDH.marinee'):
-    candidate='HadISDH.marinee.'+version+'_BClocalSHIP5by5both_anoms8110_'+thenmon+thenyear+'_MPtrends_'+trendchoice
-    OUTPLOT='TrendMap_HadISDH.marinee_'+nowmon+nowyear+'_'+trendchoice
-    Unit='hPa'  #'g kg$^{-1}$'  #'degrees C'
-    Namey='HadISDH.marinee decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['e_trend','e_lowCI','e_upperCI'])
-    ColourMapChoice=('BrBG','noflip')
-    IsLand = False # True for land, False for marine, None for blend
 
 # If LatDist is False then add 'nolat' to file name
 if not(LatDist):
@@ -695,7 +483,7 @@ def ReadNetCDFGrid4(FileName,ReadInfo,LatInfo,LonInfo):
 #************************************************************************
 # PlotTrendMap
 def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppers,TheCandLowers,
-                    TheUnitee,TheLetter,TheNamee,ColourMapChoice,IsLand,TrendSig,LatDist,StandardRange):
+                    TheUnitee,TheNamee,ColourMapChoice,IsLand,TrendSig,LatDist,TheColourRange):
     ''' Create a masked array of trends
         Create a masked array of significant trends
         Plot trends on map, bounded/+ if significant
@@ -795,7 +583,7 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
     #cmaplist.remove(cmaplist[(cmap.N/2)-10:(cmap.N/2)+10]) # remove the very pale colours in the middle
     cmap=cmap.from_list('this_cmap',cmaplist,cmap.N)
     
-    if (StandardRange == 0):
+    if (TheColourRange['StepVal'] == 0):
         # work out best max and min values for colourbar and try to make them 'nice
         # must be an odd number of steps
         # for less than 0.1 must be 14 or fewer steps
@@ -854,24 +642,9 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
 	#    pdb.set_trace() # stop here and play
 
     else:
-        nsteps = 9
-	# Use the standard range for vmin and vmax
-        if (TheUnitee == 'g kg$^{-1}$'):
-            vmin = -0.3
-            vmax = 0.3
-        elif (TheUnitee == '%rh'):
-            vmin = -1.
-            vmax = 1.
-        elif (TheUnitee == 'hPa'):
-            vmin = -0.3
-            vmax = 0.3
-        elif (TheUnitee == '$^{o}$ C'):
-            if (ColourMapChoice[0] == 'BrBG'):	
-                vmin = -0.3
-                vmax = 0.3
-            else:
-                vmin = -0.3
-                vmax = 0.3
+        nsteps = TheColourRange['StepVal']
+        vmin = TheColourRange['MinVal']
+        vmax = TheColourRange['MaxVal']
 
     bounds=np.linspace(vmin,vmax,nsteps)
     strbounds=["%4.1f" % i for i in bounds]
@@ -898,7 +671,7 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
     
     # If LatDist then positions will differ
     if (LatDist):
-        cbax=fig.add_axes([0.03,0.08,0.59,0.03])
+        cbax=fig.add_axes([0.03,0.10,0.59,0.03])
         cb=plt.colorbar(grids,cax=cbax,orientation='horizontal',ticks=bounds) #, extend=extend
         cb.ax.tick_params(labelsize=10) 
         plt.figtext(0.31,0.01,'Trend ('+TheUnitee+' decade$^{-1}$ )',size=12,ha='center')
@@ -911,7 +684,7 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
     # add labals and watermark    
 #    watermarkstring="/".join(os.getcwd().split('/')[4:])+'/'+os.path.basename( __file__ )+"   "+dt.datetime.strftime(dt.datetime.now(), "%d-%b-%Y %H:%M")
 #    plt.figtext(0.01,0.01,watermarkstring,size=6)
-    plt.figtext(0.05,0.9,TheLetter[0],size=16)
+    plt.figtext(0.05,0.9,TheColourRange['LetterVal'][0],size=16)
 # Switch this off if you don't want the title on the plot!!!
     plt.figtext(0.5,0.95,TheNamee,size=16,ha='center')
     
@@ -983,7 +756,7 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
         plt.scatter(MSKTheCandData,ArrLats,c=MSKTheCandData,marker='o',cmap=cmap,norm=norm,edgecolor='0.0',linewidth=0.0)
         plt.plot(LatTrend[np.where(LatTrend != mdi)],TheLatList[np.where(LatTrend != mdi)],color='black',linewidth=2)
 
-        plt.figtext(0.7,0.9,TheLetter[1],size=16)
+        plt.figtext(0.7,0.9,TheColourRange['LetterVal'][1],size=16)
     
 #    plt.show()
 #    stop()
@@ -1018,7 +791,7 @@ ncf.close()
 # pass to plotter
 MyFile=OUTDIR+OUTPLOT
 PlotTrendMap(MyFile,PctLand,LatList,LonList,CandData,CandUpper, CandLower,
-                        Unit,Letty,Namey,ColourMapChoice,IsLand,TrendSig,LatDist,StandardRange)
+                        Unit,Namey,ColourMapChoice,IsLand,TrendSig,LatDist,ColourRange)
 
 # output pct of land /ocean boxes represented per region
 for ltt in range(len(LatList)):
