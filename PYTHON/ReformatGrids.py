@@ -1,9 +1,9 @@
 #!/usr/local/sci/bin/python
-# PYTHON2.7
+# PYTHON3
 # 
 # Author: Kate Willett
 # Created: 16 October 2015
-# Last update: 16 October 2015
+# Last update: 20 July 2020
 # Location: /data/local/hadkw/HADCRUH2/UPDATE2014/PROGS/PYTHON/	
 # GitHub: https://github.com/Kate-Willett/Climate_Explorer/tree/master/PYTHON/
 # -----------------------
@@ -59,6 +59,16 @@
 # VERSION/RELEASE NOTES
 # -----------------------
 # 
+# Version 2 (20th July 2020)
+# ---------
+#  
+# Enhancements
+# Now python 3 rather than 2.7
+#  
+# Changes
+#  
+# Bug fixes
+
 # Version 1 (16th October 2015)
 # ---------
 #  
@@ -116,20 +126,20 @@ def GetAnomalies(TheData,
     for lnn in range(len(TheData[0,0,:])):
         for ltt in range(len(TheData[0,:,0])):
 	    # Have to use copies!
-	    subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(TheYCount,12)))
-	    newsubarr = np.empty_like(subarr)
-	    newsubarr.fill(TheMDI)
+            subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(TheYCount,12)))
+            newsubarr = np.empty_like(subarr)
+            newsubarr.fill(TheMDI)
             # loop through each month
-	    for mm in range(12):
-	        subclimarr = np.copy(subarr[(TheClimSt-TheStYr):(TheClimEd-TheStYr)+1,mm])	# always need +1 for working with subranges
-		subsubarr = np.copy(subarr[:,mm])
-		subclimarr[subclimarr == TheMDI] = np.nan
-		subsubarr[subsubarr == TheMDI] = np.nan
-		#print(np.float(len(subclimarr[np.isfinite(subclimarr)]))/np.float(TheCCount))
-		if (np.float(len(subclimarr[np.isfinite(subclimarr)]))/np.float(TheCCount) >= TheMDITol):
-		    subsubarr[np.isfinite(subsubarr)] = subsubarr[np.isfinite(subsubarr)] - np.nanmean(subclimarr)
-		    subsubarr[np.isnan(subsubarr)] = TheMDI
-		    newsubarr[:,mm] = np.copy(subsubarr)
+            for mm in range(12):
+                subclimarr = np.copy(subarr[(TheClimSt-TheStYr):(TheClimEd-TheStYr)+1,mm])	# always need +1 for working with subranges
+                subsubarr = np.copy(subarr[:,mm])
+                subclimarr[subclimarr == TheMDI] = np.nan
+                subsubarr[subsubarr == TheMDI] = np.nan
+                #print(np.float(len(subclimarr[np.isfinite(subclimarr)]))/np.float(TheCCount))
+                if (np.float(len(subclimarr[np.isfinite(subclimarr)]))/np.float(TheCCount) >= TheMDITol):
+                    subsubarr[np.isfinite(subsubarr)] = subsubarr[np.isfinite(subsubarr)] - np.nanmean(subclimarr)
+                    subsubarr[np.isnan(subsubarr)] = TheMDI
+                    newsubarr[:,mm] = np.copy(subsubarr)
             TheAnoms[:,ltt,lnn] = np.copy(np.reshape(newsubarr,TheYCount*12))
 	    
     return TheAnoms # GetAnomalies

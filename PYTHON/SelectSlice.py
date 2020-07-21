@@ -1,9 +1,9 @@
 #!/usr/local/sci/bin/python
-# PYTHON2.7
+# PYTHON3
 # 
 # Author: Kate Willett
 # Created: 16 October 2015
-# Last update: 16 October 2015
+# Last update: 20 July 2020
 # Location: /data/local/hadkw/HADCRUH2/UPDATE2014/PROGS/PYTHON/	
 # GitHub: https://github.com/Kate-Willett/Climate_Explorer/tree/master/PYTHON/
 # -----------------------
@@ -46,7 +46,7 @@
 # TheTheMDITol = 0.6 The proportion of data required for a gridbox climatology to be calculated from 0 to 1 
 #     TheTheMDITol=0.6 # DEFAULT 
 #
-# python2.7
+# python3
 # from SelectSlice import SelectSlice
 # TmpData = SelectSlice(TheData,TheStYr,TheEdYr,TheChosenMonth,TheChosenYear,TheTheMDI,TheTheMDITol)
 #
@@ -60,6 +60,17 @@
 # VERSION/RELEASE NOTES
 # -----------------------
 # 
+# Version 2 (20th July 2020)
+# ---------
+#  
+# Enhancements
+# Now python 3 was 2.7
+#  
+# Changes
+#  
+# Bug fixes
+#  
+
 # Version 1 (16th October 2015)
 # ---------
 #  
@@ -121,9 +132,9 @@ def SelectSlice(TheData,
     if (len(TheChosenMonth) > 1) | (len(TheChosenYear) > 1): # Only need to point to relevant years, this works if BOTH are > 1
         StTimePointer = (TheChosenYear[0]-TheStYr)
         if (len(TheChosenYear) > 1):
-	    EdTimePointer = (TheChosenYear[1]-TheStYr)
+            EdTimePointer = (TheChosenYear[1]-TheStYr)
         else:
-	    EdTimePointer = StTimePointer
+            EdTimePointer = StTimePointer
     else:
         StTimePointer = (TheChosenYear[0]-TheStYr)*12+TheChosenMonth[0]
         EdTimePointer = StTimePointer
@@ -140,11 +151,11 @@ def SelectSlice(TheData,
         print("One Month X Year")
         for lnn in range(len(TheData[0,0,:])):
             for ltt in range(len(TheData[0,:,0])):
-	        subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12))) # fills columns first
+                subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12))) # fills columns first
                 subsubarr = np.copy(subarr[StTimePointer:EdTimePointer+1,TheChosenMonth[0]]) # need +1 for ranges
-		subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
-	        if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
-	            TheField[ltt,lnn] = np.nanmean(subsubarr)
+                subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
+                if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
+                    TheField[ltt,lnn] = np.nanmean(subsubarr)
 
     # Slightly harder: multiple months from a single year (unless crossing DEC-JAN)
     elif (len(TheChosenMonth) > 1) & (len(TheChosenYear) == 1):
@@ -152,20 +163,20 @@ def SelectSlice(TheData,
         if (TheChosenMonth[1] > TheChosenMonth[0]):	# simple run of months within a year
             for lnn in range(len(TheData[0,0,:])):
                 for ltt in range(len(TheData[0,:,0])):
-	            subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12))) 
-	            subsubarr = np.copy(subarr[StTimePointer,TheChosenMonth[0]:TheChosenMonth[1]+1]) # need +1 for ranges
-		    subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
-	            if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
-	                TheField[ltt,lnn] = np.nanmean(subsubarr)
+                    subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12))) 
+                    subsubarr = np.copy(subarr[StTimePointer,TheChosenMonth[0]:TheChosenMonth[1]+1]) # need +1 for ranges
+                    subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
+                    if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
+                        TheField[ltt,lnn] = np.nanmean(subsubarr)
         else: # more complex as need to pull out from two years
             for lnn in range(len(TheData[0,0,:])):
                 for ltt in range(len(TheData[0,:,0])):
-	            subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12)))
-	            subsubarr = np.copy(subarr[StTimePointer,TheChosenMonth[0]:12]) # need +1 for ranges
-		    subsubarr = np.append(subsubarr,subarr[StTimePointer+1,0:TheChosenMonth[1]+1]) # need +1 for ranges
-		    subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
-	            if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
-	                TheField[ltt,lnn] = np.nanmean(subsubarr)
+                    subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12)))
+                    subsubarr = np.copy(subarr[StTimePointer,TheChosenMonth[0]:12]) # need +1 for ranges
+                    subsubarr = np.append(subsubarr,subarr[StTimePointer+1,0:TheChosenMonth[1]+1]) # need +1 for ranges
+                    subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
+                    if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
+                        TheField[ltt,lnn] = np.nanmean(subsubarr)
 
     # Hardest: multiple months and multiple years
     else: # now we're dealing with seasonal/annual average climatology
@@ -173,24 +184,24 @@ def SelectSlice(TheData,
         if (TheChosenMonth[1] > TheChosenMonth[0]):	# simple run of months and run of years
             for lnn in range(len(TheData[0,0,:])):
                 for ltt in range(len(TheData[0,:,0])):
-	            subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12)))
-	            subsubarr = np.copy(subarr[StTimePointer:EdTimePointer+1,TheChosenMonth[0]:TheChosenMonth[1]+1]) # need +1 for ranges
-		    subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
-	            if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
-	                TheField[ltt,lnn] = np.nanmean(subsubarr)
+                    subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12)))
+                    subsubarr = np.copy(subarr[StTimePointer:EdTimePointer+1,TheChosenMonth[0]:TheChosenMonth[1]+1]) # need +1 for ranges
+                    subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
+                    if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
+                        TheField[ltt,lnn] = np.nanmean(subsubarr)
         else: # more complex as need to pull out month runs across years 
             if (EdTimePointer < TheEdYr): # then we can go to the next year to get the extra months
                 ExtraPointer=EdTimePointer+1
             else:
-	        ExtraPointer=EdTimePointer
-	    for lnn in range(len(TheData[0,0,:])):
+                ExtraPointer=EdTimePointer
+            for lnn in range(len(TheData[0,0,:])):
                 for ltt in range(len(TheData[0,:,0])):
-	            subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12)))
-	            subsubarr = np.copy(subarr[StTimePointer:EdTimePointer+1,TheChosenMonth[0]:12,]) # need +1 for ranges
-		    subsubarr = np.append(subsubarr,subarr[StTimePointer+1:ExtraPointer,0:TheChosenMonth[1]+1])
-		    subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
-	            if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
-	                TheField[ltt,lnn] = np.nanmean(subsubarr)
+                    subarr = np.copy(np.reshape(TheData[:,ltt,lnn],(NYrs,12)))
+                    subsubarr = np.copy(subarr[StTimePointer:EdTimePointer+1,TheChosenMonth[0]:12,]) # need +1 for ranges
+                    subsubarr = np.append(subsubarr,subarr[StTimePointer+1:ExtraPointer,0:TheChosenMonth[1]+1])
+                    subsubarr[subsubarr == TheMDI] = np.nan # set TheMDI to NaN
+                    if (np.float(len(subsubarr[np.isfinite(subsubarr)]))/np.float(len(subsubarr)) >= TheMDITol):
+                        TheField[ltt,lnn] = np.nanmean(subsubarr)
 	    
     return TheField # SelectSlice
 
