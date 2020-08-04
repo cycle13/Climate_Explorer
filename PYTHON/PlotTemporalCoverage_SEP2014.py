@@ -2,7 +2,8 @@
 
 #***************************************
 # 22 March 2014 KMW - v1
-# Plots station locations for each variable including removed sub/super sats  
+# Plots months of missing data for each station over time (x axis) and colours by
+# WMO region (y axis). 
 #
 #************************************************************************
 #                                 START

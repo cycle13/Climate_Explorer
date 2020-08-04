@@ -2,7 +2,7 @@
 
 #***************************************
 # 22 March 2014 KMW - v1
-# Plots station locations for each variable including removed sub/super sats  
+# Plots time series of station months over time for each WMO region from HadISDH  
 #
 #************************************************************************
 #                                 START
@@ -43,6 +43,9 @@ styr=1973
 edyr=2017
 nyrs=edyr-styr
 nmons=(nyrs+1)*12
+
+
+
 
 # Set up directories and files
 if param=='q': 
@@ -187,6 +190,8 @@ def PlotNiceCoverageGraph(TheFile,TheWMOs,TheGots,TheTotalGots,
 	      ['Indonesia/Philippines/Borneo',960000,999999]])
 	  
     TotsArr=np.zeros((12,TheMCount),dtype=np.int) # 2d array for WMO month counts
+    
+    
     
     colpoints=[]
     Beginner=0	# this is a pointer to tell us when to make a Y axis label, store the location too
