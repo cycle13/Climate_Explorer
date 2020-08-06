@@ -336,13 +336,19 @@ def Write_NetCDF_All(filename, land_var_list, marine_var_list, blend_var_list,
     # create variables for land
     for l in range(len(land_var_list)):
     
-        Write_Netcdf_Variable_All(outfile, land_var_list[l], land_var_long[l], 'standard', RefPeriod, -1, land_data_vals[l])
-
+        if (l == len(land_var_list)-1):
+            Write_Netcdf_Variable_All(outfile, land_var_list[l], land_var_long[l], unit, RefPeriod, TheMDI, land_data_vals[l])
+        else:
+            Write_Netcdf_Variable_All(outfile, land_var_list[l], land_var_long[l], 'standard', RefPeriod, -1, land_data_vals[l])
+    
     # create variables for land
     for m in range(len(marine_var_list)):
     
-        Write_Netcdf_Variable_All(outfile, marine_var_list[m], marine_var_long[m], 'standard', RefPeriod, -1, marine_data_vals[m])
-
+        if (m == len(marine_var_list)-1):
+            Write_Netcdf_Variable_All(outfile, marine_var_list[m], marine_var_long[m], unit, RefPeriod, TheMDI, marine_data_vals[m])
+        else:
+            Write_Netcdf_Variable_All(outfile, marine_var_list[m], marine_var_long[m], 'standard', RefPeriod, -1, marine_data_vals[m])
+	
     # Global Attributes 
     
     # Read these from file
@@ -402,10 +408,10 @@ def main():
     InMPointers = [0,18]
         
     # Shared output quantities to be blended, land only and marine only
-    OutBVarList = ['_anoms','_abs','_clims','_obserr','_abs_obserr','_samplingerr','_abs_samplingerr','_combinederr','_abs_combinederr']
-    OutLVarList = ['Land_mean_n_stations','Land_actual_n_stations','_land_std']
-    OutMVarList = ['Marine_n_grids','Marine_n_obs','Marine_mean_pseudo_stations','Marine_actual_pseudo_stations',
-                   'Marine_clim_n_obs','Marine_clim_n_grids','Marine_climstd_n_obs','Marine_climstd_n_grids','_marine_clims_std']
+    OutBVarList = ['_anoms','_abs','_clims','_anoms_obserr','_abs_obserr','_anoms_samplingerr','_abs_samplingerr','_anoms_combinederr','_abs_combinederr']
+    OutLVarList = ['land_mean_n_stations','land_actual_n_stations','_land_std']
+    OutMVarList = ['marine_n_grids','marine_n_obs','marine_mean_pseudo_stations','marine_actual_pseudo_stations',
+                   'marine_clim_n_obs','marine_clim_n_grids','marine_climstd_n_obs','marine_climstd_n_grids','_marine_clims_std']
     
     # Output variables list elements ????? have the var_loop_lower[v] prefixed
     OutBVarLong = ['monthly mean anomalies','monthly mean actuals','monthly mean climatologies','monthly mean anomaly observation uncertainty (2 sigma)','monthly mean actual observation uncertainty (2 sigma)',
@@ -415,9 +421,9 @@ def main():
 		   'number of marine observations in the climatology','number of 1x1 daily grids in the climatology over ocean','number of marine observations in the climatological standard deviation',
 		   'number of 1x1 daily grids in the climatological standard deviation over ocean','marine monthly mean climatological standard deviation']
     
-    OutBVarStandard = ['_anoms','_abs','_clims','_obserr','_abs_obserr','_samplingerr','_abs_samplingerr','_combinederr','_abs_combinederr']
-    OutLVarStandard = ['Land_mean_n_stations','Land_actual_n_stations','_land_std']
-    OutMVarStandard = ['Marine_n_grids','Marine_n_obs','Marine_mean_pseudo_stations','Marine_actual_pseudo_stations','Marine_clim_n_obs','Marine_clim_n_grids','Marine_climstd_n_obs','Marine_climstd_n_grids','_marine_clims_std']
+    OutBVarStandard = ['_anoms','_abs','_clims','_anoms_obserr','_abs_obserr','_anoms_samplingerr','_abs_samplingerr','_anoms_combinederr','_abs_combinederr']
+    OutLVarStandard = ['land_mean_n_stations','land_actual_n_stations','_land_std']
+    OutMVarStandard = ['marine_n_grids','marine_n_obs','marine_mean_pseudo_stations','marine_actual_pseudo_stations','marine_clim_n_obs','marine_clim_n_grids','marine_climstd_n_obs','marine_climstd_n_grids','_marine_clims_std']
 
     units_loop = ['degrees C','degrees C','g/kg','hPa','%rh','degrees C','degrees C','standard']
         
@@ -468,10 +474,9 @@ def main():
     # Which variable to loop through?
     for v,var in enumerate(var_loop_lower):
         
-	# I haven't finished the land Td yet so skip this
-	
-        if (var == 'td'):
-            continue
+	## if I haven't finished the land Td yet so skip this	
+        #if (var == 'td'):
+        #    continue
 	    
         print('Working on: ',var,v)
 
