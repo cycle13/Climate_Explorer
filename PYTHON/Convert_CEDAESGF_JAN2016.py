@@ -160,10 +160,11 @@ from WriteNetCDF_CEDAESGF_JAN2016 import WriteNCCF
 # Set up hardwired variables
 
 #************************************************************************
-MyChoice='td' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
+MyChoice='dpd' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
 
-Domain = 'land'
-#Domain = 'marine'
+#Domain = 'land'
+Domain = 'marine'
+#Domain = 'blend'
 
 # Generic Things
 # VERSION
@@ -174,20 +175,31 @@ if (Domain == 'land'):
     DomainHGT = '2'
     DomainOBS = 'stations'
 
-else:
+elif (Domain == 'marine'):
 
-    version = 'v1-0-0-2019f'
-    verstring = '1.0.0.2019f'
+#    version = 'v1-0-0-2019f'
+#    verstring = '1.0.0.2019f'
+    version = 'v1-0-0-2018f'
+    verstring = '1.0.0.2018f'
     DomainHGT = '10'
     DomainOBS = 'ships'
 
-nowmon = 'JAN'
-nowyear = '2020'
+elif (Domain == 'blend'):
+
+    version = 'v1-0-0-2019f'
+    verstring = '1.0.0.2019f'
+    DomainHGT = '2/10'
+    DomainOBS = 'observations'
+
+nowmon = 'FEB'
+nowyear = '2019'
+#nowmon = 'JAN'
+#nowyear = '2020'
 
 # Dates
 StYr=1973
 StMon=1
-EdYr=2019
+EdYr=2018
 EdMon=12
 ClimPoints=(1981,2010)
 #ClimPoints=(1976,2005)
@@ -217,15 +229,15 @@ if (Domain == 'land'):
            Follow @metofficeHadOBS to keep up to date with Met Office Hadley Centre HadOBS dataset developements. \
            See hadisdh.blogspot.co.uk for HadISDH updates, bug fixes and explorations.'
 # Non-commercial license
-    Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
-           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
-           The data are freely available for any non-comercial use with attribution to the data providers. Please cite \
-           Willett et al.,(2014) and Smith et al., (2011) with a link to the REFERENCES provided in the REFERENCE attribute.'
+#    Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
+#           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
+#           The data are freely available for any non-commercial use with attribution to the data providers. Please cite \
+#           Willett et al.,(2014) and Smith et al., (2011) with a link to the REFERENCES provided in the REFERENCE attribute.'
 # Open Government License
-    #Licence = 'HadISDH is distributed under the Open Government Licence: \
-    #           http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
-    #           The data are freely available for use with attribution to the data providers. Please cite \
-    #           Willett et al.,(2014) with a link to the REFERENCE provided in the REFERENCE attribute.'
+    Licence = 'HadISDH is distributed under the Open Government Licence: \
+               http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
+               The data are freely available for use with attribution to the data providers. Please cite \
+               references provided in the REFERENCE attribute.'
     Project = 'HadOBS: Met Office Hadley Centre Climate Monitoring Data-product www.metoffice.gov.uk/hadobs'
     Processing_level = 'Hourly station data selected for length and continuity, quality controlled, averaged \
                     to monthly means, adjusted to remove inhomogeneity and then averaged over 5deg by 5deg gridboxes.'
@@ -237,11 +249,13 @@ if (Domain == 'land'):
                   thoughtful and constructive reviews.'
 # THIS BIT NEEDS EDITING EVERY YEAR **************************
     Source = 'HadISD.3.1.0.2019f (Dunn et al. 2016) from the National Centres for Environmental Information \
-          International Surface Database (ISD): www.ncdc.noaa.gov/isd'
+          International Surface Database (ISD) (Smith et al., 2011) from www.ncdc.noaa.gov/isd'
     Comment = ''
     References = 'Willett, K. M., Dunn, R. J. H., Thorne, P. W., Bell, S., de Podesta, M., Parker, D. E., \
               Jones, P. D. and Williams, Jr., C. N.: HadISDH land surface multi-variable humidity and temperature record for climate monitoring, \
               Clim. Past, 10, 1983-2006, doi:10.5194/cp-10-1983-2014, 2014, \
+	      Dunn, R. J. H., et al. 2016: Expanding HadISD: quality-controlled, sub-daily \
+	      station data from 1931, Geoscientific Instrumentation, Methods and Data Systems, 5, 473-491. \
 	      Smith, A., N. Lott, and R. Vose, 2011: The Integrated Surface Database: Recent \
 	      Developments and Partnerships. Bulletin of the American Meteorological Society, \
 	      92, 704-708, doi:10.1175/2011BAMS3015.1'
@@ -250,41 +264,94 @@ if (Domain == 'land'):
     Conventions = 'CF-1.6'
     netCDF_type = 'NETCDF4_CLASSIC'
 
-if (Domain == 'marine'):
+elif (Domain == 'marine'):
     Description = 'climate monitoring product \
                from 1973 onwards. Ship observations have been quality controlled, bias adjusted (height to 10m, unaspirated screens) and averaged over 5deg by 5deg gridboxes (no smoothing \
                or interpolation). Gridbox 2 sigma uncertainty estimates are provided that represent spatio-temporal sampling within the \
-               gridbox and combined station level uncertainties for measurement, climatology, whole number reporting and bias adjustment.'
+               gridbox and combined observation level uncertainties for measurement, climatology, whole number reporting and bias adjustment.'
     Institution = 'Met Office Hadley Centre (UK), \
                National Oceanography Centre Southampton (UK)'
     History = 'See Willett et al., (2020) REFERENCE for more information. \
            See www.metoffice.gov.uk/hadobs/hadisdh/ for more information and related data and figures. \
            Follow @metofficeHadOBS to keep up to date with Met Office Hadley Centre HadOBS dataset developements. \
            See hadisdh.blogspot.co.uk for HadISDH updates, bug fixes and explorations.'
-# Non-commercial license
-    Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
-           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
-           The data are freely available for any non-comercial use with attribution to the data providers. Please cite \
-           Willett et al.,(2020) and Freeman et al., (2017) with a link to the REFERENCES provided in the REFERENCE attribute.'
+## Non-commercial license
+#    Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
+#           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
+#           The data are freely available for any non-comercial use with attribution to the data providers. Please cite \
+#           Willett et al.,(2020) and Freeman et al., (2017) with a link to the REFERENCES provided in the REFERENCE attribute.'
 # Open Government License
-    #Licence = 'HadISDH is distributed under the Open Government Licence: \
-    #           http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
-    #           The data are freely available for use with attribution to the data providers. Please cite \
-    #           Willett et al.,(2014) with a link to the REFERENCE provided in the REFERENCE attribute.'
+    Licence = 'HadISDH is distributed under the Open Government Licence: \
+               http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
+               The data are freely available for use with attribution to the data providers. Please cite \
+               references provided in the REFERENCE attribute.'
     Project = 'HadOBS: Met Office Hadley Centre Climate Monitoring Data-product www.metoffice.gov.uk/hadobs'
     Processing_level = 'Hourly ship observation data quality controlled, bias adjusted, averaged \
                     to monthly means, then averaged over 5deg by 5deg gridboxes.'
     Acknowledgement = 'Kate Willett, Robert Dunn and John Kennedy were supported by the Joint UK BEIS/Defra \
                   Met Office Hadley Centre Climate Programme (GA01101).'
 # THIS BIT NEEDS EDITING EVERY YEAR **************************
-    Source = 'ICOADS.3.1.0 (1973-2014) and ICOADS.3.0.1 (2015 onwards) (Freeman et al. 2017) from the National Centres for Environmental Information \
-          International Surface Database (ISD): www.ncdc.noaa.gov/isd'
+    Source = 'ICOADS.3.1.0 (1973-2014) and ICOADS.3.0.1 (2015 onwards) (Freeman et al. 2017) from icoads.noaa.gov.'
     Comment = ''
-    References = 'Willett, K. M.,, R. J. H. Dunn, J. Kennedy, and D. Berry, in review.: Development of the HadISDH marine \
+    References = 'Willett, K. M.,, R. J. H. Dunn, J. J. Kennedy, and D. I. Berry, in review.: Development of the HadISDH marine \
               humidity climate monitoring dataset. Earth System Science Datasets. \
 	      Freeman, E., S.D. Woodruff, S.J. Worley, S.J. Lubker, E.C. Kent, W.E. Angel, D.I . Berry, P. Brohan, R. Eastman, L. Gates, W. \
 	      Gloeden, Z. Ji, J. Lawrimore, N.A. Rayner, G. Rosenhagen, and S.R. Smith, 2017: ICOADS Release 3.0: A major update to the \
 	      historical marine climate record. Int. J. Climatol. (CLIMAR-IV Special Issue), 37, 2211-2237 (doi:10.1002/joc.4775).'
+    Creator_name = 'Kate Willett'
+    Creator_email = 'kate.willett@metoffice.gov.uk'
+    Conventions = 'CF-1.6'
+    netCDF_type = 'NETCDF4_CLASSIC'
+
+elif (Domain == 'blend'):
+    Description = 'climate monitoring product \
+               from 1973 onwards. Ship and station observations have been quality controlled, buddy checked (marine), homogenised (land), bias adjusted (marine - height to 10m, unaspirated screens) \
+	       and averaged over 5deg by 5deg gridboxes (no smoothing \
+               or interpolation). Gridbox 2 sigma uncertainty estimates are provided that represent spatio-temporal sampling within the \
+               gridbox and combined observation level uncertainties.'
+    Institution = 'Met Office Hadley Centre (UK), \
+               National Centres for Environmental Information (USA), \
+               National Physical Laboratory (UK), \
+               Climatic Research Unit (UK), \
+               Maynooth University (Rep. of Ireland) \
+               National Oceanography Centre Southampton (UK)'
+    History = 'See Willett et al., (2014, 2020) REFERENCE for more information. \
+           See www.metoffice.gov.uk/hadobs/hadisdh/ for more information and related data and figures. \
+           Follow @metofficeHadOBS to keep up to date with Met Office Hadley Centre HadOBS dataset developements. \
+           See hadisdh.blogspot.co.uk for HadISDH updates, bug fixes and explorations.'
+## Non-commercial license
+#    Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
+#           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
+#           The data are freely available for any non-comercial use with attribution to the data providers. Please cite \
+#           Willett et al.,(2020) and Freeman et al., (2017) with a link to the REFERENCES provided in the REFERENCE attribute.'
+# Open Government License
+    Licence = 'HadISDH is distributed under the Open Government Licence: \
+               http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
+               The data are freely available for use with attribution to the data providers. Please cite \
+               references provided in the REFERENCE attribute.'
+    Project = 'HadOBS: Met Office Hadley Centre Climate Monitoring Data-product www.metoffice.gov.uk/hadobs'
+    Processing_level = 'Hourly ship and station observation data quality controlled, buddy checked (marine), \
+                       homogenised (land), bias adjusted (marine), averaged \
+                    to monthly means, and averaged over 5deg by 5deg gridboxes.'
+    Acknowledgement = 'Kate Willett, Robert Dunn, John Kennedy and David Parker were supported by the Joint UK BEIS/Defra \
+                  Met Office Hadley Centre Climate Programme (GA01101).'
+# THIS BIT NEEDS EDITING EVERY YEAR **************************
+    Source = 'ICOADS.3.1.0 (1973-2014) and ICOADS.3.0.1 (2015 onwards) (Freeman et al. 2017) from icoads.noaa.gov, \
+          HadISD.3.1.2018f (Dunn et al., 2016), International Surface Database (ISD) (Smith et al, 2011) from www.ncdc.noaa.gov/isd'
+    Comment = ''
+    References = 'Willett, K. M.,, R. J. H. Dunn, J. J. Kennedy, and D. I. Berry, in review.: Development of the HadISDH marine \
+              humidity climate monitoring dataset. Earth System Science Datasets. \
+	      Freeman, E., S.D. Woodruff, S.J. Worley, S.J. Lubker, E.C. Kent, W.E. Angel, D.I . Berry, P. Brohan, R. Eastman, L. Gates, W. \
+	      Gloeden, Z. Ji, J. Lawrimore, N.A. Rayner, G. Rosenhagen, and S.R. Smith, 2017: ICOADS Release 3.0: A major update to the \
+	      historical marine climate record. Int. J. Climatol. (CLIMAR-IV Special Issue), 37, 2211-2237 (doi:10.1002/joc.4775). \
+	      Willett, K. M., Dunn, R. J. H., Thorne, P. W., Bell, S., de Podesta, M., Parker, D. E., \
+              Jones, P. D. and Williams, Jr., C. N.: HadISDH land surface multi-variable humidity and temperature record for climate monitoring, \
+              Clim. Past, 10, 1983-2006, doi:10.5194/cp-10-1983-2014, 2014, \
+	      Dunn, R. J. H., et al. 2016: Expanding HadISD: quality-controlled, sub-daily \
+	      station data from 1931, Geoscientific Instrumentation, Methods and Data Systems, 5, 473-491. \
+	      Smith, A., N. Lott, and R. Vose, 2011: The Integrated Surface Database: Recent \
+	      Developments and Partnerships. Bulletin of the American Meteorological Society, \
+	      92, 704-708, doi:10.1175/2011BAMS3015.1'
     Creator_name = 'Kate Willett'
     Creator_email = 'kate.willett@metoffice.gov.uk'
     Conventions = 'CF-1.6'
@@ -316,18 +383,12 @@ if (Domain == 'land'):
 		MyChoice+'_rbar',
 		MyChoice+'_sbarSQ']
 
-else:						
+elif (Domain == 'marine'):						
     DataObjectList=[MyChoice+'_anoms',
 		MyChoice+'_abs',
-		MyChoice+'_std',
+		#MyChoice+'_std',
 		MyChoice+'_clims',
 		MyChoice+'_clim_std', # monthly climatological standard deviation,
-		MyChoice+'_combinederr',
-		MyChoice+'_samplingerr',
-		MyChoice+'_stationerr',
-		MyChoice+'_obserr',
-		MyChoice+'_climerr',
-		MyChoice+'_adjerr',
 		MyChoice+'_abs_uHGT', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_anoms_uHGT', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_abs_uSCN', # monthyl mean <var> adjustment height uncertainty (2 sigma)
@@ -341,25 +402,44 @@ else:
 		MyChoice+'_abs_uOBS', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_anoms_uOBS', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_abs_uSAMP', # monthyl mean <var> adjustment height uncertainty (2 sigma)
-		MyChoice+'_abs_uSAMP_n_grids', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_anoms_uSAMP', # monthyl mean <var> adjustment height uncertainty (2 sigma)
-		MyChoice+'_anoms_uSAMP_n_grids', # monthyl mean <var> adjustment height uncertainty (2 sigma)
+		MyChoice+'_uSAMP_n_grids', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_abs_usbarSQ', # monthyl mean <var> adjustment height uncertainty (2 sigma)
-		MyChoice+'_abs_usbarSQ_n_grids', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_anoms_usbarSQ', # monthyl mean <var> adjustment height uncertainty (2 sigma)
-		MyChoice+'_anoms_usbarSQ_n_grids', # monthyl mean <var> adjustment height uncertainty (2 sigma)
+		MyChoice+'_usbarSQ_n_grids', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_abs_urbar', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_anoms_urbar', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_abs_uFULL', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_anoms_uFULL', # monthyl mean <var> adjustment height uncertainty (2 sigma)
 		MyChoice+'_n_grids', # number of 1by1 daily grids within gridbox
 	        MyChoice+'_n_obs', # number of observations within gridbox
-		MyChoice+'clims_n_grids', # number of 1by1 daily grids within gridbox climatology
-	        MyChoice+'clims_n_obs', # number of observations within gridbox climatology
-		MyChoice+'clim_std_n_grids', # number of 1by1 daily grids within gridbox climatological standard deviation
-	        MyChoice+'clim_std_n_obs', # number of observations within gridbox climatological standard deviation
-		MyChoice+'_rbar',
-		MyChoice+'_sbarSQ']
+		MyChoice+'_clims_n_grids', # number of 1by1 daily grids within gridbox climatology
+	        MyChoice+'_clims_n_obs', # number of observations within gridbox climatology
+		MyChoice+'_clim_std_n_grids', # number of 1by1 daily grids within gridbox climatological standard deviation
+	        MyChoice+'_clim_std_n_obs'] # number of observations within gridbox climatological standard deviation
+
+elif (Domain == 'blend'):
+    DataObjectList=[MyChoice+'_anoms',
+		MyChoice+'_abs',
+		MyChoice+'_clims',
+		MyChoice+'_land_std',
+		MyChoice+'_marine_clims_std',
+		MyChoice+'_anoms_obserr', # (2 sigma)
+		MyChoice+'_abs_obserr', # (2 sigma)
+		MyChoice+'_anoms_samplingerr', # (2 sigma)
+		MyChoice+'_abs_samplingerr', # (2 sigma)
+		'marine_actual_pseudo_stations',
+		'marine_mean_pseudo_stations',
+		MyChoice+'_anoms_combinederr', # (2 sigma)
+		MyChoice+'_abs_combinederr', # (2 sigma)
+		'land_mean_n_stations',
+	        'land_actual_n_stations',
+		'marine_n_grids',
+		'marine_n_obs',
+		'marine_clim_n_grids',
+		'marine_clim_n_obs',
+		'marine_climstd_n_grids',
+		'marine_climstd_n_obs']
     				    
 # DimObject list
 DimObjectList=[['time','month','characters','latitude','longitude','bound_pairs'],
@@ -435,12 +515,6 @@ if (Domain == 'land'):
 			  ('cell_methods','time: mean (interval: 1 month comment: anomaly from climatology) area: mean where '+Domain+' ('+DomainOBS+' within gridbox)'),
 			  ('comment','gridbox mean monthly mean climate anomaly from '+DomainOBS),
 			  ('units', NameList[MyChoice][1]),
-                          ('add_offset',-100.0), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
-#			  ('missing_value',-1e30),
-#			  ('_FillValue',(-1e30 / 0.01) - 100.),
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30),
 			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
@@ -453,10 +527,6 @@ if (Domain == 'land'):
 			  ('cell_methods','time: mean (interval: 1 month) area: mean where '+Domain+' ('+DomainOBS+' within gridbox)'),
 			  ('comment','gridbox mean monthly mean from '+DomainOBS),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30),
 			  ('ancillary_variables','stdunc sampunc stnunc measunc adjunc climunc')]),
@@ -467,23 +537,15 @@ if (Domain == 'land'):
 			  ('cell_methods','time: mean (interval: 1 month) area: variance where '+Domain+' ('+DomainOBS+' within gridbox)'),
 			  ('comment','gridbox standard deviation of monthly mean climate anomaly from '+DomainOBS),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30)]),
 	            dict([('var_type','float32'),
 			  ('var_name','clm'),
 			  ('var_dims',('month','latitude','longitude',)), 
-			  ('long_name','near surface (~'+DomainHGT+'m) s'+NameList[MyChoice][3]+' climatology'),
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]+' climatology'),
 			  ('cell_methods','time: mean (interval: 1 month comment: over 30 year climatology period) area: mean where '+Domain+' ('+DomainOBS+' within gridbox)'),
-			  ('comment','gridbox mean of monthly mean from '+DomainOBS),
+			  ('comment','gridbox mean of 30 yr climatological monthly mean from '+DomainOBS),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30),
 			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
@@ -493,10 +555,6 @@ if (Domain == 'land'):
 			  ('long_name','uncorrelated combined 2 sigma uncertainty for gridbox'),
 			  ('comment','gridbox mean monthly station uncertainty and gridbox sampling uncertainty combined in quadrature assumed uncorrelated'),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30)]),
 	            dict([('var_type','float32'),
@@ -506,10 +564,6 @@ if (Domain == 'land'):
 			  ('cell_methods','area: mean where '+Domain+' ('+DomainOBS+' within gridbox)'),
 			  ('comment','gridbox sampling uncertainty (Jones et al 1997) based on spatio-temporal station presence and intersite correlation assumed uncorrelated'),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30)]),
 	            dict([('var_type','float32'),
@@ -519,10 +573,6 @@ if (Domain == 'land'):
 			  ('cell_methods','time: mean (interval: 1 month) area: mean where '+Domain+' ('+DomainOBS+' within gridbox combined in quadtrature)'),
 			  ('comment','gridbox mean monthly measurement, adjustment and climatology uncertainty combined in quadrature for each '+DomainOBS+' and then in quadrature over the gridbox assumed to be uncorrelated'),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30)]),
 	            dict([('var_type','float32'),
@@ -532,10 +582,6 @@ if (Domain == 'land'):
 			  ('cell_methods','time: mean (interval: 1 month) area: mean where '+Domain+' ('+DomainOBS+' within gridbox combined in quadtrature)'),
 			  ('comment','gridbox mean monthly measurement uncertainty for each observation combined in quadrature over the gridbox assumed to be uncorrelated'),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30)]),
 	            dict([('var_type','float32'),
@@ -545,10 +591,6 @@ if (Domain == 'land'):
 			  ('cell_methods','area: mean where '+Domain+' ('+DomainOBS+' within gridbox combined in quadtrature)'),
 			  ('comment','gridbox mean monthly climatology uncertainty for each observation combined in quadrature over the gridbox assumed to be uncorrelated'),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30)]),
 	            dict([('var_type','float32'),
@@ -558,10 +600,6 @@ if (Domain == 'land'):
 			  ('cell_methods','area: mean where '+Domain+' ('+DomainOBS+' within gridbox combined in quadtrature)'),
 			  ('comment','gridbox mean monthly adjustment (applied and missed) uncertainty for each observation combined in quadrature over the gridbox assumed to be uncorrelated'),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30),
 			  ('_FillValue',-1e30)]),
 	            dict([('var_type','i4'),
@@ -570,30 +608,22 @@ if (Domain == 'land'):
 			  ('long_name','mean number of '+DomainOBS+' within gridbox'),
 			  ('cell_methods','time: mean (interval: 1 month) area: sum where '+Domain+' ('+DomainOBS+' within gridbox)'),
 			  ('units','1'),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
-			  ('missing_value',-999), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
-			  ('_FillValue',-999)]),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
 	            dict([('var_type','i4'),
 			  ('var_name','stncount'),
 			  ('var_dims',('time','latitude','longitude',)), 
 			  ('long_name','actual number of '+DomainOBS+' within gridbox'),
 			  ('cell_methods','time: sum (interval: 1 month) area: sum where '+Domain+' ('+DomainOBS+' within gridbox)'),
 			  ('units','1'),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
-			  ('missing_value',-999), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
-			  ('_FillValue',-999)]),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
 	            dict([('var_type','float32'),
 			  ('var_name','rbar'),
 			  ('var_dims',('latitude','longitude',)), 
 			  ('long_name','intersite correlation (rbar)'),
 			  ('comment','intersite correlation for each gridbox following Jones et al 1997 (rbar)'),
 			  ('units','1'),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
 			  ('_FillValue',-1e30)]),
 	            dict([('var_type','float32'),
@@ -602,16 +632,468 @@ if (Domain == 'land'):
 			  ('long_name','mean gridbox variance (sbar2)'),
 			  ('comment','mean variance over all observations in gridbox following Jones et al 1997 (sbar2)'),
 			  ('units',NameList[MyChoice][1]),
-			  ('add_offset',-100.), # storedval=int((var-offset)/scale)
-			  ('scale_factor',0.01),
-			  ('valid_min',0),
-			  ('valid_max',30000), # max integer
 			  ('missing_value',-1e30), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
 			  ('_FillValue',-1e30)])]  
 
-else:
+elif (Domain == 'marine'):
     #marine attributes
-    moo=0
+    AttrObjectList=[dict([('var_type','float32'),
+			  ('var_name',NameList[MyChoice][4]),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]+' anomaly'),
+			  ('cell_methods','time: mean (interval: 1 month comment: anomaly from climatology) area: mean where '+Domain+' ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox mean monthly mean climate anomaly from '+DomainOBS),
+			  ('units', NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
+			  ('ancillary_variables','abs_stdunc anoms_stdunc abs_sampunc anoms_stdunc abs_obsunc anoms_obsunc')]),
+	            dict([('var_type','float32'),
+			  ('var_name',NameList[MyChoice][5]),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('standard_name',NameList[MyChoice][2]),
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]),
+			  ('cell_methods','time: mean (interval: 1 month) area: mean where '+Domain+' ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox mean monthly mean from '+DomainOBS),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30),
+			  ('ancillary_variables','abs_stdunc anoms_stdunc abs_sampunc anoms_stdunc abs_obsunc anoms_obsunc')]),
+#	            dict([('var_type','float32'),
+#			  ('var_name','std'),
+#			  ('var_dims',('time','latitude','longitude',)), 
+#			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]+' standard deviation'),
+#			  ('cell_methods','time: mean (interval: 1 month) area: variance where '+Domain+' ('+DomainOBS+' within gridbox)'),
+#			  ('comment','gridbox standard deviation of monthly mean climate anomaly from '+DomainOBS),
+#			  ('units',NameList[MyChoice][1]),
+#			  ('missing_value',-1e30),
+#			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','clm'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]+' climatology'),
+			  ('cell_methods','area: mean where '+Domain+' ('+DomainOBS+' within gridbox) time: mean (interval: 1 month comment: over 30 year climatology period)'),
+			  ('comment','30 year monthly mean of gridbox mean'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
+	            dict([('var_type','float32'),
+			  ('var_name','clmstd'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]+' climatological standard deviations'),
+			  ('cell_methods','area: mean where '+Domain+' ('+DomainOBS+' within gridbox) time: standard deviation of monthly means (interval: 1 month comment: over 30 year climatology period) '),
+			  ('comment','30 year standard deviation of gridbox monthly mean'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_hgtadjunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','correlated 2 sigma uncertainty for ship height bias adjustments for actual values'),
+			  ('comment','gridbox mean monthly ship height bias adjustment uncertainty combined in quadrature assuming correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_hgtadjunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','correlated 2 sigma uncertainty for ship height bias adjustments for anomaly values'),
+			  ('comment','gridbox mean monthly ship height bias adjustment uncertainty combined in quadrature assuming correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_instadjunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','correlated 2 sigma uncertainty for instrument bias adjustments for actual values'),
+			  ('comment','gridbox mean monthly instrument bias adjustment uncertainty combined in quadrature assuming correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_instadjunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','correlated 2 sigma uncertainty for instrument bias adjustments for anomaly values'),
+			  ('comment','gridbox mean monthly instrument bias adjustment uncertainty combined in quadrature assuming correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_clmunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','correlated 2 sigma uncertainty for climatology for actual values'),
+			  ('comment','gridbox mean monthly climatology uncertainty combined in quadrature assuming correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_clmunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','correlated 2 sigma uncertainty for climatology for anomaly values'),
+			  ('comment','gridbox mean monthly climatology uncertainty combined in quadrature assuming correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_wholeunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma uncertainty for whole number reporting for actual values'),
+			  ('comment','gridbox mean monthly whole number uncertainty combined in quadrature assuming no correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_wholeunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma uncertainty for whole number reporting for anomaly values'),
+			  ('comment','gridbox mean monthly whole number reporting uncertainty combined in quadrature assuming no correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_measunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma uncertainty for measurement for actual values'),
+			  ('comment','gridbox mean monthly measurement uncertainty combined in quadrature assuming no correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_measunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma uncertainty for measurement for anomaly values'),
+			  ('comment','gridbox mean monthly measurement uncertainty combined in quadrature assuming no correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_obsunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma combined observation uncertainty for actual values'),
+			  ('comment','gridbox mean monthly combined observation uncertainty combined in quadrature assuming no correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_obsunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma combined observations uncertainty for anomaly values'),
+			  ('comment','gridbox mean monthly combined observations uncertainty combined in quadrature assuming no correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_sampunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma sampling uncertainty for gridbox actual values'),
+			  ('cell_methods','area: mean where '+Domain+' ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox sampling uncertainty (Jones et al 1997) based on spatio-temporal station presence and intersite correlation assumed uncorrelated'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_sampunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma sampling uncertainty for gridbox anomaly values'),
+			  ('cell_methods','area: mean where '+Domain+' ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox sampling uncertainty (Jones et al 1997) based on spatio-temporal station presence and intersite correlation assumed uncorrelated'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','i4'),
+			  ('var_name','pseudostncount'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','number of pseudo stations within gridbox'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_sbarsq'),
+			  ('var_dims',('latitude','longitude',)), 
+			  ('long_name','gridbox mean pseudo-station variance (sbarSQ for sampling uncertainty) for gridbox actual values'),
+			  ('comment','mean variance over all observations in gridbox following Jones et al 1997 (sbarSQ)'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_sbarsq'),
+			  ('var_dims',('latitude','longitude',)), 
+			  ('long_name','gridbox mean pseudo-station variance (sbarSQ for sampling uncertainty) for gridbox anomaly values'),
+			  ('comment','mean variance over all observations in gridbox following Jones et al 1997 (sbarSQ)'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','i4'),
+			  ('var_name','meanpseudostncount'),
+			  ('var_dims',('latitude','longitude',)), 
+			  ('long_name','mean number of pseudo stations within gridbox'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_rbar'),
+			  ('var_dims',('latitude','longitude',)), 
+			  ('long_name','intersite correlation (rbar) for actual values'),
+			  ('comment','intersite correlation for each gridbox following Jones et al 1997 (rbar)'),
+			  ('units','1'),
+			  ('missing_value',-1e30), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_rbar'),
+			  ('var_dims',('latitude','longitude',)), 
+			  ('long_name','intersite correlation (rbar) for anomalies'),
+			  ('comment','intersite correlation for each gridbox following Jones et al 1997 (rbar)'),
+			  ('units','1'),
+			  ('missing_value',-1e30), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_stdunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated combined 2 sigma uncertainty for gridbox actual values'),
+			  ('comment','gridbox mean monthly observation uncertainty and gridbox sampling uncertainty combined in quadrature assumed uncorrelated'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_stdunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated combined 2 sigma uncertainty for gridbox anomalu values'),
+			  ('comment','gridbox mean monthly observation uncertainty and gridbox sampling uncertainty combined in quadrature assumed uncorrelated'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','i4'),
+			  ('var_name','gridcount'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','number of 1by1 daily grids within gridbox'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where 1by1 daily grids within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','obscount'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','number of observations within gridbox'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where observations within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','clmgridcount'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','number of 1by1 daily grids within gridbox climatology'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where 1by1 daily grids within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','clmobscount'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','number of observations within gridbox climatology'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where observations within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','clmstdgridcount'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','number of 1by1 daily grids within gridbox climatological standard deviations'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where 1by1 daily grids within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','clmstdobscount'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','number of observations within gridbox climatological standard deviations'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where observations within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)])]  
+
+elif (Domain == 'blend'):
+    #marine attributes    				    
+    AttrObjectList=[dict([('var_type','float32'),
+			  ('var_name',NameList[MyChoice][4]),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]+' anomaly'),
+			  ('cell_methods','time: mean (interval: 1 month comment: anomaly from climatology) area: mean ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox mean monthly mean climate anomaly from '+DomainOBS),
+			  ('units', NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1])),		#'1976, 2005'),
+			  ('ancillary_variables','abs_stdunc anoms_stdunc abs_sampunc anoms_stdunc abs_obsunc anoms_obsunc')]),
+	            dict([('var_type','float32'),
+			  ('var_name',NameList[MyChoice][5]),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('standard_name',NameList[MyChoice][2]),
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]),
+			  ('cell_methods','time: mean (interval: 1 month) area: mean ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox mean monthly mean from '+DomainOBS),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30),
+			  ('ancillary_variables','abs_stdunc anoms_stdunc abs_sampunc anoms_stdunc abs_obsunc anoms_obsunc')]),
+	            dict([('var_type','float32'),
+			  ('var_name','clm'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]+' climatology'),
+			  ('cell_methods','area: mean ('+DomainOBS+' within gridbox) time: mean (interval: 1 month comment: over 30 year climatology period)'),
+			  ('comment','30 year monthly mean of gridbox mean'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
+	            dict([('var_type','float32'),
+			  ('var_name','land_std'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','near surface (~2m) '+NameList[MyChoice][3]+' standard deviation'),
+			  ('cell_methods','time: mean (interval: 1 month) area: variance where land ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox standard deviation of monthly mean climate anomaly from '+DomainOBS),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','marine_clmstd'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','near surface (~'+DomainHGT+'m) '+NameList[MyChoice][3]+' climatological standard deviations'),
+			  ('cell_methods','area: mean where ocean ('+DomainOBS+' within gridbox) time: standard deviation of monthly means (interval: 1 month comment: over 30 year climatology period) '),
+			  ('comment','30 year standard deviation of gridbox monthly mean'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30),
+			  ('reference_period',str(ClimPoints[0])+', '+str(ClimPoints[1]))]),		#'1976, 2005')]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_obsunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma combined observation uncertainty for actual values'),
+			  ('comment','gridbox mean monthly combined observation uncertainty combined in quadrature assuming no correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_obsunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma combined observations uncertainty for anomaly values'),
+			  ('comment','gridbox mean monthly combined observations uncertainty combined in quadrature assuming no correlation'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_sampunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma sampling uncertainty for gridbox actual values'),
+			  ('cell_methods','area: mean ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox sampling uncertainty (Jones et al 1997) based on spatio-temporal station presence and intersite correlation assumed uncorrelated'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_sampunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated 2 sigma sampling uncertainty for gridbox anomaly values'),
+			  ('cell_methods','area: mean ('+DomainOBS+' within gridbox)'),
+			  ('comment','gridbox sampling uncertainty (Jones et al 1997) based on spatio-temporal station presence and intersite correlation assumed uncorrelated'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','i4'),
+			  ('var_name','marine_pseudostncount'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','number of pseudo stations within gridbox'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','marine_meanpseudostncount'),
+			  ('var_dims',('latitude','longitude',)), 
+			  ('long_name','mean number of pseudo stations within gridbox'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','float32'),
+			  ('var_name','abs_stdunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated combined 2 sigma uncertainty for gridbox actual values'),
+			  ('comment','gridbox mean monthly observation uncertainty and gridbox sampling uncertainty combined in quadrature assumed uncorrelated'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','float32'),
+			  ('var_name','anoms_stdunc'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','uncorrelated combined 2 sigma uncertainty for gridbox anomalu values'),
+			  ('comment','gridbox mean monthly observation uncertainty and gridbox sampling uncertainty combined in quadrature assumed uncorrelated'),
+			  ('units',NameList[MyChoice][1]),
+			  ('missing_value',-1e30),
+			  ('_FillValue',-1e30)]),
+	            dict([('var_type','i4'),
+			  ('var_name','land_meanstncount'),
+			  ('var_dims',('latitude','longitude',)), 
+			  ('long_name','mean number of '+DomainOBS+' within gridbox'),
+			  ('cell_methods','time: mean (interval: 1 month) area: sum ('+DomainOBS+' within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','land_stncount'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','actual number of '+DomainOBS+' within gridbox'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum ('+DomainOBS+' within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','marine_gridcount'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','number of 1by1 daily grids within gridbox'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where 1by1 daily grids within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','marine_obscount'),
+			  ('var_dims',('time','latitude','longitude',)), 
+			  ('long_name','number of observations within gridbox'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where observations within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','marine_clmgridcount'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','number of 1by1 daily grids within gridbox climatology'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where 1by1 daily grids within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','marine_clmobscount'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','number of observations within gridbox climatology'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where observations within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','marine_clmstdgridcount'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','number of 1by1 daily grids within gridbox climatological standard deviations'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where 1by1 daily grids within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)]),
+	            dict([('var_type','i4'),
+			  ('var_name','marine_clmstdobscount'),
+			  ('var_dims',('month','latitude','longitude',)), 
+			  ('long_name','number of observations within gridbox climatological standard deviations'),
+			  ('cell_methods','time: sum (interval: 1 month) area: sum where observations within gridbox)'),
+			  ('units','1'),
+			  ('missing_value',-1), # DOUBLE CHECK WHETHER THIS IS PERMISSABLE FOR INT?
+			  ('_FillValue',-1)])]  
 
 # Set up Global Attribute List of Lists
 GlobAttrObjectList=dict([['File_created',datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')], # Is there a call for time stamping?
@@ -640,10 +1122,11 @@ if (MyChoice == 'q'):
     # Files
     if (Domain == 'land'):
         InFile='HadISDH.landq.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='huss-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-    else:
+    elif (Domain == 'marine'):
         InFile='HadISDH.marineq.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='huss-marine_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    elif (Domain == 'blend'):
+        InFile='HadISDH.blendq.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+    OutFile='huss-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     								  						  
 #------------------------------------------------------------------------	
 # Set up for rh
@@ -651,11 +1134,11 @@ if (MyChoice == 'rh'):
     # Files
     if (Domain == 'land'):
         InFile='HadISDH.landRH.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='hurs-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-
-    else:
+    elif (Domain == 'marine'):
         InFile='HadISDH.marineRH.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='hurs-marine_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    elif (Domain == 'blend'):
+        InFile='HadISDH.blendRH.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+    OutFile='hurs-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 		
 #------------------------------------------------------------------------	
 # Set up for e
@@ -663,23 +1146,23 @@ if (MyChoice == 'e'):
     # Files
     if (Domain == 'land'):
         InFile='HadISDH.lande.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='vps-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-
-    else:
+    elif (Domain == 'marine'):
         InFile='HadISDH.marinee.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='vps-marine_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-		
+    elif (Domain == 'blend'):
+        InFile='HadISDH.blende.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+    OutFile='vps-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+        	
 #------------------------------------------------------------------------	
 # Set up for td
 if (MyChoice == 'td'):	
     # Files
     if (Domain == 'land'):
         InFile='HadISDH.landTd.'+verstring+'_FLATgridPHADPD5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='tds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-
-    else:
+    elif (Domain == 'marine'):
         InFile='HadISDH.marineTd.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='tds-marine_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    elif (Domain == 'blend'):
+        InFile='HadISDH.blendTd.'+verstring+'_FLATgridPHADPDBClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+    OutFile='tds-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
 #------------------------------------------------------------------------	
 # Set up for tw
@@ -687,11 +1170,11 @@ if (MyChoice == 'tw'):
     # Files
     if (Domain == 'land'):
         InFile='HadISDH.landTw.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='tws-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-
-    else:
+    elif (Domain == 'marine'):
         InFile='HadISDH.marineTw.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='tws-marine_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    							
+    elif (Domain == 'blend'):
+        InFile='HadISDH.blendTw.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+    OutFile='tws-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 
 #------------------------------------------------------------------------	
 # Set up for t
@@ -699,11 +1182,11 @@ if (MyChoice == 't'):
     # Files
     if (Domain == 'land'):
         InFile='HadISDH.landT.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='tas-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-
-    else:
+    elif (Domain == 'marine'):
         InFile='HadISDH.marineT.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='tas-marine_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    elif (Domain == 'blend'):
+        InFile='HadISDH.blendT.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+    OutFile='tas-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 						
 #------------------------------------------------------------------------	
 # Set up for dpd
@@ -711,11 +1194,11 @@ if (MyChoice == 'dpd'):
     # Files
     if (Domain == 'land'):
         InFile='HadISDH.landDPD.'+verstring+'_FLATgridPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='dpds-land_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
-
-    else:
+    elif (Domain == 'marine'):
         InFile='HadISDH.marineDPD.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
-        OutFile='dpds-marine_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
+    elif (Domain == 'blend'):
+        InFile='HadISDH.blendDPD.'+verstring+'_FLATgridPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+    OutFile='dpds-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 						
 #************************************************************************
 # Main Program
@@ -731,7 +1214,10 @@ Dates = dict([('StYr',StYr),('StMon',StMon),('EdYr',EdYr),('EdMon',EdMon)])
 #DataObject,Latitudes,Longitudes = GetGrid(InFileName,DataObjectList,LatInfo,LonInfo)
 DataObject,Latitudes,Longitudes = GetGrid4(InFileName,DataObjectList,LatInfo,LonInfo)
 
-# Check data mdis - they are currently -1e30 and so need to be set to -999
+# Check data mdis - land counts are currently -1e30 and need to be -1
+if (Domain == 'land'):
+    DataObject[10][np.where(DataObject[10] <= 0)] = -1
+    DataObject[11][np.where(DataObject[11] <= 0)] = -1
 #pdb.set_trace()
 #ADD A CATCH HERE TO CHANGE MDI
 
