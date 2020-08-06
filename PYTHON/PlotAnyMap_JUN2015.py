@@ -178,12 +178,12 @@ from SelectSlice import SelectSlice
 # Set in stone things:
 MonArr = ['January','February','March','April','May','June','July','August','September','October','November','December']
 VarDict = dict([('q',['q','g kg$^{-1}$','Specific Humidity',('BrBG','noflip'),dict([('MinVal',-2.),('MaxVal',2.),('StepVal',9.),('LetterVal','')])]),
-                ('rh',['RH','%rh','Relative Humidity',('BrBG','noflip'),dict([('MinVal',-2.),('MaxVal',2.),('StepVal',9.),('LetterVal','')])]),
+                ('rh',['RH','%rh','Relative Humidity',('BrBG','noflip'),dict([('MinVal',-12.),('MaxVal',12.),('StepVal',9.),('LetterVal','')])]),
 		('e',['e','hPa','Vapour Pressure',('BrBG','noflip'),dict([('MinVal',-2.),('MaxVal',2.),('StepVal',9.),('LetterVal','')])]),
-		('t',['T','$^{o}$C','Air Temperature',('coolwarm','noflip'),dict([('MinVal',-2.),('MaxVal',2.),('StepVal',9.),('LetterVal','')])]),
+		('t',['T','$^{o}$C','Air Temperature',('coolwarm','noflip'),dict([('MinVal',-2.5),('MaxVal',2.5),('StepVal',9.),('LetterVal','')])]),
 		('tw',['Tw','$^{o}$C','Wetbulb Temperature',('BrBG','noflip'),dict([('MinVal',-2.),('MaxVal',2.),('StepVal',9.),('LetterVal','')])]),
 		('td',['Td','$^{o}$C','Dew Point Temperature',('BrBG','noflip'),dict([('MinVal',-2.),('MaxVal',2.),('StepVal',9.),('LetterVal','')])]),
-		('dpd',['DPD','$^{o}$C','Dew Point Depression',('BrBG','flip'),dict([('MinVal',-2.),('MaxVal',2.),('StepVal',9.),('LetterVal','')])])])
+		('dpd',['DPD','$^{o}$C','Dew Point Depression',('BrBG','flip'),dict([('MinVal',-3.),('MaxVal',3.),('StepVal',9.),('LetterVal','')])])])
 
 # EDITABLES!!!
 
@@ -193,7 +193,7 @@ VarDict = dict([('q',['q','g kg$^{-1}$','Specific Humidity',('BrBG','noflip'),di
 Domain = 'marine' # 'land', 'marine',' blend'
 
 # Variable
-Var = 'q' # 'q','rh','e','t','tw','td','dpd'
+Var = 'dpd' # 'q','rh','e','t','tw','td','dpd'
 
 # Version
 if (Domain == 'land'):
@@ -263,7 +263,7 @@ DoReClim = False
 PlotType = 'anomaly' 
 
 # Set up forced vmin,vmax,nsteps and plotlabel letter if needed or leave as default
-#RangeDict = dict([('MinVal',0.),('MaxVal',0.),('StepVal',0.),('LetterVal','')]). # default = 0., 0. ,0., '' 
+#RangeDict = dict([('MinVal',0.),('MaxVal',0.),('StepVal',0.),('LetterVal','')]) # default = 0., 0. ,0., '' 
 #Fix vals ,
 RangeDict = VarDict[Var][4]
 
