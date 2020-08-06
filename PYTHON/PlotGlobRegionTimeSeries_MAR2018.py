@@ -33,6 +33,7 @@
 # Other:
 # from RandomsRanges import LetterRange
 # from LinearTrends import MedianPairwise
+# from LinearTrends import OLS_AR1Corr
 # 
 # -----------------------
 # DATA
@@ -58,6 +59,17 @@
 # -----------------------
 # VERSION/RELEASE NOTES
 # -----------------------
+#
+#
+# Version 2 (4 May 2020)
+# ---------
+#  
+# Enhancements
+# Can now work with OLS_AR1Corr
+#  
+# Changes
+#  
+# Bug fixes
 #
 # Version 1 (5 May 2019)
 # ---------
@@ -91,9 +103,12 @@ from scipy.io import netcdf
 from scipy.stats.stats import pearsonr   
 from RandomsRanges import LetterRange
 from LinearTrends import MedianPairwise
+from LinearTrends import OLS_AR1Corr
+import pdb
 
 # Set up initial run choices
-RegChoice = 'Shem' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
+TrendChoice = 'OLS' # OLS or MPW
+RegChoice = 'Trop' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
 timetype='annual'	#'monthly', 'annual'
 nparams=7
 param=list(['t','tw','td','q','e','rh','dpd'])	# tw, q, e, rh, t, td, dpd
@@ -102,13 +117,15 @@ param3=list(['T','T$_{w}$','T$_{d}$','q','e','RH','DPD'])	# Tw, q, e, RH, T, Td,
 unitees=list(['$^{o}$C','$^{o}$C','$^{o}$C','g kg$^{-1}$','hPa','%rh','$^{o}$C'])
 homogtype=list(['IDPHA','IDPHA','PHADPD','IDPHA','IDPHA','IDPHA','PHA'])	# 'IDPHA','PHA','PHADPD'
 
-Domain = 'land' # land or marine, marineSHIP
+Domain = 'land' # land or marine, marineSHIP, blend, blendSHIP
 nowmon='JAN'
 nowyear='2020'
 thenmon='JAN'
 thenyear='2020'
 version='4.2.0.2019f'
+#version='4.1.0.2018f'
 #version='1.0.0.2019f'
+#version='1.0.0.2018f'
 styr=1973
 edyr=2019
 nyrs=(edyr-styr)+1
@@ -117,11 +134,23 @@ climst=1981
 climed=2010
 stcl=climst-styr
 edcl=climed-styr
+if (timetype == 'annual'):
+    ntims = nyrs
+elif (timetype == 'monthly'):
+    ntims = nmons
 
 # Set up directories and files
 
 PLOTDIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/IMAGES/TIMESERIES/'
 DATADIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
+
+#edyr=2018
+#nyrs=(edyr-styr)+1
+#nmons=(nyrs)*12
+#if (timetype == 'annual'):
+#    ntims = nyrs
+#elif (timetype == 'monthly'):
+#    ntims = nmons
 
 IfType='.dat'	#'.nc'
 if (Domain == 'land'):
@@ -130,6 +159,13 @@ elif (Domain == 'marine') | (Domain == 'marineSHIP'):
     INHFILEST='HadISDH.marine'
     
     if (Domain == 'marineSHIP'):
+
+        version = version+'SHIP'    
+
+elif (Domain == 'blend') | (Domain == 'blendSHIP'):
+    INHFILEST='HadISDH.blend'
+    
+    if (Domain == 'blendSHIP'):
 
         version = version+'SHIP'    
 
@@ -154,10 +190,10 @@ elif (RegChoice == 'Trop'):
         INHFILEED='.'+version+'_tropics_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
     else:
         INHFILEED='.'+version+'_tropics_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
-OUTPLOT='Plot'+Domain+RegChoice+'TimeSeries.'+version+'_'+timetype+'_anoms8110_'+nowmon+nowyear
+OUTPLOT='Plot'+Domain+RegChoice+'TimeSeries.'+version+'_'+timetype+'_anoms8110_'+TrendChoice+'_'+nowmon+nowyear
 
 # Set up variables
-mdi=-1e30
+mdi = -1e30
 
 varH=[]	# nvars(rows) by 4 regions, by mons masked array
 uncsHtot=[] # nvars(rows) by 4 regions, by mons masked array
@@ -180,7 +216,7 @@ def ReadData(FileName,typee,delimee,skipee):
 # PlotNiceTimeSeries
 def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
                        TheUnitees,TheMCount,TheYCount,TheTimeType,
-		       TheStYr,TheEdYr,TheMDI,TheParams,TheReg):
+		       TheStYr,TheEdYr,TheMDI,TheParams,TheReg,TheTrendChoice):
     ''' Plot a panel for each element of TheHvars '''
     ''' Add Coverage, Sampling and Station uncertainty ranges '''
     ''' Add lines for any extra estimates (TheVars) and HadISDH MASKED versions '''
@@ -294,7 +330,16 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
 
 # get linear trend and annotate (does this work with masked arrays?)
         lintrend=[0.,0.,0.] # median, 5th adn 95th percentile rate of change per time step
-        lintrend=MedianPairwise(TheHvars[pp,:],TheMDI,lintrend)
+        if (TheTrendChoice == 'MPW'):
+            lintrend=MedianPairwise(TheHvars[pp,:],TheMDI,lintrend)
+        elif (TheTrendChoice == 'OLS'):
+            slopes=OLS_AR1Corr(TheHvars[pp,:],TheMDI,0.9)
+            lintrend[0] = slopes[0]
+            lintrend[1] = slopes[1]
+            lintrend[2] = slopes[2]
+	    	
+        #pdb.set_trace()
+	
         if timetype == 'monthly':
             linstr="%5.2f (%5.2f to %5.2f) %s decade$^{-1}$ " % (lintrend[0]*120,lintrend[1]*120,lintrend[2]*120,TheUnitees[pp])
         else:
@@ -409,13 +454,13 @@ for nv in range(nparams):
        
     # Still need to populate main array   
     else:         
-        varH[nv,:] = tmpvar
+        varH[nv,:] = tmpvar[0:ntims]
 	            
     if len(tmpvarUcov) > 0:
-        uncsHcov[nv,:]=tmpvarUcov
-        uncsHsamp[nv,:]=tmpvarUsamp
-        uncsHstat[nv,:]=tmpvarUstat
-        uncsHtot[nv,:]=tmpvarUtot
+        uncsHcov[nv,:]=tmpvarUcov[0:ntims]
+        uncsHsamp[nv,:]=tmpvarUsamp[0:ntims]
+        uncsHstat[nv,:]=tmpvarUstat[0:ntims]
+        uncsHtot[nv,:]=tmpvarUtot[0:ntims]
 	
 # convert to masked arrays and mask out missing data
 print('Masking')
@@ -455,7 +500,7 @@ print('Plotting...')
 MyFile=PLOTDIR+OUTPLOT
 PlotNiceTimeSeries(MyFile,varH,uncsHcov,uncsHsamp,uncsHstat,
                        unitees,nmons,nyrs,timetype,styr,edyr,mdi,
-        	       param3,RegChoice)
+        	       param3,RegChoice,TrendChoice)
 		
 #    stop()
 
