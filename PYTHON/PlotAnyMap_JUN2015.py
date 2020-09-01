@@ -193,7 +193,7 @@ VarDict = dict([('q',['q','g kg$^{-1}$','Specific Humidity',('BrBG','noflip'),di
 Domain = 'marine' # 'land', 'marine',' blend'
 
 # Variable
-Var = 'dpd' # 'q','rh','e','t','tw','td','dpd'
+Var = 't' # 'q','rh','e','t','tw','td','dpd'
 
 # Version
 if (Domain == 'land'):
@@ -237,7 +237,7 @@ EdYr = 2019
 EdMon = 12 		
 
 # Are you reading in actuals or anomalies? 'anoms' or 'anomalies' for anomalies, 'abs' for actuals
-vartype = 'anoms' 
+vartype = 'abs' # Check PlotType = 'actuals' if we want to plot actuals
 
 # Select your month of choice, or a range for an average, or a range for looping through
 # 0...11 represent Jan..Dec, [2,4] for Mar-Apr-May average, [0,11] for annual average, [11,1] for Dec-Jan-Feb average
@@ -247,8 +247,8 @@ PlotMonMultiple = False # False to plot an average over range, True to plot each
 
 # Select your year of choice, or a range for an average, or a range for looping through
 # 1973...2014 for individual years, [1973,1982] for decadal average etc
-ChooseYr = [1973,2019] 
-PlotYrMultiple = True # False to plot an average over range, True to plot each individual month in range
+ChooseYr = [1981,2010] 
+PlotYrMultiple = False # False to plot an average over range, True to plot each individual month in range
 
 # Choose your start year of climatology: 0 if not relevant, not important if DoReClim = False
 ChooseClimSt = 1981 
@@ -260,12 +260,12 @@ ChooseClimEd = 2010
 DoReClim = False 
 
 # Are we plotting anomalies or absolute values? 'actual' for actual values, 'anomaly' for anomaly values
-PlotType = 'anomaly' 
+PlotType = 'actual' # Check RangeDict is set to 0,0,0,'?' or it will default to anomalies ranges that have been hard wired.
 
 # Set up forced vmin,vmax,nsteps and plotlabel letter if needed or leave as default
-#RangeDict = dict([('MinVal',0.),('MaxVal',0.),('StepVal',0.),('LetterVal','')]) # default = 0., 0. ,0., '' 
+RangeDict = dict([('MinVal',0.),('MaxVal',0.),('StepVal',0.),('LetterVal','c)')]) # default = 0., 0. ,0., '' 
 #Fix vals ,
-RangeDict = VarDict[Var][4]
+#RangeDict = VarDict[Var][4]
 
 # Set up directories:
 INDIRC = '/data/users/hadkw/WORKING_HADISDH/UPDATE'+workingyear+'/STATISTICS/GRIDS/'
@@ -399,8 +399,10 @@ def PlotAnyMap(TheFile,TheLatList,TheLonList,TheCandData,TheUnitee,TheNamee,TheC
 #                nsteps=np.int((vmax-vmin)/0.3)+1
 	    #    pdb.set_trace() # stop here and play
         else:
-            vmax=np.ceil(np.max(abs(MSKTheCandData))) 
-            vmin=np.floor(np.min(abs(MSKTheCandData)))
+#            vmax=np.ceil(np.max(abs(MSKTheCandData))) 
+#            vmin=np.floor(np.min(abs(MSKTheCandData)))
+            vmax=np.ceil(np.max(MSKTheCandData)) 
+            vmin=np.floor(np.min(MSKTheCandData))
             vrange=vmax-vmin
             print(vmin,vmax,vrange)
 #            if (vmax-vmin <  14):
@@ -486,7 +488,7 @@ if (__name__ == "__main__"):
     #print(NameOfVar,LatInfo,LonInfo)
     TmpCandFields,LatList,LonList = GetGrid4(MyFile,NameOfVar,LatInfo,LonInfo)
 
-    # If the data do not end in January then pad the file with missing data
+    # If the data do not end in December then pad the file with missing data
     if (EdMon < 12):
         #pdb.set_trace()
         TmpCandFields = np.concatenate((TmpCandFields,np.reshape(np.repeat(mdi,((12-EdMon)*len(LonList)*len(LatList))),(12-EdMon,len(LatList),len(LonList)))))
@@ -597,10 +599,11 @@ if (__name__ == "__main__"):
 
             # Extract chosen month
             CandData = SelectSlice(CandFields,StYr,EdYr,ChooseMon,ChooseYr,mdi,PctDataPresent)
-
+            #pdb.set_trace()
             # pass to plotter
             OUTPLOT = 'Map_'+DataSet+'_clim'+str(ChooseClimSt)+str(ChooseClimEd)+'_'+PlotType+MonStr+YrStr
-            Namey = DataSetShort+' '+PlotType+' '+MonStr+' '+YrStr
+#            Namey = DataSetShort+' '+PlotType+' '+MonStr+' '+YrStr
+            Namey = ''
             MyFile = OUTDIR+OUTPLOT
             PlotAnyMap(MyFile,LatList,LonList,CandData,Unit,Namey,ColourMapChoice,PlotType,VarName,mdi,PlotInfo)
 
