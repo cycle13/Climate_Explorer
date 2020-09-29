@@ -391,8 +391,9 @@ def WriteNCCF(FileName,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
         if ('long_name' in AttrObject[vv]):
             MyVar.long_name = AttrObject[vv]['long_name']
 	    
-        if ('cell_methods' in AttrObject[vv]):
-            MyVar.cell_methods = AttrObject[vv]['cell_methods']
+# Too many issues with CF compliance
+#        if ('cell_methods' in AttrObject[vv]):
+#            MyVar.cell_methods = AttrObject[vv]['cell_methods']
 	    
         if ('comment' in AttrObject[vv]):
             MyVar.comment = AttrObject[vv]['comment']
@@ -415,8 +416,8 @@ def WriteNCCF(FileName,Dates,Latitudes,Longitudes,ClimPoints,DataObject,DimObjec
 #        if ('valid_max' in AttrObject[vv]):
 #            MyVar.valid_max = AttrObject[vv]['valid_max']
 
-        if ('missing_value' in AttrObject[vv]):
-            MyVar.missing_value = AttrObject[vv]['missing_value']
+#        if ('missing_value' in AttrObject[vv]):
+#            MyVar.missing_value = AttrObject[vv]['missing_value']
 
 #        if ('_FillValue' in AttrObject[vv]):
 #	    MyVar._FillValue = AttrObject[vv]['_FillValue']

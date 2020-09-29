@@ -75,6 +75,16 @@
 # VERSION/RELEASE NOTES
 # -----------------------
 #
+# Version 2 (29 Sep 2020)
+# ---------
+#  
+# Enhancements
+# Should now produce netCDF files compliant to 1.6 - test https://cfconventions.org/compliance-checker.html 
+#  
+# Changes
+#  
+# Bug fixes
+#  
 # Version 1 (25 February 2019)
 # ---------
 #  
@@ -218,7 +228,7 @@ def Write_Netcdf_Variable_All(outfile, var, vlong, vunit, RefPeriod, TheMDI, dat
 
     nc_var.long_name = vlong
     nc_var.units = vunit
-    nc_var.missing_value = TheMDI
+    #nc_var.missing_value = TheMDI
     nc_var.reference_period = RefPeriod
     
     # We're not using masked arrays here - hope that's not a problem
@@ -302,7 +312,7 @@ def Write_NetCDF_All(filename, land_var_list, marine_var_list, blend_var_list,
     nc_var = outfile.createVariable('month', np.dtype('int'), ('month'), zlib = True) # with compression!!!
     nc_var.long_name = "month of year"
     nc_var.units = "month"
-    nc_var.standard_name = "time in months"
+    #nc_var.standard_name = "time in months"
     #nc_var.start_year = str(StartYear)
     #nc_var.end_year = str(EndYear)
     nc_var.start_month = '1'
@@ -315,7 +325,7 @@ def Write_NetCDF_All(filename, land_var_list, marine_var_list, blend_var_list,
     nc_var.units = "degrees_north"
     nc_var.standard_name = "latitude"
     nc_var.point_spacing = "even"
-    nc_var.axis = "X"
+    nc_var.axis = "Y"
     nc_var[:] = lats
     
     # make longitude variable

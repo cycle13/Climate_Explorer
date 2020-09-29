@@ -160,10 +160,10 @@ from WriteNetCDF_CEDAESGF_JAN2016 import WriteNCCF
 # Set up hardwired variables
 
 #************************************************************************
-MyChoice='dpd' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
+MyChoice='q' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
 
-#Domain = 'land'
-Domain = 'marine'
+Domain = 'land'
+#Domain = 'marine'
 #Domain = 'blend'
 
 # Generic Things
@@ -177,10 +177,10 @@ if (Domain == 'land'):
 
 elif (Domain == 'marine'):
 
-#    version = 'v1-0-0-2019f'
-#    verstring = '1.0.0.2019f'
-    version = 'v1-0-0-2018f'
-    verstring = '1.0.0.2018f'
+    version = 'v1-0-0-2019f'
+    verstring = '1.0.0.2019f'
+#    version = 'v1-0-0-2018f'
+#    verstring = '1.0.0.2018f'
     DomainHGT = '10'
     DomainOBS = 'ships'
 
@@ -191,15 +191,15 @@ elif (Domain == 'blend'):
     DomainHGT = '2/10'
     DomainOBS = 'observations'
 
-nowmon = 'FEB'
-nowyear = '2019'
-#nowmon = 'JAN'
-#nowyear = '2020'
+#nowmon = 'FEB'
+#nowyear = '2019'
+nowmon = 'JAN'
+nowyear = '2020'
 
 # Dates
 StYr=1973
 StMon=1
-EdYr=2018
+EdYr=2019
 EdMon=12
 ClimPoints=(1981,2010)
 #ClimPoints=(1976,2005)
