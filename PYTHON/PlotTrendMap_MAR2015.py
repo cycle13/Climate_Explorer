@@ -11,10 +11,10 @@
 # -----------------------
 # Reads in decadal trend map netCDF file (any 5 by 5 degree grid)
 # Works out the mean trend for each latitude (simple average)  
-# Plots the trend for each gridbox, grixbox boundary OR + IF trend is sig at given p-value (90 or 95%) 
+# Plots the trend for each gridbox, grixbox boundary OR + IF trend is sig (5-95% Conf Int of same sign as trend)
 # Also adds a vertical latitude by trend figure - scatter of gridbox trends for each latitude and latitude average
-# Fills 0-1 with dark grey to represent actual land fraction in terms of gridboxes at that latitude band
-# Overlays light grey to represent fraction of land gridboxes actually observed as % of dark grey bar
+# Fills 0-1 with dark grey to represent actual land or ocean fraction in terms of gridboxes at that latitude band
+# Overlays light grey to represent fraction of land or ocean gridboxes actually observed as % of dark grey bar
 # Counts % of land gridboxes present for globe (70S to 70N), N Hemi (20N to 70N), Tropics (20S to 20N) and S Hemi (70S to 20S)
 # This isn't perfect because the land/sea mask may not contain all small islands. It does contain some at least. CRUTEM has a lot of these
 # 
