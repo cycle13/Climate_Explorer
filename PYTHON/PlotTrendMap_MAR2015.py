@@ -79,11 +79,18 @@
 # Select/add 'Namey' Data product name / plot title or make a blank
 #
 # run:
-## python2.7 PlotTrendMap_MAR2015.py
 # This is to use python 3
 # >module load scitools/default-current
-# >python PlotTrendMap_MAR2014.py
+# >python PlotTrendMap_MAR2014.py --var <var> --typee <typee> --year1 <year1> --year2 <year2>
 # 
+## Which variable?
+# var = 'dpd'	#'dpd','td','t','tw','e','q','rh'
+#
+## Which homog type?
+# typee = 'LAND', 'RAW','OTHER', 'BLEND', 'BLENDSHIP', 'MARINE','MARINESHIP', 'ERA5','EAR5MASK','ERA5LAND','ERA5MARINE','ERA5LANDMASK','ERA5MARINEMASK'
+#
+# year1 and year2 are start and end year of trends
+#
 # -----------------------
 # OUTPUT
 # -----------------------
@@ -106,6 +113,16 @@
 # -----------------------
 # VERSION/RELEASE NOTES
 # -----------------------
+#
+# Version 7 (3 Dec 2020)
+# ---------
+#  
+# Enhancements
+# Now run choices from command line rather than infile faffage
+#  
+# Changes
+#  
+# Bug fixes
 #
 # Version 6 (21 Jul 2020)
 # ---------
@@ -187,7 +204,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
-import sys, os
+import sys, os, getopt
 import scipy.stats
 import struct
 #from mpl_toolkits.basemap import Basemap
@@ -213,35 +230,15 @@ LatDist = True # True for having the latitudinal distribution, False for not
 # Missing data
 mdi=-1e30 # may set up as masked arrays later
 
-# Input date stamp
-thenmon='JAN'
-thenyear='2020'
+## Input date stamp
+#thenmon='JAN'
+#thenyear='2020'
 
 # Working version
 lversion = '4.2.0.2019f' # land
 mversion = '1.0.0.2019f' # marine
-bversion = '1.0.0.2019f' # blend
+bversion = '1.0.0.2019f' # blend#
 
-# Working Directory
-WorkingDir = 'UPDATE2019'
-
-# Output date stamp
-nowmon='JAN'
-nowyear='2020'
-
-# Trend selection
-sttrend = '1973'
-edtrend = '1999'
-trendchoice = sttrend+edtrend
-
-# Variable
-#Var = 'q'
-#Var = 'rh'
-#Var = 'e'
-#Var = 't'
-#Var = 'td'
-#Var = 'tw'
-Var = 'dpd'
 
 VarDict = dict([('q',['q','g kg$^{-1}$','Specific Humidity',('BrBG','noflip'),dict([('MinVal',-0.3),('MaxVal',0.3),('StepVal',9.),('LetterVal',['a)','b)'])])]),
                 ('rh',['RH','%rh','Relative Humidity',('BrBG','noflip'),dict([('MinVal',-3.),('MaxVal',3.),('StepVal',9.),('LetterVal',['a)','b)'])])]),
@@ -251,144 +248,12 @@ VarDict = dict([('q',['q','g kg$^{-1}$','Specific Humidity',('BrBG','noflip'),di
 		('td',['Td','$^{o}$C','Dew Point Temperature',('BrBG','noflip'),dict([('MinVal',-0.8),('MaxVal',0.8),('StepVal',9.),('LetterVal',['a)','b)'])])]),
 		('dpd',['DPD','$^{o}$C','Dew Point Depression',('BrBG','flip'),dict([('MinVal',-0.5),('MaxVal',0.5),('StepVal',9.),('LetterVal',['a)','b)'])])])])
 
-if (Var == 'dpd'):
-    DatTyp = 'PHA'
-elif (Var == 'td'):
-    DatTyp = 'PHADPD'
-else:
-    DatTyp = 'IDPHA'
 
 # Do you want to make up the best colour ranges or use set ones?
-#ColourRange = dict([('MinVal',0.),('MaxVal',0.),('StepVal',0.),('LetterVal',['a)','b)'])]) # the blank version so that the code finds its own
-ColourRange = VarDict[Var][4]
+MySetColours = True # Use the range specified above if True, code finds its own range if False
 
-# Type
-#typee = 'LAND' # 'LAND','RAW','OTHER'
-typee = 'MARINESHIP' # 'MARINE','MARINESHIP'
-#typee = 'BLENDSHIP' # 'BLEND','BLENDSHIP'
-
-# Domain
-if (typee == 'MARINE') | (typee == 'MARINESHIP'):
-    domain = 'marine'
-    IsLand = False # True for land, False for marine, None for blend
-    version = mversion
-    if (typee == 'MARINESHIP'):
-        ExpBit = 'BClocalSHIP5by5both'
-    else:
-        ExpBit = 'BClocal5by5both'
-elif (typee == 'BLEND') | (typee == 'BLENDSHIP'):
-    domain = 'blend'
-    IsLand = None # True for land, False for marine, None for blend
-    version = bversion
-    if (typee == 'BLENDSHIP'):
-        ExpBit = 'FLATgrid'+DatTyp+'BClocalSHIPboth5by5'
-    else:
-        ExpBit = 'FLATgrid'+DatTyp+'BClocalSHIPboth5by5'
-else:
-    domain = 'land'
-    IsLand = True # True for land, False for marine, None for blend
-    version = lversion
-    ExpBit = 'FLATgrid'+DatTyp+'5by5'
-    
 # TrendType
 TrendType = 'OLS' # 'OLS' or 'MP'
-
-# Set up directories and files - now for /data/users/hadkw/WORKING_HADISDH/
-INDIRC='/data/users/hadkw/WORKING_HADISDH/'+WorkingDir+'/STATISTICS/TRENDS/'
-INDIRO='/data/users/hadkw/WORKING_HADISDH/'+WorkingDir+'/OTHERDATA/'
-OUTDIR='/data/users/hadkw/WORKING_HADISDH/'+WorkingDir+'/IMAGES/OTHER/'
-
-# Land cover file:
-#incover='new_coverpercentjul08'
-incover='HadCRUT.4.3.0.0.land_fraction'
-
-# Variables
-CandTrends=[]
-CompTrends=[]
-RatTrends=[]
-LatList=[]
-LonList=[]
-
-candidate = 'HadISDH.'+domain+VarDict[Var][0]+'.'+version+'_'+ExpBit+'_anoms8110_'+thenmon+thenyear+'_'+TrendType+'trends_'+trendchoice
-OUTPLOT = 'TrendMap'+TrendType+'_HadISDH.'+domain+VarDict[Var][0]+'.'+version+'_'+ExpBit+'_'+trendchoice
-Namey = 'HadISDH.'+domain+VarDict[Var][0]+'.'+version+' '+TrendType+' decadal trends '+trendchoice
-
-Unit = VarDict[Var][1]
-nlats = 36	       #set once file read in
-nlons = 72	       #set once file read in
-LatInfo = list(['latitude',nlats,-87.5])
-LonInfo = list(['longitude',nlons,-177.5])
-ReadInfo = list([VarDict[Var][0]+'_trend',VarDict[Var][0]+'_lowCI',VarDict[Var][0]+'_upperCI'])
-ColourMapChoice = VarDict[Var][3]
-
-
-#**********************************************************
-# Run choice bundle for input/output files, units, names, letters, read in varnames, colourmap
-
-# CHOOSE/ADD A DICTIONARY BUNDLE!!!
-MyBundle = ' '
-
-#MyBundle = 'Berkeley'
-#MyBundle = 'GISS'
-#MyBundle = 'CRUTEM'
-#MyBundle = 'GHCNM'
-
-if (MyBundle == 'Berkeley'):
-    candidate='BERKELEY_T_5by519762005clim_anoms_19732015_MPtrends_19732016'
-    OUTPLOT='TrendMap_BERKELEY_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='BERKELEY decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
-    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'GISS'):
-    candidate='GISS_T_5by519762005clim_anoms_19732015_MPtrends_19732016'
-    OUTPLOT='TrendMap_GISS_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='GISS decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
-    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'CRUTEM'):
-    candidate='CRUTEM.4.4.0.0.anomalies_MPtrends_19982014'
-    OUTPLOT='TrendMap_CRUTEM4.4.0.0_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='CRUTEM4.4.0.0 decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
-    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
-    IsLand = True # True for land, False for marine, None for blend
-
-if (MyBundle == 'GHCNM'):
-    candidate='GHCNM_18802014_MPtrends_19732016'
-    OUTPLOT='TrendMap_GHCNM3_'+nowmon+nowyear+'_'+trendchoice
-    Unit='$^{o}$ C'  #'degrees C'
-    Namey='GHCNM3 decadal trends'
-    nlats=36	       #set once file read in
-    nlons=72	       #set once file read in
-    LatInfo=list(['latitude',nlats,-87.5])
-    LonInfo=list(['longitude',nlons,-177.5])
-    ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
-    ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
-    IsLand = True # True for land, False for marine, None for blend
-
-
-# If LatDist is False then add 'nolat' to file name
-if not(LatDist):
-    OUTPLOT = OUTPLOT+'_nolat'
 
 #************************************************************************
 # Subroutines
@@ -769,58 +634,285 @@ def PlotTrendMap(TheFile,LandCover,TheLatList,TheLonList,TheCandData,TheCandUppe
 #************************************************************************
 # MAIN PROGRAM
 #************************************************************************
-# read in trend maps
-MyFile=INDIRC+candidate+'.nc'
-CandData,CandUpper,CandLower,LatList,LonList=ReadNetCDFGrid4(MyFile,ReadInfo,LatInfo,LonInfo)
-#CandData,CandUpper,CandLower,LatList,LonList=ReadNetCDFGrid(MyFile,ReadInfo,LatInfo,LonInfo)
+def main(argv):
+    # INPUT PARAMETERS AS STRINGS!!!!
+    var = 'q'	    # 'q','rh','e','td','tw','t','dpd'
+    typee = 'LAND' # 'LAND','RAW','OTHER', 'BLEND', 'BLENDSHIP', 'MARINE', 'MARINESHIP' # domain does not need to be set correctly!!!
+    # can also be 'ERA5' 'ERA5LAND','ERA5MARINE' 'ERA5MARINEMASK' ERA5LANDMASK'
+    year1 = '1973' # Start year of trend
+    year2 = '2018' # End year of trend
+    
+    try:
+        opts, args = getopt.getopt(argv, "hi:",
+	                           ["var=","typee=","year1=","year2="])
+    except getopt.GetoptError:
+        print('Usage (as strings) PlotTrendMap_MAR2015.py --var <q> --typee <IDPHA> --year1 <1973> --year2 <2018>')
+        sys.exit(2)
 
-ncf=netcdf.netcdf_file(INDIRO+incover+'.nc','r')
-#var=ncf.variables['pct_land']
-var=ncf.variables['land_area_fraction']
-PctLand=np.array(var.data)
-#PctLand=np.transpose(PctLand)
-PctLand=np.flipud(PctLand)
-PctLand=PctLand[0,:,:]
-# If its marine data then swap to % ocean
-if (IsLand == False):
-    PctLand = 1. - PctLand
-if (IsLand == None):
-    PctLand[:,:] = 1.
-ncf.close()
+    for opt, arg in opts:
+        if opt == "--var":
+            try:
+                var = arg
+            except:
+                sys.exit("Failed: var not a string")
+        elif opt == "--typee":
+            try:
+                typee = arg
+            except:
+                sys.exit("Failed: typee not a string")
+        elif opt == "--year1":
+            try:
+                year1 = arg
+            except:
+                sys.exit("Failed: year1 not an integer")
+        elif opt == "--year2":
+            try:
+                year2 = arg
+            except:
+                sys.exit("Failed: year2 not an integer")
 
-# pass to plotter
-MyFile=OUTDIR+OUTPLOT
-PlotTrendMap(MyFile,PctLand,LatList,LonList,CandData,CandUpper, CandLower,
+    assert year1 != -999 and year2 != -999, "Year not specified."
+
+    print(var,typee,year1, year2)
+#    pdb.set_trace()
+
+    #****************** LONGER LIFE EDITABLES****************
+    # TWEAK ME!!!!
+    # Which start/end year of the complete dataset?
+    styr = 1973 
+    edyr = 2019
+
+    # Which climatology period to work with?
+    climST = str(1981)	    #1976 or 1981
+    climED = str(2010)	    #2005 or 2010
+    climBIT = 'anoms'+climST[2:4]+climED[2:4]
+
+    # GOING TO DITCH THIS IN THE FUTURE
+    # Which working file dates?
+    nowmon   = 'JAN'
+    nowyear  = '2020'
+    thenmon  = 'JAN'
+    thenyear = '2020'
+
+    # Set up colours and range
+    if (MySetColours): # Use the range specified above if True, code finds its own range if False
+        
+        ColourRange = VarDict[var][4]
+
+    else:
+
+        ColourRange = dict([('MinVal',0.),('MaxVal',0.),('StepVal',0.),('LetterVal',['a)','b)'])]) # the blank version so that the code finds its own
+
+    # What domain?
+    if (typee == 'MARINE') | (typee == 'MARINESHIP') | (typee == 'ERA5MARINE') | (typee == 'ERA5MARINEMASK'):
+        domain = 'marine'
+        version = mversion
+        IsLand = False # True for land, False for marine, None for blend
+    elif (typee == 'BLEND') | (typee == 'BLENDSHIP') | (typee == 'ERA5') | (typee == 'ERA5MASK'):
+        domain = 'blend'
+        version = bversion
+        IsLand = None # True for land, False for marine, None for blend
+    else:
+        domain = 'land'
+        version = lversion
+        IsLand = True # True for land, False for marine, None for blend
+
+    MDI = -1e30 # missing data indicator
+
+    WORKINGDIR = '/data/users/hadkw/WORKING_HADISDH/UPDATE20'+str(edyr)[2:4]
+
+    INDIR = WORKINGDIR+'/STATISTICS/TRENDS/'
+    INDIRO=WORKINGDIR+'/OTHERDATA/'
+    OUTDIR=WORKINGDIR+'/IMAGES/OTHER/'
+
+    # Land cover file:
+    #incover='new_coverpercentjul08'
+    incover='HadCRUT.4.3.0.0.land_fraction'
+
+    # Variables
+    CandTrends=[]
+    CompTrends=[]
+    RatTrends=[]
+    LatList=[]
+    LonList=[]
+
+    Unit = VarDict[var][1]
+    nlats = 36	       #set once file read in
+    nlons = 72	       #set once file read in
+    LatInfo = list(['latitude',nlats,-87.5])
+    LonInfo = list(['longitude',nlons,-177.5])
+    ReadInfo = list([VarDict[var][0]+'_trend',VarDict[var][0]+'_lowCI',VarDict[var][0]+'_upperCI'])
+    ColourMapChoice = VarDict[var][3]
+
+    # END OF EDITABLES**********************************************************
+
+    # Set up the trend years
+    sttrend = int(year1)
+    edtrend = int(year2)
+    trendchoice = str(sttrend)+str(edtrend)
+
+    if domain == 'land':
+        DatTyp = 'IDPHA'
+        if (var == 'dpd'):
+            DatTyp = 'PHA'
+        if (var == 'td'):
+            DatTyp = 'PHADPD'
+        fileblurb = 'FLATgrid'+DatTyp+'5by5'
+    elif domain == 'marine':
+        if (typee == 'MARINE'):
+            fileblurb = 'BClocal5by5both'
+        elif (typee == 'MARINESHIP') | (typee == 'ERA5MARINEMASK') | (typee == 'ERA5MARINE'):
+            fileblurb = 'BClocalSHIP5by5both'
+    elif domain == 'blend':
+        DatTyp = 'IDPHA'
+        if (var == 'dpd'):
+            DatTyp = 'PHA'
+        if (var == 'td'):
+            DatTyp = 'PHADPD'
+
+        if (typee == 'BLEND'):
+            fileblurb = 'FLATgrid'+DatTyp+'BClocalboth5by5'
+        elif (typee == 'BLENDSHIP') | (typee == 'ERA5MASK') | (typee == 'ERA5'):
+            fileblurb = 'FLATgrid'+DatTyp+'BClocalSHIPboth5by5'
+
+#    candidate = 'HadISDH.'+domain+VarDict[var][0]+'.'+version+'_'+fileblurb+'_'+climBIT+'_'+TrendType+'trends_'+trendchoice	#70S-70N
+    candidate = 'HadISDH.'+domain+VarDict[var][0]+'.'+version+'_'+fileblurb+'_'+climBIT+'_'+thenmon+thenyear+'_'+TrendType+'trends_'+trendchoice	#70S-70N
+    OUTPLOT = 'TrendMap'+TrendType+'_HadISDH.'+domain+VarDict[var][0]+'.'+version+'_'+fileblurb+'_'+trendchoice
+    Namey = 'HadISDH.'+domain+VarDict[var][0]+'.'+version+' '+TrendType+' decadal trends '+trendchoice
+
+    if (typee.find('ERA5') >= 0):
+
+        candidate = var+'2m_monthly_5by5_'+typee+'_'+climBIT+'_'+TrendType+'trends_'+trendchoice	#70S-70N
+        OUTPLOT = 'TrendMap'+TrendType+'_'+typee+VarDict[var][0]+'2m._'+trendchoice
+        Namey = typee+VarDict[var][0]+'2m. '+TrendType+' decadal trends '+trendchoice
+
+#**********************************************************
+# Run choice bundle for input/output files, units, names, letters, read in varnames, colourmap
+
+    # CHOOSE/ADD A DICTIONARY BUNDLE!!!
+    MyBundle = ' '
+
+    #MyBundle = 'Berkeley'
+    #MyBundle = 'GISS'
+    #MyBundle = 'CRUTEM'
+    #MyBundle = 'GHCNM'
+
+    if (MyBundle == 'Berkeley'):
+        candidate='BERKELEY_T_5by519762005clim_anoms_19732015_MPtrends_19732016'
+        OUTPLOT='TrendMap_BERKELEY_'+nowmon+nowyear+'_'+trendchoice
+        Unit='$^{o}$ C'  #'degrees C'
+        Namey='BERKELEY decadal trends'
+        nlats=36	       #set once file read in
+        nlons=72	       #set once file read in
+        LatInfo=list(['latitude',nlats,-87.5])
+        LonInfo=list(['longitude',nlons,-177.5])
+        ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
+        ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+        IsLand = True # True for land, False for marine, None for blend
+
+    if (MyBundle == 'GISS'):
+        candidate='GISS_T_5by519762005clim_anoms_19732015_MPtrends_19732016'
+        OUTPLOT='TrendMap_GISS_'+nowmon+nowyear+'_'+trendchoice
+        Unit='$^{o}$ C'  #'degrees C'
+        Namey='GISS decadal trends'
+        nlats=36	       #set once file read in
+        nlons=72	       #set once file read in
+        LatInfo=list(['latitude',nlats,-87.5])
+        LonInfo=list(['longitude',nlons,-177.5])
+        ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
+        ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+        IsLand = True # True for land, False for marine, None for blend
+
+    if (MyBundle == 'CRUTEM'):
+        candidate='CRUTEM.4.4.0.0.anomalies_MPtrends_19982014'
+        OUTPLOT='TrendMap_CRUTEM4.4.0.0_'+nowmon+nowyear+'_'+trendchoice
+        Unit='$^{o}$ C'  #'degrees C'
+        Namey='CRUTEM4.4.0.0 decadal trends'
+        nlats=36	       #set once file read in
+        nlons=72	       #set once file read in
+        LatInfo=list(['latitude',nlats,-87.5])
+        LonInfo=list(['longitude',nlons,-177.5])
+        ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
+        ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+        IsLand = True # True for land, False for marine, None for blend
+
+    if (MyBundle == 'GHCNM'):
+        candidate='GHCNM_18802014_MPtrends_19732016'
+        OUTPLOT='TrendMap_GHCNM3_'+nowmon+nowyear+'_'+trendchoice
+        Unit='$^{o}$ C'  #'degrees C'
+        Namey='GHCNM3 decadal trends'
+        nlats=36	       #set once file read in
+        nlons=72	       #set once file read in
+        LatInfo=list(['latitude',nlats,-87.5])
+        LonInfo=list(['longitude',nlons,-177.5])
+        ReadInfo=list(['T_trend','T_lowCI','T_upperCI'])
+        ColourMapChoice=('coolwarm','noflip') # could also be 'bwr'
+        IsLand = True # True for land, False for marine, None for blend
+
+
+#*******************************
+
+    # If LatDist is False then add 'nolat' to file name
+    if not(LatDist):
+        OUTPLOT = OUTPLOT+'_nolat'
+
+
+	
+    # read in trend maps
+    MyFile = INDIR+candidate+'.nc'
+    CandData,CandUpper,CandLower,LatList,LonList=ReadNetCDFGrid4(MyFile,ReadInfo,LatInfo,LonInfo)
+    #CandData,CandUpper,CandLower,LatList,LonList=ReadNetCDFGrid(MyFile,ReadInfo,LatInfo,LonInfo)
+
+    ncf=netcdf.netcdf_file(INDIRO+incover+'.nc','r')
+    #field=ncf.variables['pct_land']
+    field=ncf.variables['land_area_fraction']
+    PctLand=np.array(field.data)
+    #PctLand=np.transpose(PctLand)
+    PctLand=np.flipud(PctLand)
+    PctLand=PctLand[0,:,:]
+    # If its marine data then swap to % ocean
+    if (IsLand == False):
+        PctLand = 1. - PctLand
+    if (IsLand == None):
+        PctLand[:,:] = 1.
+    ncf.close()
+
+    # pass to plotter
+    MyFile=OUTDIR+OUTPLOT
+    PlotTrendMap(MyFile,PctLand,LatList,LonList,CandData,CandUpper, CandLower,
                         Unit,Namey,ColourMapChoice,IsLand,TrendSig,LatDist,ColourRange)
 
-# output pct of land /ocean boxes represented per region
-for ltt in range(len(LatList)):
-    # First merge LandCover with Data coverage so that at least some small islands are counted initially
-    PctLand[ltt,np.where(CandData[ltt,:] > mdi)[0]]=100.
+    # output pct of land /ocean boxes represented per region
+    for ltt in range(len(LatList)):
+        # First merge LandCover with Data coverage so that at least some small islands are counted initially
+        PctLand[ltt,np.where(CandData[ltt,:] > mdi)[0]]=100.
         
-GlobCount=len(np.where(PctLand[4:31,:] > 0)[0])
-AACount=len(np.where(PctLand[0:3,:] > 0)[0])
-SHCount=len(np.where(PctLand[4:13,:] > 0)[0])
-TropCount=len(np.where(PctLand[14:21,:] > 0)[0])
-NHCount=len(np.where(PctLand[22:31,:] > 0)[0])
-ACount=len(np.where(PctLand[32:35,:] > 0)[0])
+    GlobCount=len(np.where(PctLand[4:31,:] > 0)[0])
+    AACount=len(np.where(PctLand[0:3,:] > 0)[0])
+    SHCount=len(np.where(PctLand[4:13,:] > 0)[0])
+    TropCount=len(np.where(PctLand[14:21,:] > 0)[0])
+    NHCount=len(np.where(PctLand[22:31,:] > 0)[0])
+    ACount=len(np.where(PctLand[32:35,:] > 0)[0])
 
-ActGlobCount=len(np.where(CandData[4:31,:] != mdi)[0])
-ActAACount=len(np.where(CandData[0:3,:] != mdi)[0])
-ActSHCount=len(np.where(CandData[4:13,:] != mdi)[0])
-ActTropCount=len(np.where(CandData[14:21,:] != mdi)[0])
-ActNHCount=len(np.where(CandData[22:31,:] != mdi)[0])
-ActACount=len(np.where(CandData[32:35,:] != mdi)[0])
+    ActGlobCount=len(np.where(CandData[4:31,:] != mdi)[0])
+    ActAACount=len(np.where(CandData[0:3,:] != mdi)[0])
+    ActSHCount=len(np.where(CandData[4:13,:] != mdi)[0])
+    ActTropCount=len(np.where(CandData[14:21,:] != mdi)[0])
+    ActNHCount=len(np.where(CandData[22:31,:] != mdi)[0])
+    ActACount=len(np.where(CandData[32:35,:] != mdi)[0])
 	
-print('GLOB: ',72*28,GlobCount,ActGlobCount,float(GlobCount)/(72*28),float(ActGlobCount)/GlobCount)	
-print('ARCT: ',72*4,ACount,ActACount,float(ACount)/(72*4),float(ActACount)/ACount)	
-print(' HEM: ',72*10,NHCount,ActNHCount,float(NHCount)/(72*10),float(ActNHCount)/NHCount)	
-print('TROP: ',72*8,TropCount,ActTropCount,float(TropCount)/(72*8),float(ActTropCount)/TropCount)	
-print('S HEM: ',72*10,SHCount,ActSHCount,float(SHCount)/(72*10),float(ActSHCount)/SHCount)	
-print('AARCT: ',72*4,AACount,ActAACount,float(AACount)/(72*4),float(ActAACount)/AACount)	
-	
+    print('GLOB: ',72*28,GlobCount,ActGlobCount,float(GlobCount)/(72*28),float(ActGlobCount)/GlobCount)	
+    print('ARCT: ',72*4,ACount,ActACount,float(ACount)/(72*4),float(ActACount)/ACount)	
+    print(' HEM: ',72*10,NHCount,ActNHCount,float(NHCount)/(72*10),float(ActNHCount)/NHCount)	
+    print('TROP: ',72*8,TropCount,ActTropCount,float(TropCount)/(72*8),float(ActTropCount)/TropCount)	
+    print('S HEM: ',72*10,SHCount,ActSHCount,float(SHCount)/(72*10),float(ActSHCount)/SHCount)	
+    print('AARCT: ',72*4,AACount,ActAACount,float(AACount)/(72*4),float(ActAACount)/AACount)	
 		
 #    stop()
 
-print("And, we are done!")
+    print("And, we are done!")
+
+if __name__ == '__main__':
+    
+    main(sys.argv[1:])
 
