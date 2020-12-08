@@ -17,8 +17,9 @@
 #************************************************************************
 #                                 START
 #************************************************************************
-# USE python2.7
-# python2.7 PlotTrendRatioMap_MAR2015.py
+# PYTHON 3
+# module load scitools/default-current
+# python PlotTrendRatioMap_MAR2015.py
 #
 # REQUIRES
 # 
@@ -30,34 +31,69 @@ import numpy.ma as ma
 import sys, os
 import scipy.stats
 import struct
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
+import cartopy.crs as ccrs
+import cartopy.feature as cpf
 import datetime as dt
 from matplotlib.dates import date2num,num2date
 from scipy.io import netcdf
+import netCDF4 as nc4
 import matplotlib.colors as mc
 
 # Set up initial run choices
-#candidate='HadISDH.landT.2.0.1.2014p_FLATgridIDPHA5by5_JAN2015_MPtrends_19732014'
-candidate='CRUTEM.4.3.0.0.anomalies_MPtrends_19732014'
+var = 'q'
+#var = 'RH'
+#var = 'T'
+
+candidate='HadISDH.landq.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_OLStrends_19792019'
+#candidate='HadISDH.landRH.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_OLStrends_19792019'
+#candidate='HadISDH.landT.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_OLStrends_19792019'
+#candidate='HadISDH.blendq.1.0.0.2019f_FLATgridIDPHABClocalSHIPboth5by5_anoms8110_OLStrends_19792019'
+#candidate='HadISDH.blendRH.1.0.0.2019f_FLATgridIDPHABClocalSHIPboth5by5_anoms8110_OLStrends_19792019'
+#candidate='HadISDH.blendT.1.0.0.2019f_FLATgridIDPHABClocalSHIPboth5by5_anoms8110_OLStrends_19792019'
+#candidate='HadISDH.marineq.1.0.0.2019f_BClocalSHIP5by5both_anoms8110_OLStrends_19792019'
+#candidate='HadISDH.marineRH.1.0.0.2019f_BClocalSHIP5by5both_anoms8110_OLStrends_19792019'
+#candidate='HadISDH.marineT.1.0.0.2019f_BClocalSHIP5by5both_anoms8110_OLStrends_19792019'
+#candidate='CRUTEM.4.3.0.0.anomalies_MPtrends_19732014'
+
+#comparree='q2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019'
+#comparree='rh2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019'
+#comparree='t2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019'
+comparree='q2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_land'
+#comparree='rh2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_land'
+#comparree='t2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_land'
+#comparree='q2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_marine'
+#comparree='rh2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_marine'
+#comparree='t2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_marine'
+#comparree='q2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_land_mask'
+#comparree='rh2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_land_mask'
+#comparree='t2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_land_mask'
+#comparree='q2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_marine_mask'
+#comparree='rh2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_marine_mask'
+#comparree='t2m_monthly_5by5_ERA5_anoms8110_OLStrends_19792019_marine_mask'
 #comparree='CRUTEM.4.3.0.0.anomalies_MPtrends_19732014'
-comparree='GHCNM_18802014_MPtrends_19732014'
+#comparree='GHCNM_18802014_MPtrends_19732014'
+
+OUTPLOT='TrendRatioMap_HadISDHERA5_'+var+'_land_19792019'
+#OUTPLOT='TrendRatioMap_HadISDHERA5_'+var+'_blend_19792019'
+#OUTPLOT='TrendRatioMap_HadISDHERA5_'+var+'_marine_19792019'
+#OUTPLOT='TrendRatioMap_HadISDHCRUTEM4_'+nowmon+nowyear
+#OUTPLOT='TrendRatioMap_HadISDHGHCNM_'+nowmon+nowyear
+#OUTPLOT='TrendRatioMap_CRUTEM4GHCNM_'+nowmon+nowyear
+
 #covermap='new_coverpercentjul08.nc'
 coverage='HadCRUT.4.3.0.0.land_fraction'
-nowmon='MAR'
-nowyear='2015'
+#nowmon='MAR'
+#nowyear='2015'
 
 # Set up directories and files
 #INDIR='/DATA/'
 #OUTDIR='/FIGURES/'
-INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/TRENDS/'
-INDIRO='/data/local/hadkw/HADCRUH2/UPDATE2014/STATISTICS/TRENDS/'
-#INDIRC='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
-#INDIRO='/data/local/hadkw/HADCRUH2/UPDATE2014/OTHERDATA/'
-OUTDIR='/data/local/hadkw/HADCRUH2/UPDATE2014/IMAGES/OTHER/'
-
-#OUTPLOT='TrendRatioMap_HadISDHCRUTEM4_'+nowmon+nowyear
-#OUTPLOT='TrendRatioMap_HadISDHGHCNM_'+nowmon+nowyear
-OUTPLOT='TrendRatioMap_CRUTEM4GHCNM_'+nowmon+nowyear
+INDIRC='/data/users/hadkw/WORKING_HADISDH/UPDATE2019/STATISTICS/TRENDS/'
+INDIRO='/data/users/hadkw/WORKING_HADISDH/UPDATE2019/STATISTICS/TRENDS/'
+#INDIRC='/data/users/hadkw/WORKING_HADISDH/UPDATE2019/OTHERDATA/'
+#INDIRO='/data/users/hadkw/WORKING_HADISDH/UPDATE2019/OTHERDATA/'
+OUTDIR='/data/users/hadkw/WORKING_HADISDH/UPDATE2019/IMAGES/OTHER/'
 
 # Set up variables
 nlats=36		#set once file read in
@@ -68,23 +104,27 @@ RatTrends=[]
 LatList=[]
 LonList=[]
 
-Unit='$^{o}$C'  #'degrees C'
+Unit='g kg$^{-1}$'  #g/kg
+#Unit='%rh'  #'degrees C'
+#Unit='$^{o}$C'  #'degrees C'
 Letty=' '
+Namey='HadISDH vs ERA5'
 #Namey='HadISDH vs CRUTEM4'
 #Namey='HadISDH vs GHCNM'
-Namey='CRUTEM4 vs GHCNM'
+#Namey='CRUTEM4 vs GHCNM'
 
 #************************************************************************
 # Subroutines
 #************************************************************************
 # READNETCDFGRID
-def ReadNetCDFGrid(FileName):
+def ReadNetCDFGrid(FileName,var):
     ''' Open the NetCDF File
         Get the list of latitudes
         Get the list of longitudes
         Get the data '''
 
-    ncf=netcdf.netcdf_file(FileName,'r')
+    ncf=nc4.Dataset(FileName,'r')
+#    ncf=netcdf.netcdf_file(FileName,'r')
     # ncf.variables this lists the variable names
     #var=f.variables['latitude']
     #TheLatList=var.data
@@ -94,8 +134,8 @@ def ReadNetCDFGrid(FileName):
     #TheLonList=var.data
     # lons currently screwy so make up
     TheLonList=np.arange(-177.5,182.5,5.)
-    var=ncf.variables['T_MPtrend']
-    TheData=np.array(var.data)
+    vals=ncf.variables[var+'_trend']
+    TheData=np.copy(vals[:])
 #    # Maybe I've done something wrong but its reading it transposed
 #    TheData=np.transpose(TheData)
     ncf.close()
@@ -134,13 +174,13 @@ def PlotTrendRatMap(TheFile,TheLatList,TheLonList,TheCandData,TheCompData,
     # For each latitude find average trend for each source, then get ratio
     for ltt in range(len(TheLatList)):
         gots=np.where(TheCandData[ltt,:] != mdi)[0]
-	if (len(gots) > 0):
-	    LatTrendCand[ltt]=np.mean(TheCandData[ltt,np.where(TheCandData[ltt,:] != mdi)])
+        if (len(gots) > 0):
+            LatTrendCand[ltt]=np.mean(TheCandData[ltt,np.where(TheCandData[ltt,:] != mdi)])
         gots=np.where(TheCompData[ltt,:] != mdi)[0]
-	if (len(gots) > 0):
-	    LatTrendComp[ltt]=np.mean(TheCompData[ltt,np.where(TheCompData[ltt,:] != mdi)])
+        if (len(gots) > 0):
+            LatTrendComp[ltt]=np.mean(TheCompData[ltt,np.where(TheCompData[ltt,:] != mdi)])
         if (LatTrendComp[ltt] != mdi) and (LatTrendCand[ltt] != mdi):
-	    LatRats[ltt]=LatTrendCand[ltt]/LatTrendComp[ltt]
+            LatRats[ltt]=LatTrendCand[ltt]/LatTrendComp[ltt]
 
     # make 2d arrays of lats and lons
     # these need to be shifted south/west so that they are bottom left corners, not gridbox centres
@@ -152,16 +192,40 @@ def PlotTrendRatMap(TheFile,TheLatList,TheLonList,TheCandData,TheCompData,
     plt.clf()
     fig=plt.figure(figsize=(10,5))
     #plt.figure(1,figsize=(10,3))
-    plt1=plt.axes([0.01,0.05,0.64,0.9]) # left, bottom, width, height
+# Basemap
+#    plt1=plt.axes([0.01,0.05,0.64,0.9]) # left, bottom, width, height
+# Cartopy
+    plt1=plt.axes([0.01,0.05,0.64,0.9],projection=ccrs.Robinson()) # left, bottom, width, height
+
     
+#    # plot map without continents and coastlines
+#    m = Basemap(projection='kav7',lon_0=0)
+#    # draw map boundary, transparent
+#    m.drawmapboundary()
+#    m.drawcoastlines()
+#    # draw paralells and medians, no labels
+#    m.drawparallels(np.arange(-90,90.,30.))
+#    m.drawmeridians(np.arange(-180,180.,60.))
+
+# NOW USING CARTOPY
     # plot map without continents and coastlines
-    m = Basemap(projection='kav7',lon_0=0)
-    # draw map boundary, transparent
-    m.drawmapboundary()
-    m.drawcoastlines()
-    # draw paralells and medians, no labels
-    m.drawparallels(np.arange(-90,90.,30.))
-    m.drawmeridians(np.arange(-180,180.,60.))
+    #ax = fig.add_subplot(1, 1, 1, projection=ccrs.Robinson())
+    #ax = plt.axes(projection=ccrs.Robinson())
+    #if (GlobSwitch == 1): # this is a global projection
+    #    ax.set_global()
+    #    ax.set_extent([-180.,180.,-90.0,90.0],crs=ccrs.PlateCarree())
+    #
+    #else: # this is regional
+    #    ax.set_extent(RegionExtents) # THIS WILL NEED TESTING AT SOME POINT
+	
+    plt1.coastlines()
+    #plt1.set_boundary # not sure what this does? maybe useful for plotting regions?
+    plt1.gridlines(draw_labels=False) # probably a way to specify these exactly if we want something different to default
+    # This line background fills the land with light grey
+    #plt1.add_feature(cpf.LAND, zorder = 0, facecolor = "0.9", edgecolor = "k") # may or may not need this
+    
+    ext = plt1.get_extent()
+    # End of CARTOPY
 
     # Firebrick = Ratio < -1, Cand Trend > abs(0.05) or not ARBITRARY
     # LightCoral = Ratio > -1 and < 0, Cand Trend > abs(0.05) or not
@@ -211,7 +275,11 @@ def PlotTrendRatMap(TheFile,TheLatList,TheLonList,TheCandData,TheCompData,
     CountSmallPos=len(np.where(RatTrendCOL == 2)[0])
     CountLargePos=len(np.where(RatTrendCOL == 1)[0])
     
-    m.pcolormesh(ArrLons,ArrLats,MSKRatTrendCOL,cmap=cmap,vmin=1,vmax=5,latlon='TRUE')
+    # Only pcolor can do boxing on masked arrays, not really sure why we use pcolormesh at all
+# Basemap
+#    m.pcolormesh(ArrLons,ArrLats,MSKRatTrendCOL,cmap=cmap,vmin=1,vmax=5,latlon='TRUE')
+# Cartopy
+    grids=plt1.pcolor(ArrLons,ArrLats,MSKRatTrendCOL,transform = ccrs.PlateCarree(),cmap=cmap,vmin=1,vmax=5)
     
     # add labals and watermark    
 #    watermarkstring="/".join(os.getcwd().split('/')[4:])+'/'+os.path.basename( __file__ )+"   "+dt.datetime.strftime(dt.datetime.now(), "%d-%b-%Y %H:%M")
@@ -292,9 +360,9 @@ def PlotTrendRatMap(TheFile,TheLatList,TheLonList,TheCandData,TheCompData,
 #************************************************************************
 # read in trend maps
 MyFile=INDIRC+candidate+'.nc'
-CandData,LatList,LonList=ReadNetCDFGrid(MyFile)
+CandData,LatList,LonList=ReadNetCDFGrid(MyFile,var)
 MyFile=INDIRO+comparree+'.nc'
-CompData,LatList,LonList=ReadNetCDFGrid(MyFile)
+CompData,LatList,LonList=ReadNetCDFGrid(MyFile,var)
 
 # pass to plotter
 MyFile=OUTDIR+OUTPLOT
