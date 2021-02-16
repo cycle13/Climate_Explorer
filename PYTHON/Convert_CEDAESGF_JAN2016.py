@@ -291,7 +291,7 @@ elif (Domain == 'marine'):
     Acknowledgement = 'Kate Willett, Robert Dunn and John Kennedy were supported by the Joint UK BEIS/Defra \
                   Met Office Hadley Centre Climate Programme (GA01101).'
 # THIS BIT NEEDS EDITING EVERY YEAR **************************
-    Source = 'ICOADS.3.1.0 (1973-2014) and ICOADS.3.0.1 (2015 onwards) (Freeman et al. 2017) from icoads.noaa.gov.'
+    Source = 'ICOADS.3.0.0 (1973-2014) and ICOADS.3.0.1 (2015 onwards) (Freeman et al. 2017) from icoads.noaa.gov.'
     Comment = ''
     References = 'Willett, K. M.,, R. J. H. Dunn, J. J. Kennedy, and D. I. Berry, in review.: Development of the HadISDH marine \
               humidity climate monitoring dataset. Earth System Science Datasets. \

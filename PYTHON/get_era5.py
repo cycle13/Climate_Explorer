@@ -31,8 +31,14 @@ import CalcHums as ch
 #import utils
 
 #sys.path.append('/data/users/rdunn/reanalyses/code/era5/cdsapi-0.1.4')
-sys.path.append('/data/users/hadkw/WORKING_HADISDH/UPDATE2019/PROGS/PYTHON/cdsapi-0.1.4')
+#sys.path.append('/data/users/hadkw/WORKING_HADISDH/UPDATE2019/PROGS/PYTHON/cdsapi-0.1.4')
+sys.path.append('/home/h04/hadkw/HadISDH_Code/HADISDH_BUILD/cdsapi-0.1.4')
 import cdsapi
+
+# Set up directory
+#DataLoc = '/data/users/hadkw/WORKING_HADISDH/UPDATE2019/OTHERDATA/ERA5/'
+DataLoc = '/scratch/hadkw/UPDATE2020/OTHERDATA/ERA5/'
+print(DataLoc)
 
 """
 Butchered from 
@@ -525,9 +531,9 @@ if __name__ == "__main__":
 
     import argparse
 
-    # Set up directory
-    DataLoc = '/data/users/hadkw/WORKING_HADISDH/UPDATE2019/OTHERDATA/ERA5/'
-    print(DataLoc)
+#    # Set up directory
+#    DataLoc = '/data/users/hadkw/WORKING_HADISDH/UPDATE2019/OTHERDATA/ERA5/'
+#    print(DataLoc)
 
     # set up keyword arguments
     parser = argparse.ArgumentParser()

@@ -12,8 +12,8 @@
 # ************************************************************************
 # START
 
-year=1991
-end=1991
+year=2020
+end=2020
 
 echo "Running all months between ${year} and ${end} inclusive"
 
@@ -41,11 +41,11 @@ do
         echo "#!/bin/bash -l" > ${spice_script}
         echo "#SBATCH --mem=30G" >> ${spice_script}
         echo "#SBATCH --ntasks=1" >> ${spice_script}
-        echo "#SBATCH --output=/data/users/hadkw/WORKING_HADISDH/slurm_logs/era5_get_${year}.txt" >> ${spice_script}
+        echo "#SBATCH --output=/scratch/hadkw/slurm_logs/era5_get_${year}.txt" >> ${spice_script}
         echo "#SBATCH --time=300" >> ${spice_script}
         echo "#SBATCH --qos=normal" >> ${spice_script}
 
-        echo module load scitools/default-current
+        echo "module load scitools/default-current" >> ${spice_script}
 #        echo "python get_era5.py --start ${year} --end ${year}" >> ${spice_script}
         echo "python get_era5.py --start ${year} --end ${year} --remove" >> ${spice_script}
         

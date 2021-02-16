@@ -108,26 +108,25 @@ import pdb
 
 # Set up initial run choices
 TrendChoice = 'OLS' # OLS or MPW
-RegChoice = 'Trop' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
+RegChoice = 'Glob' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
 timetype='annual'	#'monthly', 'annual'
 nparams=7
 param=list(['t','tw','td','q','e','rh','dpd'])	# tw, q, e, rh, t, td, dpd
 param2=list(['T','Tw','Td','q','e','RH','DPD'])	# Tw, q, e, RH, T, Td, DPD
 param3=list(['T','T$_{w}$','T$_{d}$','q','e','RH','DPD'])	# Tw, q, e, RH, T, Td, DPD
 unitees=list(['$^{o}$C','$^{o}$C','$^{o}$C','g kg$^{-1}$','hPa','%rh','$^{o}$C'])
-homogtype=list(['IDPHA','IDPHA','PHADPD','IDPHA','IDPHA','IDPHA','PHA'])	# 'IDPHA','PHA','PHADPD'
+#homogtype=list(['IDPHA','IDPHA','PHADPD','IDPHA','IDPHA','IDPHA','PHA'])	# 'IDPHA','PHA','PHADPD'
 
 Domain = 'land' # land or marine, marineSHIP, blend, blendSHIP
-nowmon='JAN'
-nowyear='2020'
-thenmon='JAN'
-thenyear='2020'
-version='4.2.0.2019f'
-#version='4.1.0.2018f'
-#version='1.0.0.2019f'
-#version='1.0.0.2018f'
+#Domain = 'marineSHIP' # land or marine, marineSHIP, blend, blendSHIP
+#Domain = 'blendSHIP' # land or marine, marineSHIP, blend, blendSHIP
+
+lversion='4.3.0.2020f'
+mversion='1.1.0.2020f'
+bversion='1.1.0.2020f'
+
 styr=1973
-edyr=2019
+edyr=2020
 nyrs=(edyr-styr)+1
 nmons=(nyrs)*12
 climst=1981
@@ -141,8 +140,11 @@ elif (timetype == 'monthly'):
 
 # Set up directories and files
 
-PLOTDIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/IMAGES/TIMESERIES/'
-DATADIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
+PLOTDIR='/scratch/hadkw/UPDATE'+str(edyr)+'/IMAGES/TIMESERIES/'
+DATADIR='/scratch/hadkw/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
+#PLOTDIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/IMAGES/TIMESERIES/'
+#DATADIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/STATISTICS/TIMESERIES/'
+
 
 #edyr=2018
 #nyrs=(edyr-styr)+1
@@ -154,43 +156,41 @@ DATADIR='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(edyr)+'/STATISTICS/TIMESE
 
 IfType='.dat'	#'.nc'
 if (Domain == 'land'):
+    version = lversion
     INHFILEST='HadISDH.land'
 elif (Domain == 'marine') | (Domain == 'marineSHIP'):
-    INHFILEST='HadISDH.marine'
-    
+    version = mversion
+    INHFILEST='HadISDH.marine'    
     if (Domain == 'marineSHIP'):
-
         version = version+'SHIP'    
-
 elif (Domain == 'blend') | (Domain == 'blendSHIP'):
-    INHFILEST='HadISDH.blend'
-    
+    version = bversion
+    INHFILEST='HadISDH.blend'    
     if (Domain == 'blendSHIP'):
-
         version = version+'SHIP'    
 
 #INHFILEED='5by5_'+thenmon+thenyear+'_areaTS_19732013'
 if (RegChoice == 'Glob'):
     if timetype == 'monthly':
-        INHFILEED='.'+version+'_global_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
+        INHFILEED='.'+version+'_global_ts_monthly_anoms8110.dat'
     else:
-        INHFILEED='.'+version+'_global_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
+        INHFILEED='.'+version+'_global_ts_annual_anoms8110.dat'
 elif (RegChoice == 'Nhem'):
     if timetype == 'monthly':
-        INHFILEED='.'+version+'_northern_hemisphere_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
+        INHFILEED='.'+version+'_northern_hemisphere_ts_monthly_anoms8110.dat'
     else:
-        INHFILEED='.'+version+'_northern_hemisphere_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
+        INHFILEED='.'+version+'_northern_hemisphere_ts_annual_anoms8110.dat'
 elif (RegChoice == 'Shem'):
     if timetype == 'monthly':
-        INHFILEED='.'+version+'_southern_hemisphere_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
+        INHFILEED='.'+version+'_southern_hemisphere_ts_monthly_anoms8110.dat'
     else:
-        INHFILEED='.'+version+'_southern_hemisphere_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
+        INHFILEED='.'+version+'_southern_hemisphere_ts_annual_anoms8110.dat'
 elif (RegChoice == 'Trop'):
     if timetype == 'monthly':
-        INHFILEED='.'+version+'_tropics_ts_monthly_anoms8110_'+thenmon+thenyear+'.dat'
+        INHFILEED='.'+version+'_tropics_ts_monthly_anoms8110.dat'
     else:
-        INHFILEED='.'+version+'_tropics_ts_annual_anoms8110_'+thenmon+thenyear+'.dat'
-OUTPLOT='Plot'+Domain+RegChoice+'TimeSeries.'+version+'_'+timetype+'_anoms8110_'+TrendChoice+'_'+nowmon+nowyear
+        INHFILEED='.'+version+'_tropics_ts_annual_anoms8110.dat'
+OUTPLOT='Plot'+Domain+RegChoice+'TimeSeries.'+version+'_'+timetype+'_anoms8110_'+TrendChoice
 
 # Set up variables
 mdi = -1e30
@@ -286,7 +286,7 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
     totalyspace=0.90	# start 0.08 end 0.98
     totalxspace=0.85	# start 0.12 end 0.98
     for n in range(nplots):
-        xpos.append(0.10)
+        xpos.append(0.12)
         ypos.append(0.98-((n+1)*(totalyspace/nplots)))
         xfat.append(totalxspace)
         ytall.append(totalyspace/nplots)
@@ -406,7 +406,7 @@ for nv in range(nparams):
     FILIN=INHFILEED
 # read in HadISDH time series
     if IfType == '.nc':
-        MyNCFile=DATADIR+INHFILEST+param2[nv]+'.'+version+'_FLATgrid'+homogtype[nv]+FILIN+'.nc'
+        MyNCFile=DATADIR+INHFILEST+param2[nv]+'.'+version+'_FLATgridHOM5by5'+FILIN+'.nc'
         f=netcdf.netcdf_file(MyNCFile,'r')
         if param[nv]=='q': 
             var=f.variables['glob_q_anoms']

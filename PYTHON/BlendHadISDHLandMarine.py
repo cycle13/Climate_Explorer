@@ -124,7 +124,7 @@ from GetNiceTimes import MakeDaysSince
 
 # Set up variables
 StYr = 1973 
-EdYr = 2019
+EdYr = 2020
 StMn = 1 
 EdMn = 12
 platform = 'ship' # 'all'
@@ -134,17 +134,13 @@ if (platform == 'ship'):
 else:
     PT = ''
     
-NowMon = 'JAN'
-NowYear = '2020'
-LandMonYear = 'JAN2020'
-MarineMonYear = 'JAN2020'
 ClimStart = 1981
 ClimEnd = 2010
 RefPeriod = str(ClimStart)+' to '+str(ClimEnd)
 ClimPeriod = str(ClimStart)[2:4]+str(ClimEnd)[2:4]
-LandVersion = '4.2.0.2019f'
-MarineVersion = '1.0.0.2019f'
-BlendVersion = '1.0.0.2019f'
+LandVersion = '4.3.0.2020f'
+MarineVersion = '1.1.0.2020f'
+BlendVersion = '1.1.0.2020f'
 
 ################################################################################################################
 # SUBROUTINES #
@@ -231,9 +227,9 @@ def Write_Netcdf_Variable_All(outfile, var, vlong, vunit, RefPeriod, TheMDI, dat
     #nc_var.missing_value = TheMDI
     nc_var.reference_period = RefPeriod
     
-    # We're not using masked arrays here - hope that's not a problem
-    nc_var.valid_min = np.min(data_arr[np.where(data_arr != TheMDI)]) 
-    nc_var.valid_max = np.max(data_arr[np.where(data_arr != TheMDI)]) 
+#    # We're not using masked arrays here - hope that's not a problem
+#    nc_var.valid_min = np.min(data_arr[np.where(data_arr != TheMDI)]) 
+#    nc_var.valid_max = np.max(data_arr[np.where(data_arr != TheMDI)]) 
     nc_var[:] = data_arr
         
     return # write_netcdf_variable_all
@@ -402,7 +398,7 @@ def main():
     # Variables - short names
     # Quantities to be blended
     var_loop_lower = ['t','td','q','e','rh','tw','dpd']
-    homogtype = ['IDPHA','PHADPD','IDPHA','IDPHA','IDPHA','IDPHA','PHA']
+#    homogtype = ['IDPHA','PHADPD','IDPHA','IDPHA','IDPHA','IDPHA','PHA']
     var_loop = ['T','Td','q','e','RH','Tw','DPD']
     var_loop_full = ['Air Temperature','Dew Point Temperature','Specific Humidity','Vapor Pressure','Relative Humidity','Wet Bulb Temperature','Dew Point Pepression'] # This is the ReadInfo
     
@@ -441,22 +437,21 @@ def main():
     MDI = -1e30
     
     # Input and Output directory:
-    WorkingDir = '/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(EdYr)
+    WorkingDir = '/scratch/hadkw/UPDATE'+str(EdYr)
+#    WorkingDir = '/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(EdYr)
     DataDir = '/STATISTICS/GRIDS/'
     OtherDataDir = '/OTHERDATA/'
     
     # Input Files
     InFilLandBit1 = WorkingDir+DataDir+'HadISDH.land' # append to var+InFilLandBit2+homogtype+InFilBit3
-    InFilLandBit2 = '.'+LandVersion+'_FLATgrid'
-    InFilLandBit3 = '5by5_anoms8110_'+LandMonYear+'_cf.nc'
+    InFilLandBit2 = '.'+LandVersion+'_FLATgridHOM5by5_anoms8110.nc'
 
     InFilMarineBit1 = WorkingDir+DataDir+'HadISDH.marine' # append to var+InFilMarineBit2
-    InFilMarineBit2 = '.'+MarineVersion+'_BClocal'+PT+'5by5both_anoms8110_'+MarineMonYear+'_cf.nc'
+    InFilMarineBit2 = '.'+MarineVersion+'_BClocal'+PT+'5by5both_anoms8110.nc'
 
     # Output Files
     OutFilBit1 = WorkingDir+DataDir+'HadISDH.blend' # append to var+OutFilBit2+homogtype+InFilBit3
-    OutFilBit2 = '.'+BlendVersion+'_FLATgrid'
-    OutFilBit3 = 'BClocal'+PT+'both5by5_anoms8110_'+NowMon+NowYear+'_cf.nc'
+    OutFilBit2 = '.'+BlendVersion+'_FLATgridHOMBClocal'+PT+'both5by5_anoms8110.nc'
         
     # Set up necessary dates - dates for output are just counts of months from 0 to 54?...
     Ntims = ((EdYr + 1) - StYr) * 12
@@ -498,7 +493,7 @@ def main():
         MarineDataList = []
 
         # For this var read in all land elements
-        Filee = InFilLandBit1+var_loop[v]+InFilLandBit2+homogtype[v]+InFilLandBit3
+        Filee = InFilLandBit1+var_loop[v]+InFilLandBit2
         LatInfo = ['latitude']
         LonInfo = ['longitude']
         TmpVarList = []
@@ -611,7 +606,7 @@ def main():
 ##############
         # Write out combined file - uncertainties are all 2 sigma!!!.
 
-        Write_NetCDF_All(OutFilBit1+var_loop[v]+OutFilBit2+homogtype[v]+OutFilBit3,
+        Write_NetCDF_All(OutFilBit1+var_loop[v]+OutFilBit2,
                          [OutLVarList[0],OutLVarList[1],var+OutLVarList[2]],[OutMVarList[0],OutMVarList[1],OutMVarList[2],OutMVarList[3],OutMVarList[4],OutMVarList[5],OutMVarList[6],OutMVarList[7],var+OutMVarList[8]],[var+i for i in OutBVarList],
 			 LandList,MarineList,BlendedList,
 			 [OutLVarLong[0],OutLVarLong[1],var_loop_full[v]+OutLVarLong[2]],[OutMVarLong[0],OutMVarLong[1],OutMVarLong[2],OutMVarLong[3],OutMVarLong[4],OutMVarLong[5],OutMVarLong[6],OutMVarLong[7],var_loop_full[v]+OutMVarLong[8]],[var_loop_full[v]+' '+i for i in OutBVarLong],
