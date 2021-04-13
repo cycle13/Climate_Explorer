@@ -217,16 +217,16 @@ VarDict = dict([('q',['q','g kg$^{-1}$','Specific Humidity',('BrBG','noflip'),di
 # EDITABLES!!!
 
 # Domain if HadISDH
-#Domain = 'land' # 'land', 'marine',' blend'
-Domain = 'blend' # 'land', 'marine',' blend'
+Domain = 'land' # 'land', 'marine',' blend'
+#Domain = 'blend' # 'land', 'marine',' blend'
 #Domain = 'marine' # 'land', 'marine',' blend'
 
 # Version
-lversion = '4.3.0.2020f'
+lversion = '4.3.1.2020f'
 lExpType = 'FLATgridHOM5by5'
 mversion = '1.1.0.2020f'
 mExpType = 'BClocalSHIP5by5both'
-bversion = '1.1.0.2020f'
+bversion = '1.1.1.2020f'
 bExpType = 'FLATgridHOMBClocalSHIPboth5by5'
     
 # Working Year (e.g. for HadISDH this would correspond to UPDATE<YYYY>
@@ -249,8 +249,8 @@ EdYr = 2020
 EdMon = 12 		
 
 # Are you reading in actuals or anomalies? 'anoms' or 'anomalies' for anomalies, 'abs' for actuals
-#vartype = 'anoms' # Check PlotType = 'actuals' if we want to plot actuals
-vartype = 'abs' # Check PlotType = 'actuals' if we want to plot actuals
+vartype = 'anoms' # Check PlotType = 'actuals' if we want to plot actuals
+#vartype = 'abs' # Check PlotType = 'actuals' if we want to plot actuals
 
 # Choose your start year of climatology: 0 if not relevant, not important if DoReClim = False
 ChooseClimSt = 1981 
@@ -262,8 +262,8 @@ ChooseClimEd = 2010
 DoReClim = False 
 
 # Are we plotting anomalies or absolute values? 'actual' for actual values, 'anomaly' for anomaly values
-#PlotType = 'anomaly' # Check RangeDict is set to 0,0,0,'?' or it will default to anomalies ranges that have been hard wired.
-PlotType = 'actual' # Check RangeDict is set to 0,0,0,'?' or it will default to anomalies ranges that have been hard wired.
+PlotType = 'anomaly' # Check RangeDict is set to 0,0,0,'?' or it will default to anomalies ranges that have been hard wired.
+#PlotType = 'actual' # Check RangeDict is set to 0,0,0,'?' or it will default to anomalies ranges that have been hard wired.
 
 # Are we saving the data for te plot?
 SaveData = True # True for save to netCDF, False for plot only

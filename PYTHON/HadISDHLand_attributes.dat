@@ -2,14 +2,14 @@ description		HadISDH monthly mean land surface climate monitoring product from 1
 title			HadISDH monthly mean land surface climate monitoring product from 1973 onwards.
 institution		Met Office Hadley Centre (UK), National Center for Environmental Information (USA), Climatic Research Unit (UK), National Physical Laboratory (UK), Maynooth University (Ireland)
 history			First version of the year
-source			HadISD.3.1.0.2019f (Dunn et al., 2016), www.metoffice.gov.uk/hadobs/hadisd/
+source			HadISD.3.1.2.202101p (Dunn et al., 2016), www.metoffice.gov.uk/hadobs/hadisd/
 comment			''
 references		Willett, et al.: HadISDH land surface multi-variable humidity and temperature record for climate monitoring, Clim. Past, 10, 1983-2006, doi:10.5194/cp-10-1983-2014, 2014.
 creator_name		Kate Willett
 creator_url		www.metoffice.gov.uk/hadobs/hadisdh/
 creator_email		kate.willett@metoffice.gov.uk
 time_coverage_start	1973-01-01T00:00Z
-time_coverage_end	2019-12-31T23:59Z
+time_coverage_end	2020-12-31T23:59Z
 cdm_data_type		gridded
 keywords		monthly, gridded, humidity
-version			4.2.0.2019f
+version			4.3.1.2020f

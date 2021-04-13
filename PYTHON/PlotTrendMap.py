@@ -231,9 +231,9 @@ LatDist = True # True for having the latitudinal distribution, False for not
 mdi=-1e30 # may set up as masked arrays later
 
 # Working version
-lversion = '4.3.0.2020f' # land
+lversion = '4.3.1.2020f' # land
 mversion = '1.1.0.2020f' # marine
-bversion = '1.1.0.2020f' # blend#
+bversion = '1.1.1.2020f' # blend#
 
 
 VarDict = dict([('q',['q','g kg$^{-1}$','Specific Humidity',('BrBG','noflip'),dict([('MinVal',-0.3),('MaxVal',0.3),('StepVal',9.),('LetterVal',['a)','b)'])])]),

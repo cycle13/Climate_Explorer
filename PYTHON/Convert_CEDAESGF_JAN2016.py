@@ -162,200 +162,63 @@ from WriteNetCDF_CEDAESGF_JAN2016 import WriteNCCF
 #************************************************************************
 MyChoice='q' # Choose your choice of dictionary: q, rh, e, t, td, tw, dpd
 
-Domain = 'land'
+#Domain = 'land'
 #Domain = 'marine'
-#Domain = 'blend'
+Domain = 'blend'
 
 # Generic Things
-# VERSION
-if (Domain == 'land'):
-    
-    version = 'v4-2-0-2019f'
-    verstring = '4.2.0.2019f'
-    DomainHGT = '2'
-    DomainOBS = 'stations'
-
-elif (Domain == 'marine'):
-
-    version = 'v1-0-0-2019f'
-    verstring = '1.0.0.2019f'
-#    version = 'v1-0-0-2018f'
-#    verstring = '1.0.0.2018f'
-    DomainHGT = '10'
-    DomainOBS = 'ships'
-
-elif (Domain == 'blend'):
-
-    version = 'v1-0-0-2019f'
-    verstring = '1.0.0.2019f'
-    DomainHGT = '2/10'
-    DomainOBS = 'observations'
-
-#nowmon = 'FEB'
-#nowyear = '2019'
-nowmon = 'JAN'
-nowyear = '2020'
-
 # Dates
-StYr=1973
 StMon=1
-EdYr=2019
 EdMon=12
 ClimPoints=(1981,2010)
 #ClimPoints=(1976,2005)
 climbo = str(ClimPoints[0])[2:4]+str(ClimPoints[1])[2:4]
 
+# Read in the config file to get all of the info
+with open('/home/h04/hadkw/HadISDH_Code/HADISDH_BUILD/F1_HadISDHBuildConfig.txt') as f:
+    
+    ConfigDict = dict(x.rstrip().split('=', 1) for x in f)
+    
+if (Domain == 'land'):
+
+    verstring = ConfigDict['VersionDots']
+    version = ConfigDict['VersionDash']
+    DomainHGT = '2'
+    DomainOBS = 'stations'
+
+elif (Domain == 'marine'):
+
+    verstring = ConfigDict['MVersionDots']
+    version = ConfigDict['MVersionDash']
+    DomainHGT = '10'
+    DomainOBS = 'ships'
+
+elif (Domain == 'blend'):
+
+    verstring = ConfigDict['BVersionDots']
+    version = ConfigDict['BVersionDash']
+    DomainHGT = '2/10'
+    DomainOBS = 'observations'
+
+hadisdversion = ConfigDict['HadISDVersionDash']
+StYr = int(ConfigDict['StartYear'])
+EdYr = int(ConfigDict['EndYear'])
+
+# AttribDict held in memory to probide global attribute text later
+#' Read in the attribute file to get all of the info
+with open('/home/h04/hadkw/HadISDH_Code/HADISDH_BUILD/F1_HadISDHBuildAttributes.txt') as f:
+    
+    AttribDict = dict(x.rstrip().split('=', 1) for x in f)
+
 # Files
-InPath='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(EdYr)+'/STATISTICS/GRIDS/'
-OutPath='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(EdYr)+'/STATISTICS/GRIDS/'
+InPath='/scratch/hadkw/UPDATE'+str(EdYr)+'/STATISTICS/GRIDS/'
+OutPath='/scratch/hadkw/UPDATE'+str(EdYr)+'/STATISTICS/GRIDS/'
+#InPath='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(EdYr)+'/STATISTICS/GRIDS/'
+#OutPath='/data/users/hadkw/WORKING_HADISDH/UPDATE'+str(EdYr)+'/STATISTICS/GRIDS/'
 
 # Space Dimensions
 LatInfo=[36,-87.5] # list of gridbox centres calc by ReadNetCDF prog
 LonInfo=[72,-177.5] # list of gridbox centres calc by ReadNetCDF prog
-
-# Set up Global Attributes for  List of Lists
-if (Domain == 'land'):
-    Description = 'climate monitoring product \
-               from 1973 onwards. Stations have been quality controlled, homogenised and averaged over 5deg by 5deg gridboxes (no smoothing \
-               or interpolation). Gridbox 2 sigma uncertainty estimates are provided that represent spatio-temporal sampling within the \
-               gridbox and combined station level uncertainties for measurement, climatology and homogenisation (applied and missed adjustments).'
-    Institution = 'Met Office Hadley Centre (UK), \
-               National Centres for Environmental Information (USA), \
-               National Physical Laboratory (UK), \
-               Climatic Research Unit (UK), \
-               Maynooth University (Rep. of Ireland)'
-    History = 'See Willett et al., (2014) REFERENCE for more information. \
-           See www.metoffice.gov.uk/hadobs/hadisdh/ for more information and related data and figures. \
-           Follow @metofficeHadOBS to keep up to date with Met Office Hadley Centre HadOBS dataset developements. \
-           See hadisdh.blogspot.co.uk for HadISDH updates, bug fixes and explorations.'
-# Non-commercial license
-#    Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
-#           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
-#           The data are freely available for any non-commercial use with attribution to the data providers. Please cite \
-#           Willett et al.,(2014) and Smith et al., (2011) with a link to the REFERENCES provided in the REFERENCE attribute.'
-# Open Government License
-    Licence = 'HadISDH is distributed under the Open Government Licence: \
-               http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
-               The data are freely available for use with attribution to the data providers. Please cite \
-               references provided in the REFERENCE attribute.'
-    Project = 'HadOBS: Met Office Hadley Centre Climate Monitoring Data-product www.metoffice.gov.uk/hadobs'
-    Processing_level = 'Hourly station data selected for length and continuity, quality controlled, averaged \
-                    to monthly means, adjusted to remove inhomogeneity and then averaged over 5deg by 5deg gridboxes.'
-    Acknowledgement = 'Kate Willett, Robert Dunn and David Parker were supported by the Joint UK BEIS/Defra \
-                  Met Office Hadley Centre Climate Programme (GA01101). Phil D. Jones has been supported by the Office of Science (BER), US Department \
-                  of Energy, Grant no. DE-SC0005689. Stephanie Bell and Michael de Podesta were supported by the UK National Measurement System Programme \
-                  for Engineering and Flow Metrology, and by the MeteoMet Project of the European Metrology Research Programme. We also thank the internal \
-                  reviewers at NCDC, NPL and the Met Office for their thorough reviews and advice. We thank Adrian Simmons and Andreas Becker for their \
-                  thoughtful and constructive reviews.'
-# THIS BIT NEEDS EDITING EVERY YEAR **************************
-    Source = 'HadISD.3.1.0.2019f (Dunn et al. 2016) from the National Centres for Environmental Information \
-          International Surface Database (ISD) (Smith et al., 2011) from www.ncdc.noaa.gov/isd'
-    Comment = ''
-    References = 'Willett, K. M., Dunn, R. J. H., Thorne, P. W., Bell, S., de Podesta, M., Parker, D. E., \
-              Jones, P. D. and Williams, Jr., C. N.: HadISDH land surface multi-variable humidity and temperature record for climate monitoring, \
-              Clim. Past, 10, 1983-2006, doi:10.5194/cp-10-1983-2014, 2014, \
-	      Dunn, R. J. H., et al. 2016: Expanding HadISD: quality-controlled, sub-daily \
-	      station data from 1931, Geoscientific Instrumentation, Methods and Data Systems, 5, 473-491. \
-	      Smith, A., N. Lott, and R. Vose, 2011: The Integrated Surface Database: Recent \
-	      Developments and Partnerships. Bulletin of the American Meteorological Society, \
-	      92, 704-708, doi:10.1175/2011BAMS3015.1'
-    Creator_name = 'Kate Willett'
-    Creator_email = 'kate.willett@metoffice.gov.uk'
-    Conventions = 'CF-1.6'
-    netCDF_type = 'NETCDF4_CLASSIC'
-
-elif (Domain == 'marine'):
-    Description = 'climate monitoring product \
-               from 1973 onwards. Ship observations have been quality controlled, bias adjusted (height to 10m, unaspirated screens) and averaged over 5deg by 5deg gridboxes (no smoothing \
-               or interpolation). Gridbox 2 sigma uncertainty estimates are provided that represent spatio-temporal sampling within the \
-               gridbox and combined observation level uncertainties for measurement, climatology, whole number reporting and bias adjustment.'
-    Institution = 'Met Office Hadley Centre (UK), \
-               National Oceanography Centre Southampton (UK)'
-    History = 'See Willett et al., (2020) REFERENCE for more information. \
-           See www.metoffice.gov.uk/hadobs/hadisdh/ for more information and related data and figures. \
-           Follow @metofficeHadOBS to keep up to date with Met Office Hadley Centre HadOBS dataset developements. \
-           See hadisdh.blogspot.co.uk for HadISDH updates, bug fixes and explorations.'
-## Non-commercial license
-#    Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
-#           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
-#           The data are freely available for any non-comercial use with attribution to the data providers. Please cite \
-#           Willett et al.,(2020) and Freeman et al., (2017) with a link to the REFERENCES provided in the REFERENCE attribute.'
-# Open Government License
-    Licence = 'HadISDH is distributed under the Open Government Licence: \
-               http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
-               The data are freely available for use with attribution to the data providers. Please cite \
-               references provided in the REFERENCE attribute.'
-    Project = 'HadOBS: Met Office Hadley Centre Climate Monitoring Data-product www.metoffice.gov.uk/hadobs'
-    Processing_level = 'Hourly ship observation data quality controlled, bias adjusted, averaged \
-                    to monthly means, then averaged over 5deg by 5deg gridboxes.'
-    Acknowledgement = 'Kate Willett, Robert Dunn and John Kennedy were supported by the Joint UK BEIS/Defra \
-                  Met Office Hadley Centre Climate Programme (GA01101).'
-# THIS BIT NEEDS EDITING EVERY YEAR **************************
-    Source = 'ICOADS.3.0.0 (1973-2014) and ICOADS.3.0.1 (2015 onwards) (Freeman et al. 2017) from icoads.noaa.gov.'
-    Comment = ''
-    References = 'Willett, K. M.,, R. J. H. Dunn, J. J. Kennedy, and D. I. Berry, in review.: Development of the HadISDH marine \
-              humidity climate monitoring dataset. Earth System Science Datasets. \
-	      Freeman, E., S.D. Woodruff, S.J. Worley, S.J. Lubker, E.C. Kent, W.E. Angel, D.I . Berry, P. Brohan, R. Eastman, L. Gates, W. \
-	      Gloeden, Z. Ji, J. Lawrimore, N.A. Rayner, G. Rosenhagen, and S.R. Smith, 2017: ICOADS Release 3.0: A major update to the \
-	      historical marine climate record. Int. J. Climatol. (CLIMAR-IV Special Issue), 37, 2211-2237 (doi:10.1002/joc.4775).'
-    Creator_name = 'Kate Willett'
-    Creator_email = 'kate.willett@metoffice.gov.uk'
-    Conventions = 'CF-1.6'
-    netCDF_type = 'NETCDF4_CLASSIC'
-
-elif (Domain == 'blend'):
-    Description = 'climate monitoring product \
-               from 1973 onwards. Ship and station observations have been quality controlled, buddy checked (marine), homogenised (land), bias adjusted (marine - height to 10m, unaspirated screens) \
-	       and averaged over 5deg by 5deg gridboxes (no smoothing \
-               or interpolation). Gridbox 2 sigma uncertainty estimates are provided that represent spatio-temporal sampling within the \
-               gridbox and combined observation level uncertainties.'
-    Institution = 'Met Office Hadley Centre (UK), \
-               National Centres for Environmental Information (USA), \
-               National Physical Laboratory (UK), \
-               Climatic Research Unit (UK), \
-               Maynooth University (Rep. of Ireland) \
-               National Oceanography Centre Southampton (UK)'
-    History = 'See Willett et al., (2014, 2020) REFERENCE for more information. \
-           See www.metoffice.gov.uk/hadobs/hadisdh/ for more information and related data and figures. \
-           Follow @metofficeHadOBS to keep up to date with Met Office Hadley Centre HadOBS dataset developements. \
-           See hadisdh.blogspot.co.uk for HadISDH updates, bug fixes and explorations.'
-## Non-commercial license
-#    Licence = 'HadISDH is distributed under the Non-Commercial Government Licence: \
-#           http://www.nationalarchives.gov.uk/doc/non-commercial-government-licence/non-commercial-government-licence.htm. \
-#           The data are freely available for any non-comercial use with attribution to the data providers. Please cite \
-#           Willett et al.,(2020) and Freeman et al., (2017) with a link to the REFERENCES provided in the REFERENCE attribute.'
-# Open Government License
-    Licence = 'HadISDH is distributed under the Open Government Licence: \
-               http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/. \
-               The data are freely available for use with attribution to the data providers. Please cite \
-               references provided in the REFERENCE attribute.'
-    Project = 'HadOBS: Met Office Hadley Centre Climate Monitoring Data-product www.metoffice.gov.uk/hadobs'
-    Processing_level = 'Hourly ship and station observation data quality controlled, buddy checked (marine), \
-                       homogenised (land), bias adjusted (marine), averaged \
-                    to monthly means, and averaged over 5deg by 5deg gridboxes.'
-    Acknowledgement = 'Kate Willett, Robert Dunn, John Kennedy and David Parker were supported by the Joint UK BEIS/Defra \
-                  Met Office Hadley Centre Climate Programme (GA01101).'
-# THIS BIT NEEDS EDITING EVERY YEAR **************************
-    Source = 'ICOADS.3.1.0 (1973-2014) and ICOADS.3.0.1 (2015 onwards) (Freeman et al. 2017) from icoads.noaa.gov, \
-          HadISD.3.1.2018f (Dunn et al., 2016), International Surface Database (ISD) (Smith et al, 2011) from www.ncdc.noaa.gov/isd'
-    Comment = ''
-    References = 'Willett, K. M.,, R. J. H. Dunn, J. J. Kennedy, and D. I. Berry, in review.: Development of the HadISDH marine \
-              humidity climate monitoring dataset. Earth System Science Datasets. \
-	      Freeman, E., S.D. Woodruff, S.J. Worley, S.J. Lubker, E.C. Kent, W.E. Angel, D.I . Berry, P. Brohan, R. Eastman, L. Gates, W. \
-	      Gloeden, Z. Ji, J. Lawrimore, N.A. Rayner, G. Rosenhagen, and S.R. Smith, 2017: ICOADS Release 3.0: A major update to the \
-	      historical marine climate record. Int. J. Climatol. (CLIMAR-IV Special Issue), 37, 2211-2237 (doi:10.1002/joc.4775). \
-	      Willett, K. M., Dunn, R. J. H., Thorne, P. W., Bell, S., de Podesta, M., Parker, D. E., \
-              Jones, P. D. and Williams, Jr., C. N.: HadISDH land surface multi-variable humidity and temperature record for climate monitoring, \
-              Clim. Past, 10, 1983-2006, doi:10.5194/cp-10-1983-2014, 2014, \
-	      Dunn, R. J. H., et al. 2016: Expanding HadISD: quality-controlled, sub-daily \
-	      station data from 1931, Geoscientific Instrumentation, Methods and Data Systems, 5, 473-491. \
-	      Smith, A., N. Lott, and R. Vose, 2011: The Integrated Surface Database: Recent \
-	      Developments and Partnerships. Bulletin of the American Meteorological Society, \
-	      92, 704-708, doi:10.1175/2011BAMS3015.1'
-    Creator_name = 'Kate Willett'
-    Creator_email = 'kate.willett@metoffice.gov.uk'
-    Conventions = 'CF-1.6'
-    netCDF_type = 'NETCDF4_CLASSIC'
 
 # Variable IDS and Names DIct
 NameList = dict([('q',['q','g/kg','specific_humidity','specific humidity','hussa','huss']),
@@ -1096,24 +959,70 @@ elif (Domain == 'blend'):
 			  ('_FillValue',-1)])]  
 
 # Set up Global Attribute List of Lists
-GlobAttrObjectList=dict([['File_created',datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')], # Is there a call for time stamping?
-			     ['Description','HadISDH monthly mean '+Domain+' surface '+NameList[MyChoice][3]+' '+Description],
+if (Domain == 'land'):
+
+    GlobAttrObjectList=dict([['File_created',datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')], # Is there a call for time stamping?
+			     ['Description','HadISDH monthly mean '+Domain+' surface '+NameList[MyChoice][3]+' quality controlled and homogenised data'],
 			     ['Title','HadISDH monthly mean '+Domain+' surface '+NameList[MyChoice][3]+' climate monitoring product'], 
-			     ['Institution',Institution],
-			     ['History','See http://catalogue.ceda.ac.uk/uuid/251474c7b09449d8b9e7aeaf1461858f for more information and related data.'+History], 
-			     ['Licence',Licence],
-			     ['Project', Project],
-			     ['Processing_level',Processing_level],
-			     ['Acknowledgement',Acknowledgement],
-			     ['Source',Source],
+			     ['Institution',AttribDict['Institution']],
+			     ['History',AttribDict['History']], 
+			     ['Licence',AttribDict['OGLicence']],
+			     ['Project', AttribDict['Project']],
+			     ['Processing_level', AttribDict['Processing_level']],
+			     ['Acknowledgement', AttribDict['Acknowledgement']],
+			     ['Source', 'HadISD '+hadisdversion+' '+AttribDict['Source']],
 			     ['Comment',''],
-			     ['References',References],
-			     ['Creator_name',Creator_name],
-			     ['Creator_email',Creator_email],
+			     ['References', AttribDict['References']],
+			     ['Creator_name', AttribDict['Creator_name']],
+			     ['Creator_email', AttribDict['Creator_email']],
 			     ['Version',version],
 			     ['doi',''], # This needs to be filled in
-			     ['Conventions',Conventions],
-			     ['netCDF_type',netCDF_type]]) 
+			     ['Conventions', AttribDict['Conventions']],
+			     ['netCDF_type', AttribDict['netCDF_type']]]) 
+
+elif (Domain == 'marine'):
+
+    GlobAttrObjectList=dict([['File_created',datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')], # Is there a call for time stamping?
+			     ['Description','HadISDH monthly mean '+Domain+' surface '+NameList[MyChoice][3]+' quality controlled and bias adjusted data'],
+			     ['Title','HadISDH monthly mean '+Domain+' surface '+NameList[MyChoice][3]+' climate monitoring product'], 
+			     ['Institution',AttribDict['InstitutionM']],
+			     ['History',AttribDict['HistoryM']], 
+			     ['Licence',AttribDict['OGLicence']],
+			     ['Project', AttribDict['Project']],
+			     ['Processing_level', AttribDict['Processing_levelM']],
+			     ['Acknowledgement', AttribDict['AcknowledgementM']],
+			     ['Source', AttribDict['SourceM']],
+			     ['Comment',''],
+			     ['References', AttribDict['ReferencesM']],
+			     ['Creator_name', AttribDict['Creator_name']],
+			     ['Creator_email', AttribDict['Creator_email']],
+			     ['Version',version],
+			     ['doi',''], # This needs to be filled in
+			     ['Conventions', AttribDict['Conventions']],
+			     ['netCDF_type', AttribDict['netCDF_type']]]) 
+
+elif (Domain == 'blend'):
+
+    GlobAttrObjectList=dict([['File_created',datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')], # Is there a call for time stamping?
+			     ['Description','HadISDH monthly mean '+Domain+' surface '+NameList[MyChoice][3]+' quality controlled and homogenised/bias adjusted data'],
+			     ['Title','HadISDH monthly mean '+Domain+' surface '+NameList[MyChoice][3]+' climate monitoring product'], 
+			     ['Institution',AttribDict['InstitutionB']],
+			     ['History',AttribDict['HistoryB']], 
+			     ['Licence',AttribDict['OGLicence']],
+			     ['Project', AttribDict['Project']],
+			     ['Processing_level', AttribDict['Processing_levelB']],
+			     ['Acknowledgement', AttribDict['AcknowledgementB']],
+			     ['Source', 'HadISD '+hadisdversion+' '+AttribDict['SourceB']],
+			     ['Comment',''],
+			     ['References', AttribDict['ReferencesB']],
+			     ['Creator_name', AttribDict['Creator_name']],
+			     ['Creator_email', AttribDict['Creator_email']],
+			     ['Version',version],
+			     ['doi',''], # This needs to be filled in
+			     ['Conventions', AttribDict['Conventions']],
+			     ['netCDF_type', AttribDict['netCDF_type']]]) 
+
+    # Write out monthly data to netCDF
 
 
 #-----------------------------------------------------------------------
@@ -1121,11 +1030,11 @@ GlobAttrObjectList=dict([['File_created',datetime.strftime(datetime.now(), '%Y-%
 if (MyChoice == 'q'):
     # Files
     if (Domain == 'land'):
-        InFile='HadISDH.landq.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.landq.'+verstring+'_FLATgridHOM5by5_anoms'+climbo+'.nc'
     elif (Domain == 'marine'):
-        InFile='HadISDH.marineq.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.marineq.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'.nc'
     elif (Domain == 'blend'):
-        InFile='HadISDH.blendq.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.blendq.'+verstring+'_FLATgridHOMBClocalSHIPboth5by5_anoms'+climbo+'.nc'
     OutFile='huss-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
     								  						  
 #------------------------------------------------------------------------	
@@ -1133,11 +1042,11 @@ if (MyChoice == 'q'):
 if (MyChoice == 'rh'):	
     # Files
     if (Domain == 'land'):
-        InFile='HadISDH.landRH.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.landRH.'+verstring+'_FLATgridHOM5by5_anoms'+climbo+'.nc'
     elif (Domain == 'marine'):
-        InFile='HadISDH.marineRH.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.marineRH.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'.nc'
     elif (Domain == 'blend'):
-        InFile='HadISDH.blendRH.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.blendRH.'+verstring+'_FLATgridHOMBClocalSHIPboth5by5_anoms'+climbo+'.nc'
     OutFile='hurs-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 		
 #------------------------------------------------------------------------	
@@ -1145,11 +1054,11 @@ if (MyChoice == 'rh'):
 if (MyChoice == 'e'):	
     # Files
     if (Domain == 'land'):
-        InFile='HadISDH.lande.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.lande.'+verstring+'_FLATgridHOM5by5_anoms'+climbo+'.nc'
     elif (Domain == 'marine'):
-        InFile='HadISDH.marinee.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.marinee.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'.nc'
     elif (Domain == 'blend'):
-        InFile='HadISDH.blende.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.blende.'+verstring+'_FLATgridHOMBClocalSHIPboth5by5_anoms'+climbo+'.nc'
     OutFile='vps-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
         	
 #------------------------------------------------------------------------	
@@ -1157,11 +1066,11 @@ if (MyChoice == 'e'):
 if (MyChoice == 'td'):	
     # Files
     if (Domain == 'land'):
-        InFile='HadISDH.landTd.'+verstring+'_FLATgridPHADPD5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.landTd.'+verstring+'_FLATgridHOM5by5_anoms'+climbo+'.nc'
     elif (Domain == 'marine'):
-        InFile='HadISDH.marineTd.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.marineTd.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'.nc'
     elif (Domain == 'blend'):
-        InFile='HadISDH.blendTd.'+verstring+'_FLATgridPHADPDBClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.blendTd.'+verstring+'_FLATgridHOMBClocalSHIPboth5by5_anoms'+climbo+'.nc'
     OutFile='tds-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 	
 #------------------------------------------------------------------------	
@@ -1169,11 +1078,11 @@ if (MyChoice == 'td'):
 if (MyChoice == 'tw'):	
     # Files
     if (Domain == 'land'):
-        InFile='HadISDH.landTw.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.landTw.'+verstring+'_FLATgridHOM5by5_anoms'+climbo+'.nc'
     elif (Domain == 'marine'):
-        InFile='HadISDH.marineTw.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.marineTw.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'.nc'
     elif (Domain == 'blend'):
-        InFile='HadISDH.blendTw.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.blendTw.'+verstring+'_FLATgridHOMBClocalSHIPboth5by5_anoms'+climbo+'.nc'
     OutFile='tws-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 
 #------------------------------------------------------------------------	
@@ -1181,11 +1090,11 @@ if (MyChoice == 'tw'):
 if (MyChoice == 't'):	
     # Files
     if (Domain == 'land'):
-        InFile='HadISDH.landT.'+verstring+'_FLATgridIDPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.landT.'+verstring+'_FLATgridHOM5by5_anoms'+climbo+'.nc'
     elif (Domain == 'marine'):
-        InFile='HadISDH.marineT.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.marineT.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'.nc'
     elif (Domain == 'blend'):
-        InFile='HadISDH.blendT.'+verstring+'_FLATgridIDPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.blendT.'+verstring+'_FLATgridHOMBClocalSHIPboth5by5_anoms'+climbo+'.nc'
     OutFile='tas-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 						
 #------------------------------------------------------------------------	
@@ -1193,11 +1102,11 @@ if (MyChoice == 't'):
 if (MyChoice == 'dpd'):	
     # Files
     if (Domain == 'land'):
-        InFile='HadISDH.landDPD.'+verstring+'_FLATgridPHA5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.landDPD.'+verstring+'_FLATgridHOM5by5_anoms'+climbo+'.nc'
     elif (Domain == 'marine'):
-        InFile='HadISDH.marineDPD.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.marineDPD.'+verstring+'_BClocalSHIP5by5both_anoms'+climbo+'.nc'
     elif (Domain == 'blend'):
-        InFile='HadISDH.blendDPD.'+verstring+'_FLATgridPHABClocalSHIPboth5by5_anoms'+climbo+'_'+nowmon+nowyear+'_cf.nc'
+        InFile='HadISDH.blendDPD.'+verstring+'_FLATgridHOMBClocalSHIPboth5by5_anoms'+climbo+'.nc'
     OutFile='dpds-'+Domain+'_HadISDH_HadOBS_'+version+'_'+str(StYr)+'0101-'+str(EdYr)+'1231.nc'    
 						
 #************************************************************************

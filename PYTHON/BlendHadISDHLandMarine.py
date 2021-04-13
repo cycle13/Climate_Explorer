@@ -123,8 +123,6 @@ from ReadNetCDF import GetGrid4
 from GetNiceTimes import MakeDaysSince
 
 # Set up variables
-StYr = 1973 
-EdYr = 2020
 StMn = 1 
 EdMn = 12
 platform = 'ship' # 'all'
@@ -138,9 +136,21 @@ ClimStart = 1981
 ClimEnd = 2010
 RefPeriod = str(ClimStart)+' to '+str(ClimEnd)
 ClimPeriod = str(ClimStart)[2:4]+str(ClimEnd)[2:4]
-LandVersion = '4.3.0.2020f'
+LandVersion = '4.3.1.2020f'
 MarineVersion = '1.1.0.2020f'
-BlendVersion = '1.1.0.2020f'
+BlendVersion = '1.1.1.2020f'
+
+# Read in the config file to get all of the info
+with open('/home/h04/hadkw/HadISDH_Code/HADISDH_BUILD/F1_HadISDHBuildConfig.txt') as f:
+    
+    ConfigDict = dict(x.rstrip().split('=', 1) for x in f)
+    
+LandVersion = ConfigDict['VersionDots']
+MarineVersion = ConfigDict['MVersionDots']
+BlendVersion = ConfigDict['BVersionDots']
+StYr = int(ConfigDict['StartYear'])
+EdYr = int(ConfigDict['EndYear'])
+
 
 ################################################################################################################
 # SUBROUTINES #

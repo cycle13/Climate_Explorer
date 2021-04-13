@@ -1,21 +1,55 @@
-cp ../../STATISTICS/GRIDS/HadISDH.landT.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_actuals_JAN2020.dat             ../../STATISTICS/GRIDS/tas-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_actual.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landT.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_anomalies_JAN2020.dat   ../../STATISTICS/GRIDS/tas-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_anomaly8110.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landT.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_uncertainty_JAN2020.dat         ../../STATISTICS/GRIDS/tas-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_uncertainty2sig.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landq.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_actuals_JAN2020.dat             ../../STATISTICS/GRIDS/huss-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_actual.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landq.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_anomalies_JAN2020.dat   ../../STATISTICS/GRIDS/huss-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_anomaly8110.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landq.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_uncertainty_JAN2020.dat         ../../STATISTICS/GRIDS/huss-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_uncertainty2sig.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landRH.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_actuals_JAN2020.dat            ../../STATISTICS/GRIDS/hurs-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_actual.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landRH.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_anomalies_JAN2020.dat  ../../STATISTICS/GRIDS/hurs-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_anomaly8110.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landRH.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_uncertainty_JAN2020.dat        ../../STATISTICS/GRIDS/hurs-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_uncertainty2sig.dat
-cp ../../STATISTICS/GRIDS/HadISDH.lande.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_actuals_JAN2020.dat             ../../STATISTICS/GRIDS/vps-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_actual.dat
-cp ../../STATISTICS/GRIDS/HadISDH.lande.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_anomalies_JAN2020.dat   ../../STATISTICS/GRIDS/vps-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_anomaly8110.dat
-cp ../../STATISTICS/GRIDS/HadISDH.lande.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_uncertainty_JAN2020.dat         ../../STATISTICS/GRIDS/vps-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_uncertainty2sig.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landTd.4.2.0.2019f_FLATgridPHADPD5by5_anoms8110_actuals_JAN2020.dat           ../../STATISTICS/GRIDS/tds-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_actual.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landTd.4.2.0.2019f_FLATgridPHADPD5by5_anoms8110_anomalies_JAN2020.dat ../../STATISTICS/GRIDS/tds-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_anomaly8110.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landTd.4.2.0.2019f_FLATgridPHADPD5by5_anoms8110_uncertainty_JAN2020.dat       ../../STATISTICS/GRIDS/tds-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_uncertainty2sig.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landTw.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_actuals_JAN2020.dat            ../../STATISTICS/GRIDS/tws-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_actual.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landTw.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_anomalies_JAN2020.dat  ../../STATISTICS/GRIDS/tws-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_anomaly8110.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landTw.4.2.0.2019f_FLATgridIDPHA5by5_anoms8110_uncertainty_JAN2020.dat        ../../STATISTICS/GRIDS/tws-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_uncertainty2sig.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landDPD.4.2.0.2019f_FLATgridPHA5by5_anoms8110_actuals_JAN2020.dat	        ../../STATISTICS/GRIDS/dpds-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_actual.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landDPD.4.2.0.2019f_FLATgridPHA5by5_anoms8110_anomalies_JAN2020.dat   ../../STATISTICS/GRIDS/dpds-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_anomaly8110.dat
-cp ../../STATISTICS/GRIDS/HadISDH.landDPD.4.2.0.2019f_FLATgridPHA5by5_anoms8110_uncertainty_JAN2020.dat         ../../STATISTICS/GRIDS/dpds-land_HadISDH_HadOBS_v4-2-0-2019f_19730101-20191231_uncertainty2sig.dat
+#********************************************
+# Script to copy ascii versions to CEDA names
+#********************************************
+
+# Configuration file to read in UPDATE INFORMATION WITHIN THIS FILE!!!
+source ../../HADISDH_BUILD/F1_HadISDHBuildConfig.txt
+
+echo $StartYear # This should be 1973
+echo $EndYear # This should be 2019 or later
+echo $Version # This should be v420_2019f or later
+echo $VersionDots # This should be 4.2.0.2019f or later
+
+WorkDir="UPDATE"$EndYear
+MyDir="/scratch/hadkw/"
+
+for var in q RH T Td e Tw DPD;
+
+do 
+
+       if [ "$var" == "q" ];
+       then   
+	   cedavar='huss'
+	   
+       elif [ "$var" == "RH" ];
+       then
+	   cedavar='hurs'
+	   
+       elif [ "$var" == "T" ];
+       then
+	   cedavar='tas'
+	   
+       elif [ "$var" == "Td" ];
+       then
+	   cedavar='tds'
+	   
+       elif [ "$var" == "Tw" ];
+       then
+	   cedavar='tws'
+	   
+       elif [ "$var" == "e" ];
+       then
+	   cedavar='vps'
+	   
+       elif [ "$var" == "DPD" ];
+       then
+	   cedavar='dpds'
+	   
+       fi
+
+
+    cp $MyDir$WorkDir/STATISTICS/GRIDS/HadISDH.land${var}.${VersionDots}_FLATgridHOM5by5_anoms8110_actuals.dat $MyDir$WorkDir/STATISTICS/GRIDS/${cedavar}-land_HadISDH_HadOBS_${VersionDash}_19730101-${EndYear}1231_actual.dat
+    cp $MyDir$WorkDir/STATISTICS/GRIDS/HadISDH.land${var}.${VersionDots}_FLATgridHOM5by5_anoms8110_anomalies.dat $MyDir$WorkDir/STATISTICS/GRIDS/${cedavar}-land_HadISDH_HadOBS_${VersionDash}_19730101-${EndYear}1231_anomaly8110.dat
+    cp $MyDir$WorkDir/STATISTICS/GRIDS/HadISDH.land${var}.${VersionDots}_FLATgridHOM5by5_anoms8110_2sig_uncertainty.dat $MyDir$WorkDir/STATISTICS/GRIDS/${cedavar}-land_HadISDH_HadOBS_${VersionDash}_19730101-${EndYear}1231_uncertainty2sig.dat
+
+done 

@@ -12,7 +12,7 @@
 # ************************************************************************
 # START
 
-year=1979
+year=1973
 end=2020
 
 echo "Running trends between ${year} and ${end} inclusive"
@@ -24,11 +24,11 @@ for var in q rh t td e tw dpd;
 #for var in t;
 do
 
-	#typee='LAND'
-	#typee='MARINE'
+	typee='LAND'
+	##typee='MARINE'
 	#typee='MARINESHIP'
-	#typee='BLEND'
-	typee='BLENDSHIP'
+	##typee='BLEND'
+	#typee='BLENDSHIP'
 	#typee='ERA5'
 	#typee='ERA5LAND'
 	#typee='ERA5LANDMASK'

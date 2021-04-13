@@ -108,8 +108,8 @@ import pdb
 
 # Set up initial run choices
 TrendChoice = 'OLS' # OLS or MPW
-RegChoice = 'Glob' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
-timetype='annual'	#'monthly', 'annual'
+RegChoice = 'Trop' # 'Glob','Nhem','Trop','Shem' for global, n hemi, trop, s hemi
+timetype='monthly'	#'monthly', 'annual'
 nparams=7
 param=list(['t','tw','td','q','e','rh','dpd'])	# tw, q, e, rh, t, td, dpd
 param2=list(['T','Tw','Td','q','e','RH','DPD'])	# Tw, q, e, RH, T, Td, DPD
@@ -307,8 +307,12 @@ def PlotNiceTimeSeries(TheFile,TheHvars,TheHuncsC,TheHuncsSp,TheHuncsSt,
             axarr[pp].set_xlim([TheMonths[0],TheMonths[TheYCount-1]])
         if pp < nplots-1:
             axarr[pp].set_xticklabels([])    
-        miny=min(np.reshape(TheHvars[pp,:],(TheYCount-1)))-max(np.reshape(TheHuncsC[pp,:],(TheYCount-1)))  
-        maxy=max(np.reshape(TheHvars[pp,:],(TheYCount-1)))+max(np.reshape(TheHuncsC[pp,:],(TheYCount-1)))  
+        if timetype == 'monthly':
+            miny=min(np.reshape(TheHvars[pp,:],(TheMCount-1)))-max(np.reshape(TheHuncsC[pp,:],(TheMCount-1)))  
+            maxy=max(np.reshape(TheHvars[pp,:],(TheMCount-1)))+max(np.reshape(TheHuncsC[pp,:],(TheMCount-1)))  
+        else:
+            miny=min(np.reshape(TheHvars[pp,:],(TheYCount-1)))-max(np.reshape(TheHuncsC[pp,:],(TheYCount-1)))  
+            maxy=max(np.reshape(TheHvars[pp,:],(TheYCount-1)))+max(np.reshape(TheHuncsC[pp,:],(TheYCount-1)))  
         axarr[pp].set_ylim([(math.floor(10.*miny))/10.,(math.ceil(10.*maxy))/10.])
         if len(TheHuncsC[pp,:]) > 0:
             axarr[pp].fill_between(TheMonths[0:len(TheMonths)-1],TheHvars[pp,:]+TheHuncsC[pp,:],TheHvars[pp,:]-TheHuncsC[pp,:],
